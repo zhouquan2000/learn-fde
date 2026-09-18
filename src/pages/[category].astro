@@ -1,0 +1,73 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORIES, TYPE_LABELS } from '../lib/site';
+
+export function getStaticPaths() {
+  return CATEGORIES.map((c) => ({ params: { category: c.slug }, props: { category: c } }));
+}
+
+const { category } = Astro.props;
+const posts = (await getCollection('posts'))
+  .filter((p) => p.data.category === category.slug)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+function fmt(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+---
+<BaseLayout title={`${category.cn} · Learn FDE`} description={`Learn FDE 的「${category.cn}」分类内容。`}>
+  <section class="cat-head">
+    <div class="wrap">
+      <a class="back mono" href="/">← 返回首页</a>
+      <div class="eyebrow">{category.en}</div>
+      <h1>{category.cn}</h1>
+      <p class="count mono">{posts.length} 篇内容</p>
+    </div>
+  </section>
+
+  <section class="list">
+    <div class="wrap">
+      {
+        posts.length === 0 ? (
+          <p class="empty">这个分类还没入库内容，正在陆续补充。</p>
+        ) : (
+          posts.map((post) => (
+            <a class="post" href={`/posts/${post.id}/`}>
+              <span class="tag">{TYPE_LABELS[post.data.type]}</span>
+              <span class="t">{post.data.title}</span>
+              <span class="meta">{fmt(post.data.date)}</span>
+            </a>
+          ))
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .cat-head { padding: 72px 0 40px; }
+  .back { display: inline-block; font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 28px; transition: color .15s; }
+  .back:hover { color: var(--cyan); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-bottom: 14px; }
+  h1 { font-size: clamp(34px, 5vw, 52px); font-weight: 700; letter-spacing: -0.02em; }
+  .count { margin-top: 14px; font-size: 13px; color: var(--faint); }
+
+  .list { padding: 8px 0 56px; }
+  .post {
+    display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border); text-decoration: none; color: var(--ink);
+    transition: padding-left .15s;
+  }
+  .post:first-of-type { border-top: 1px solid var(--glass-border); }
+  .post:hover { padding-left: 8px; }
+  .post .tag {
+    font-family: var(--mono); font-size: 11px; color: #fff; white-space: nowrap;
+    padding: 3px 10px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+  }
+  .post .t { font-size: 16.5px; font-weight: 600; }
+  .post .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .empty { color: var(--muted); padding: 24px 0; }
+  @media (max-width: 640px) { .post { flex-wrap: wrap; } }
+</style>

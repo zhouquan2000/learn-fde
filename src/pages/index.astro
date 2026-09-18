@@ -1,0 +1,193 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CATEGORIES, PATHS, TYPE_LABELS, categoryLabel } from '../lib/site';
+
+const posts = await getCollection('posts');
+const sorted = posts
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const latest = sorted.slice(0, 5);
+
+const countByCat = (slug: string) => posts.filter((p) => p.data.category === slug).length;
+const toolCount = posts.filter((p) => ['tool', 'agent', 'skill'].includes(p.data.type)).length;
+
+function fmt(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+---
+<BaseLayout
+  title="Learn FDE — 前线部署工程师的宝藏库"
+  description="一个关于 AI-FDE 的宝藏库，把知识、经验、工具、Agent、Skill 全部分类收好。"
+>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Frontline Deployment Engineer · 前线部署工程师</div>
+      <h1>把 AI 落进<br /><span class="grad">生意现场</span>的前线。</h1>
+      <p class="hero-sub">
+        一个关于 AI-FDE 的宝藏库 —— 把 <em>知识、经验、工具、Agent、Skill</em>
+        无论文章、播客、视频还是代码，全部分类收好。给自学的小白、入行的从业者、要落地的企业。
+      </p>
+      <div class="hero-cta">
+        <a class="btn-primary" href="#paths">选择你的路径</a>
+        <a class="btn-ghost" href="#posts">直接浏览内容库</a>
+      </div>
+      <div class="ticker mono">
+        <b>{posts.length}</b> 篇内容 · <b>{toolCount}</b> 个工具与 Agent · <b>{CATEGORIES.length}</b> 个分类 · 中英双语
+      </div>
+    </div>
+  </section>
+
+  <!-- 三大受众入口 -->
+  <section class="section" id="paths">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-label">Three entry paths · 三条路径</div>
+        <div class="section-title">你是谁？从这儿进。</div>
+      </div>
+      <div class="paths">
+        {
+          PATHS.map((p) => (
+            <div class="path">
+              <div class="idx">{p.id}</div>
+              <h3>{p.cn}</h3>
+              <div class="en">{p.en}</div>
+              <p>{p.desc}</p>
+              <div class="go">进入路径 →</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 分类导航 -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-label">Browse by topic · 按主题浏览</div>
+        <div class="section-title">六个入口，覆盖整个 FDE 世界。</div>
+      </div>
+      <div class="cats">
+        {
+          CATEGORIES.map((c) => (
+            <a class="cat" href={`/${c.slug}/`}>
+              <span class="cn">{c.cn}</span>
+              <span class="en">{c.en}</span>
+              <span class="count">{countByCat(c.slug)} 篇</span>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- 最新内容 -->
+  <section class="section posts" id="posts">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-label">Latest · 最新入库</div>
+        <div class="section-title">最近收进来的宝藏。</div>
+      </div>
+      {
+        latest.map((post) => (
+          <a class="post" href={`/posts/${post.id}/`}>
+            <span class="tag">{categoryLabel(post.data.category)}</span>
+            <span class="t">{post.data.title}</span>
+            <span class="meta">{TYPE_LABELS[post.data.type]} · {fmt(post.data.date)}</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding: 116px 0 76px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6vw, 70px); line-height: 1.08; font-weight: 700; letter-spacing: -0.02em;
+    max-width: 18ch;
+  }
+  .hero-sub { margin-top: 24px; font-size: 18px; color: var(--muted); max-width: 52ch; }
+  .hero-sub em { color: var(--ink); font-style: normal; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 14px; align-items: center; }
+  .btn-primary {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none; font-weight: 600;
+    color: #fff; padding: 13px 24px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.5); transition: transform .15s, box-shadow .15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(34, 211, 238, 0.6); }
+  .btn-ghost {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none; color: var(--ink);
+    padding: 12px 24px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: border-color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+  .ticker { margin-top: 64px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .ticker b { color: var(--muted); font-weight: 500; }
+
+  .section { padding: 56px 0; }
+  .section-head { margin-bottom: 28px; }
+  .section-label { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+  .section-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+
+  .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .path {
+    position: relative; border-radius: 18px; padding: 28px 24px; cursor: pointer;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+  }
+  .path:hover { transform: translateY(-4px); border-color: rgba(34, 211, 238, 0.5); box-shadow: 0 0 28px rgba(168, 85, 247, 0.22); }
+  .path .idx { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .path h3 { font-size: 19px; font-weight: 700; margin: 14px 0 8px; }
+  .path .en {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .path p { font-size: 14px; color: var(--muted); }
+  .path .go { margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--cyan); opacity: 0; transition: opacity .18s; }
+  .path:hover .go { opacity: 1; }
+
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cat {
+    border-radius: 16px; padding: 22px; text-decoration: none; color: var(--ink);
+    background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .cat:hover { border-color: rgba(168, 85, 247, 0.55); box-shadow: 0 0 22px rgba(168, 85, 247, 0.2); }
+  .cat .cn { font-size: 16px; font-weight: 700; }
+  .cat .en { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
+  .cat .count { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+  .posts { border-top: 1px solid var(--glass-border); }
+  .post {
+    display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border); text-decoration: none; color: var(--ink);
+    transition: padding-left .15s;
+  }
+  .post:hover { padding-left: 8px; }
+  .post .tag {
+    font-family: var(--mono); font-size: 11px; color: #fff; white-space: nowrap;
+    padding: 3px 10px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+  }
+  .post .t { font-size: 16.5px; font-weight: 600; }
+  .post .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+
+  @media (max-width: 860px) {
+    .paths, .cats { grid-template-columns: 1fr; }
+    .post { flex-wrap: wrap; }
+  }
+</style>

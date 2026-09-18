@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn FDE — 前线部署工程师的宝藏库</title>
+<style>
+  :root {
+    --bg: #09090b;
+    --bg-elev: #101013;
+    --fg: #e4e4e7;
+    --muted: #71717a;
+    --faint: #3f3f46;
+    --accent: #38bdf8;
+    --accent-dim: rgba(56, 189, 248, 0.12);
+    --border: #1f1f24;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    /* 细网格背景 */
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .mono { font-family: var(--mono); }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(12px);
+    background: rgba(9,9,11,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav {
+    max-width: 1180px; margin: 0 auto;
+    padding: 0 24px; height: 60px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: var(--mono); font-weight: 600; font-size: 15px; letter-spacing: 0.02em; color: var(--fg); text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 26px; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.02em; transition: color .15s;
+  }
+  .nav-links a:hover { color: var(--fg); }
+  .nav-cta {
+    font-family: var(--mono); font-size: 12.5px; color: var(--bg);
+    background: var(--fg); text-decoration: none; padding: 7px 14px; border-radius: 6px;
+    transition: background .15s;
+  }
+  .nav-cta:hover { background: var(--accent); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 110px 0 72px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; color: var(--accent);
+    letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6vw, 68px);
+    line-height: 1.08; font-weight: 650; letter-spacing: -0.02em;
+    max-width: 18ch;
+  }
+  .hero h1 .accent { color: var(--accent); }
+  .hero-sub {
+    margin-top: 24px; font-size: 18px; color: var(--muted); max-width: 52ch;
+  }
+  .hero-sub em { color: var(--fg); font-style: normal; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 14px; align-items: center; }
+  .btn-primary {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none;
+    background: var(--accent); color: #06121a; padding: 12px 22px; border-radius: 7px;
+    font-weight: 600; transition: filter .15s;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-ghost {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none;
+    color: var(--fg); border: 1px solid var(--border); padding: 11px 22px; border-radius: 7px;
+    transition: border-color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  .ticker { margin-top: 64px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .ticker b { color: var(--muted); font-weight: 500; }
+
+  /* ---------- 三大受众入口 ---------- */
+  .section { padding: 56px 0; }
+  .section-head { margin-bottom: 28px; }
+  .section-label { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+  .section-title { font-size: 28px; font-weight: 650; letter-spacing: -0.01em; }
+
+  .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .path {
+    border: 1px solid var(--border); border-radius: 10px; padding: 26px 24px;
+    background: var(--bg-elev); cursor: pointer; position: relative;
+    transition: border-color .18s, transform .18s;
+  }
+  .path:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .path .idx { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .path h3 { font-size: 19px; font-weight: 600; margin: 14px 0 8px; }
+  .path .en { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 12px; }
+  .path p { font-size: 14px; color: var(--muted); }
+  .path .go { margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--accent); opacity: 0; transition: opacity .18s; }
+  .path:hover .go { opacity: 1; }
+
+  /* ---------- 分类 ---------- */
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cat {
+    border: 1px solid var(--border); border-radius: 9px; padding: 20px;
+    text-decoration: none; color: var(--fg); background: var(--bg-elev);
+    display: flex; flex-direction: column; gap: 6px; transition: border-color .15s;
+  }
+  .cat:hover { border-color: var(--accent); }
+  .cat .cn { font-size: 16px; font-weight: 600; }
+  .cat .en { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
+  .cat .count { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+  /* ---------- 最新内容 ---------- */
+  .posts { border-top: 1px solid var(--border); }
+  .post {
+    display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+    border-bottom: 1px solid var(--border); text-decoration: none; color: var(--fg);
+    transition: padding-left .15s;
+  }
+  .post:hover { padding-left: 8px; }
+  .post .tag {
+    font-family: var(--mono); font-size: 11px; color: var(--accent);
+    border: 1px solid var(--accent-dim); background: var(--accent-dim);
+    padding: 2px 8px; border-radius: 4px; white-space: nowrap;
+  }
+  .post .t { font-size: 16.5px; font-weight: 550; }
+  .post .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .post .lang { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 40px 0 64px; }
+  .foot { display: flex; justify-content: space-between; align-items: center; }
+  .foot .brand { font-family: var(--mono); font-size: 13px; color: var(--fg); }
+  .foot .brand span { color: var(--accent); }
+  .foot .small { font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+
+  @media (max-width: 860px) {
+    .paths, .cats { grid-template-columns: 1fr; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .post { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a class="logo" href="#">Learn<span>FDE</span></a>
+    <div class="nav-links">
+      <a href="#">开始学习</a>
+      <a href="#">方法论</a>
+      <a href="#">案例</a>
+      <a href="#">工具</a>
+      <a href="#">课程</a>
+      <a class="nav-cta" href="#">开始探索 →</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="eyebrow">Frontline Deployment Engineer · 前线部署工程师</div>
+    <h1>把 AI 落进<br><span class="accent">生意现场</span>的前线。</h1>
+    <p class="hero-sub">
+      一个关于 AI-FDE 的宝藏库 —— 把 <em>知识、经验、工具、Agent、Skill</em>
+      无论文章、播客、视频还是代码，全部分类收好。给自学的小白、入行的从业者、要落地的企业。
+    </p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="#paths">选择你的路径</a>
+      <a class="btn-ghost" href="#posts">直接浏览内容库</a>
+    </div>
+    <div class="ticker mono">
+      <b>36</b> 篇文章 · <b>12</b> 个工具与 Agent · <b>6</b> 门课程 · <b>8</b> 份一线访谈纪要 · <b>3</b> 个真实落地案例
+    </div>
+  </section>
+
+  <!-- 三大受众入口 -->
+  <section class="section" id="paths">
+    <div class="section-head">
+      <div class="section-label">Three entry paths · 三条路径</div>
+      <div class="section-title">你是谁？从这儿进。</div>
+    </div>
+    <div class="paths">
+      <div class="path">
+        <div class="idx">01</div>
+        <h3>从零认识 FDE</h3>
+        <div class="en">For Beginners</div>
+        <p>0 基础自学路线：FDE 到底是什么、要会什么、怎么一步步入门。从「FDE 是什么」开始。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+      <div class="path">
+        <div class="idx">02</div>
+        <h3>进阶方法论与工具</h3>
+        <div class="en">For Practitioners</div>
+        <p>已经在 FDE 一线：五站方法论、证据循环法、eval 与采纳、可复用的 Agent 与 Skill。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+      <div class="path">
+        <div class="idx">03</div>
+        <h3>把 AI 落进生意</h3>
+        <div class="en">For Business</div>
+        <p>企业视角：怎么挑活、怎么用 PoC 证明、怎么让生意单元真正采纳，不被「买了不用」坑。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分类导航 -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-label">Browse by topic · 按主题浏览</div>
+      <div class="section-title">六个入口，覆盖整个 FDE 世界。</div>
+    </div>
+    <div class="cats">
+      <a class="cat" href="#"><span class="cn">FDE 是什么</span><span class="en">What is FDE</span><span class="count">8 篇</span></a>
+      <a class="cat" href="#"><span class="cn">五站方法论</span><span class="en">The 5-Station Method</span><span class="count">12 篇</span></a>
+      <a class="cat" href="#"><span class="cn">实战案例</span><span class="en">Real Cases</span><span class="count">6 篇</span></a>
+      <a class="cat" href="#"><span class="cn">工具与 Agent</span><span class="en">Tools &amp; Agents</span><span class="count">12 个</span></a>
+      <a class="cat" href="#"><span class="cn">课程与训练营</span><span class="en">Courses &amp; Bootcamp</span><span class="count">6 门</span></a>
+      <a class="cat" href="#"><span class="cn">行业与企业应用</span><span class="en">Enterprise Applications</span><span class="count">9 篇</span></a>
+    </div>
+  </section>
+
+  <!-- 最新内容 -->
+  <section class="section posts" id="posts">
+    <div class="section-head">
+      <div class="section-label">Latest · 最新入库</div>
+      <div class="section-title">最近收进来的宝藏。</div>
+    </div>
+    <a class="post" href="#">
+      <span class="tag">方法论</span>
+      <span class="t">五站方法论：挑活 → 进门与诊断 → 证明 → 采纳 → 扩张与复制</span>
+      <span class="meta">文章 · 2 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">案例</span>
+      <span class="t">安吉星智能填单：一个已上线、每天在用的 FDE 落地样本</span>
+      <span class="meta">案例 · 3 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">入门</span>
+      <span class="t">FDE 是什么：前线部署工程师的角色与边界</span>
+      <span class="meta">文章 · 5 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">课程</span>
+      <span class="t">中国电信集团 FDE 赋能训练营 · 5 天全封闭营地</span>
+      <span class="meta">课程 · 1 周前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">工具</span>
+      <span class="t">实操环境：VS Code + Python venv + DeepSeek 主引擎</span>
+      <span class="meta">工具 · 1 周前</span>
+    </a>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand">Learn<span>FDE</span></div>
+    <div class="small">learn-fde.com · learnfde.ai · 中文 / English</div>
+  </div>
+</footer>
+
+<script>
+  // 路径卡片点击高亮（模拟「选中路径」的 state transition）
+  document.querySelectorAll('.path').forEach(function (p) {
+    p.addEventListener('click', function () {
+      document.querySelectorAll('.path').forEach(function (x) { x.style.borderColor = 'var(--border)'; });
+      p.style.borderColor = 'var(--accent)';
+      p.querySelector('.go').style.opacity = '1';
+    });
+  });
+</script>
+</body>
+</html>

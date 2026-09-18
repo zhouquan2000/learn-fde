@@ -1,0 +1,52 @@
+---
+import { CATEGORIES } from '../lib/site';
+---
+<header>
+  <div class="nav">
+    <a class="logo" href="/">LearnFDE</a>
+    <div class="nav-links">
+      <a href="/fde-basics/">FDE 是什么</a>
+      <a href="/five-stations/">方法论</a>
+      <a href="/cases/">案例</a>
+      <a href="/tools-agents/">工具</a>
+      <a href="/courses/">课程</a>
+      <a class="nav-cta" href="/#paths">开始探索 →</a>
+    </div>
+  </div>
+</header>
+
+<style>
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(8, 7, 13, 0.55);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav {
+    max-width: 1180px; margin: 0 auto; padding: 0 24px; height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--mono); font-weight: 700; font-size: 16px; text-decoration: none;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 26px; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.02em; transition: color .15s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    font-family: var(--mono); font-size: 12.5px; color: #fff; text-decoration: none;
+    padding: 8px 16px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.45);
+    transition: box-shadow .15s;
+  }
+  .nav-cta:hover { box-shadow: 0 0 26px rgba(34, 211, 238, 0.6); }
+  @media (max-width: 860px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+</style>

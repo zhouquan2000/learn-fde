@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn FDE — 前线部署工程师的宝藏库（玻璃霓虹版）</title>
+<style>
+  :root {
+    --bg: #08070d;
+    --ink: #eceaf6;
+    --muted: #9b96b8;
+    --faint: #5c5878;
+    --violet: #a855f7;
+    --cyan: #22d3ee;
+    --glass: rgba(255,255,255,0.045);
+    --glass-border: rgba(255,255,255,0.12);
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  /* 霓虹渐变光斑层 */
+  .glow {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 620px 420px at 12% -4%, rgba(168,85,247,0.34), transparent 62%),
+      radial-gradient(ellipse 560px 400px at 92% 8%, rgba(34,211,238,0.28), transparent 62%),
+      radial-gradient(ellipse 720px 520px at 50% 108%, rgba(168,85,247,0.22), transparent 64%);
+    animation: drift 16s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-26px) scale(1.04); }
+  }
+  .mono { font-family: var(--mono); }
+  .page { position: relative; z-index: 1; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    background: rgba(8,7,13,0.55);
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .nav {
+    max-width: 1180px; margin: 0 auto; padding: 0 24px; height: 62px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo { font-family: var(--mono); font-weight: 700; font-size: 16px; text-decoration: none;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links { display: flex; gap: 26px; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+    text-decoration: none; letter-spacing: 0.02em; transition: color .15s;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta {
+    font-family: var(--mono); font-size: 12.5px; color: #fff; text-decoration: none;
+    padding: 8px 16px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    box-shadow: 0 0 18px rgba(168,85,247,0.45);
+    transition: box-shadow .15s;
+  }
+  .nav-cta:hover { box-shadow: 0 0 26px rgba(34,211,238,0.6); }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 116px 0 76px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--cyan); margin-bottom: 22px;
+  }
+  .hero h1 {
+    font-size: clamp(40px, 6vw, 70px); line-height: 1.08; font-weight: 700; letter-spacing: -0.02em;
+    max-width: 18ch;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(92deg, var(--violet) 10%, var(--cyan) 90%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub { margin-top: 24px; font-size: 18px; color: var(--muted); max-width: 52ch; }
+  .hero-sub em { color: var(--ink); font-style: normal; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 14px; align-items: center; }
+  .btn-primary {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none; font-weight: 600;
+    color: #fff; padding: 13px 24px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    box-shadow: 0 0 24px rgba(168,85,247,0.5); transition: transform .15s, box-shadow .15s;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(34,211,238,0.6); }
+  .btn-ghost {
+    font-family: var(--mono); font-size: 13.5px; text-decoration: none; color: var(--ink);
+    padding: 12px 24px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: border-color .15s;
+  }
+  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .ticker { margin-top: 64px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .ticker b { color: var(--muted); font-weight: 500; }
+
+  /* ---------- 三大受众入口 ---------- */
+  .section { padding: 56px 0; }
+  .section-head { margin-bottom: 28px; }
+  .section-label { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+  .section-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+
+  .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .path {
+    position: relative; border-radius: 18px; padding: 28px 24px; cursor: pointer;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    transition: transform .18s, border-color .18s, box-shadow .18s;
+  }
+  .path:hover { transform: translateY(-4px); border-color: rgba(34,211,238,0.5); box-shadow: 0 0 28px rgba(168,85,247,0.22); }
+  .path .idx { font-family: var(--mono); font-size: 12px; color: var(--faint); }
+  .path h3 { font-size: 19px; font-weight: 700; margin: 14px 0 8px; }
+  .path .en {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 12px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .path p { font-size: 14px; color: var(--muted); }
+  .path .go { margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--cyan); opacity: 0; transition: opacity .18s; }
+  .path:hover .go { opacity: 1; }
+
+  /* ---------- 分类 ---------- */
+  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .cat {
+    border-radius: 16px; padding: 22px; text-decoration: none; color: var(--ink);
+    background: var(--glass); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    display: flex; flex-direction: column; gap: 6px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .cat:hover { border-color: rgba(168,85,247,0.55); box-shadow: 0 0 22px rgba(168,85,247,0.2); }
+  .cat .cn { font-size: 16px; font-weight: 700; }
+  .cat .en { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
+  .cat .count { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+  /* ---------- 最新内容 ---------- */
+  .posts { border-top: 1px solid var(--glass-border); }
+  .post {
+    display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border); text-decoration: none; color: var(--ink);
+    transition: padding-left .15s;
+  }
+  .post:hover { padding-left: 8px; }
+  .post .tag {
+    font-family: var(--mono); font-size: 11px; color: #fff; white-space: nowrap;
+    padding: 3px 10px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+  }
+  .post .t { font-size: 16.5px; font-weight: 600; }
+  .post .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .post .lang { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ---------- Footer ---------- */
+  footer { border-top: 1px solid var(--glass-border); margin-top: 40px; padding: 40px 0 64px; }
+  .foot { display: flex; justify-content: space-between; align-items: center; }
+  .foot .brand { font-family: var(--mono); font-size: 13px; font-weight: 700;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .foot .small { font-family: var(--mono); font-size: 11.5px; color: var(--faint); }
+
+  @media (max-width: 860px) {
+    .paths, .cats { grid-template-columns: 1fr; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .post { flex-wrap: wrap; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .glow { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+
+<div class="page">
+<header>
+  <div class="nav">
+    <a class="logo" href="#">LearnFDE</a>
+    <div class="nav-links">
+      <a href="#">开始学习</a>
+      <a href="#">方法论</a>
+      <a href="#">案例</a>
+      <a href="#">工具</a>
+      <a href="#">课程</a>
+      <a class="nav-cta" href="#">开始探索 →</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="eyebrow">Frontline Deployment Engineer · 前线部署工程师</div>
+    <h1>把 AI 落进<br><span class="grad">生意现场</span>的前线。</h1>
+    <p class="hero-sub">
+      一个关于 AI-FDE 的宝藏库 —— 把 <em>知识、经验、工具、Agent、Skill</em>
+      无论文章、播客、视频还是代码，全部分类收好。给自学的小白、入行的从业者、要落地的企业。
+    </p>
+    <div class="hero-cta">
+      <a class="btn-primary" href="#paths">选择你的路径</a>
+      <a class="btn-ghost" href="#posts">直接浏览内容库</a>
+    </div>
+    <div class="ticker mono">
+      <b>36</b> 篇文章 · <b>12</b> 个工具与 Agent · <b>6</b> 门课程 · <b>8</b> 份一线访谈纪要 · <b>3</b> 个真实落地案例
+    </div>
+  </section>
+
+  <!-- 三大受众入口 -->
+  <section class="section" id="paths">
+    <div class="section-head">
+      <div class="section-label">Three entry paths · 三条路径</div>
+      <div class="section-title">你是谁？从这儿进。</div>
+    </div>
+    <div class="paths">
+      <div class="path">
+        <div class="idx">01</div>
+        <h3>从零认识 FDE</h3>
+        <div class="en">For Beginners</div>
+        <p>0 基础自学路线：FDE 到底是什么、要会什么、怎么一步步入门。从「FDE 是什么」开始。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+      <div class="path">
+        <div class="idx">02</div>
+        <h3>进阶方法论与工具</h3>
+        <div class="en">For Practitioners</div>
+        <p>已经在 FDE 一线：五站方法论、证据循环法、eval 与采纳、可复用的 Agent 与 Skill。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+      <div class="path">
+        <div class="idx">03</div>
+        <h3>把 AI 落进生意</h3>
+        <div class="en">For Business</div>
+        <p>企业视角：怎么挑活、怎么用 PoC 证明、怎么让生意单元真正采纳，不被「买了不用」坑。</p>
+        <div class="go">进入路径 →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分类导航 -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-label">Browse by topic · 按主题浏览</div>
+      <div class="section-title">六个入口，覆盖整个 FDE 世界。</div>
+    </div>
+    <div class="cats">
+      <a class="cat" href="#"><span class="cn">FDE 是什么</span><span class="en">What is FDE</span><span class="count">8 篇</span></a>
+      <a class="cat" href="#"><span class="cn">五站方法论</span><span class="en">The 5-Station Method</span><span class="count">12 篇</span></a>
+      <a class="cat" href="#"><span class="cn">实战案例</span><span class="en">Real Cases</span><span class="count">6 篇</span></a>
+      <a class="cat" href="#"><span class="cn">工具与 Agent</span><span class="en">Tools &amp; Agents</span><span class="count">12 个</span></a>
+      <a class="cat" href="#"><span class="cn">课程与训练营</span><span class="en">Courses &amp; Bootcamp</span><span class="count">6 门</span></a>
+      <a class="cat" href="#"><span class="cn">行业与企业应用</span><span class="en">Enterprise Applications</span><span class="count">9 篇</span></a>
+    </div>
+  </section>
+
+  <!-- 最新内容 -->
+  <section class="section posts" id="posts">
+    <div class="section-head">
+      <div class="section-label">Latest · 最新入库</div>
+      <div class="section-title">最近收进来的宝藏。</div>
+    </div>
+    <a class="post" href="#">
+      <span class="tag">方法论</span>
+      <span class="t">五站方法论：挑活 → 进门与诊断 → 证明 → 采纳 → 扩张与复制</span>
+      <span class="meta">文章 · 2 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">案例</span>
+      <span class="t">安吉星智能填单：一个已上线、每天在用的 FDE 落地样本</span>
+      <span class="meta">案例 · 3 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">入门</span>
+      <span class="t">FDE 是什么：前线部署工程师的角色与边界</span>
+      <span class="meta">文章 · 5 天前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">课程</span>
+      <span class="t">中国电信集团 FDE 赋能训练营 · 5 天全封闭营地</span>
+      <span class="meta">课程 · 1 周前</span>
+    </a>
+    <a class="post" href="#">
+      <span class="tag">工具</span>
+      <span class="t">实操环境：VS Code + Python venv + DeepSeek 主引擎</span>
+      <span class="meta">工具 · 1 周前</span>
+    </a>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand">LearnFDE</div>
+    <div class="small">learn-fde.com · learnfde.ai · 中文 / English</div>
+  </div>
+</footer>
+</div>
+
+<script>
+  // 路径卡片点击高亮（模拟「选中路径」的 state transition）
+  document.querySelectorAll('.path').forEach(function (p) {
+    p.addEventListener('click', function () {
+      document.querySelectorAll('.path').forEach(function (x) {
+        x.style.borderColor = 'var(--glass-border)';
+        x.style.boxShadow = 'none';
+      });
+      p.style.borderColor = 'rgba(34,211,238,0.6)';
+      p.style.boxShadow = '0 0 30px rgba(168,85,247,0.35)';
+      p.querySelector('.go').style.opacity = '1';
+    });
+  });
+</script>
+</body>
+</html>

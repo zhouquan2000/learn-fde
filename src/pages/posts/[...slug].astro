@@ -1,0 +1,96 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { CATEGORY_MAP, TYPE_LABELS } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((p) => ({ params: { slug: p.id }, props: { post: p } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const cat = CATEGORY_MAP[post.data.category];
+const audiences: Record<string, string> = {
+  beginner: '小白',
+  practitioner: '从业者',
+  business: '企业',
+};
+
+function fmt(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+}
+---
+<BaseLayout title={`${post.data.title} · Learn FDE`} description={post.data.description}>
+  <article class="article">
+    <div class="wrap">
+      <a class="back mono" href={`/${post.data.category}/`}>← {cat?.cn ?? post.data.category}</a>
+      <div class="eyebrow">{post.data.titleEn}</div>
+      <h1>{post.data.title}</h1>
+      <p class="desc">{post.data.description}</p>
+
+      <div class="meta-row">
+        <span class="tag">{TYPE_LABELS[post.data.type]}</span>
+        <span class="chip">{cat?.cn}</span>
+        {
+          post.data.audience.map((a) => <span class="chip muted">{audiences[a]}</span>)
+        }
+        <span class="date mono">{fmt(post.data.date)}</span>
+      </div>
+
+      <div class="body">
+        <Content />
+      </div>
+
+      {
+        post.data.source && (
+          <p class="source mono">来源：{post.data.source}</p>
+        )
+      }
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .article { padding: 72px 0 64px; }
+  .back { display: inline-block; font-size: 12px; color: var(--muted); text-decoration: none; margin-bottom: 28px; transition: color .15s; }
+  .back:hover { color: var(--cyan); }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--cyan); margin-bottom: 16px; }
+  h1 { font-size: clamp(30px, 4.5vw, 46px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; max-width: 24ch; }
+  .desc { margin-top: 18px; font-size: 17px; color: var(--muted); max-width: 60ch; }
+
+  .meta-row { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .tag {
+    font-family: var(--mono); font-size: 11px; color: #fff;
+    padding: 3px 12px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--violet), var(--cyan));
+  }
+  .chip {
+    font-family: var(--mono); font-size: 11px; color: var(--ink);
+    padding: 3px 12px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--glass-border);
+  }
+  .chip.muted { color: var(--muted); }
+  .date { font-size: 12px; color: var(--faint); }
+
+  .body { margin-top: 40px; max-width: 720px; }
+  .body :global(h2) { font-size: 24px; font-weight: 700; margin: 40px 0 16px; letter-spacing: -0.01em; }
+  .body :global(h3) { font-size: 18px; font-weight: 600; margin: 28px 0 12px; }
+  .body :global(p) { margin: 14px 0; color: #d6d2e8; }
+  .body :global(ul), .body :global(ol) { margin: 14px 0; padding-left: 24px; color: #d6d2e8; }
+  .body :global(li) { margin: 6px 0; }
+  .body :global(strong) { color: var(--ink); }
+  .body :global(code) {
+    font-family: var(--mono); font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.08); padding: 2px 6px; border-radius: 5px; color: var(--cyan);
+  }
+  .body :global(blockquote) {
+    border-left: 2px solid var(--violet); padding: 4px 0 4px 16px; margin: 20px 0;
+    color: var(--muted);
+  }
+  .body :global(a) { color: var(--cyan); text-decoration: none; border-bottom: 1px solid rgba(34, 211, 238, 0.4); }
+  .body :global(a:hover) { border-bottom-color: var(--cyan); }
+  .body :global(hr) { border: none; border-top: 1px solid var(--glass-border); margin: 32px 0; }
+
+  .source { margin-top: 48px; font-size: 11.5px; color: var(--faint); }
+</style>
