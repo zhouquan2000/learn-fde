@@ -155,6 +155,16 @@ def build_page(src_name, out_rel, title, js_files):
     out = DST / out_rel
     out.parent.mkdir(parents=True, exist_ok=True)
     io.open(out, 'w', encoding='utf-8').write(''.join(parts))
+    # ⚠️ 四个 js 必须**由移植脚本一并复制**,不能靠"手工 cp 过一次"。
+    #    第一版只手动 cp 了 JS,结果原型里改了 `l7_student_app.js` 却没进站点 ——
+    #    构建、测试、终检**全绿**,而产物是旧的(2026-09-26 靠 grep 产物才抓到)。
+    #    判据:移植脚本必须**完整且幂等** —— 跑一遍就把站点同步到原型当前状态。
+    for f in js_files:
+        _src_js = (SRC / f).read_bytes()
+        _dst_js = DST / 'public' / 'sim' / f
+        _dst_js.parent.mkdir(parents=True, exist_ok=True)
+        _dst_js.write_bytes(_src_js)
+        print(f'   ↳ 复制 {f}（{len(_src_js)} bytes）')
     print(f'✅ {out_rel}  ← {src_name}')
     print(f'   样式 {len(styles)} 块 · 内联脚本 {len(inline_scripts)} 段 · '
           f'外部脚本 {len(js_files)} 个(?v={v}) · 标记 {len(body.splitlines())} 行')

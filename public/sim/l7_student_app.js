@@ -15,6 +15,22 @@
     if (!r) { return 'S1'; }
     return (typeof r === 'string') ? r : (r.round || 'S1');
   }
+
+  /* ⭐ 「提交是否开放」的**唯一判断源** —— 状态条与导出按钮必须共用它。
+     ⚠️ 缺陷来源(2026-09-26 真实浏览器走查撞出):状态条用它显示「🔴 提交未开放」,
+        而**导出按钮根本不看这个状态** ⇒ 界面写着"未开放"却真能导出,
+        且包内 `round` 写成了 `null`(文件名 `fde_null_T02_xxxx.json`),
+        讲师拿到不知道是哪一回合的提交、归档不进去。
+     判据:**凡是界面声明过的状态,代码必须遵守它** —— 否则就是"显示值 ≠ 实际行为",
+        与「显示值 ≠ 计算值」是同一类事故。
+     ⚠️ 这里**故意不回落到 'S1'**:那个回落是给**显示**用的,
+        写进提交包就是"替讲师决定回合" ⇒ 未开班时宁可导不出去(见导出按钮的提示)。 */
+  function submitState() {
+    var r = F.get(F.KEY.ROUND, null);
+    var round = (typeof r === 'string') ? r : ((r && r.round) || null);
+    var open = !!(r && r.open !== false && round);
+    return { open: open, round: round };
+  }
   /* 把回合文案刷到页面骨架(顶部旗标/各屏标题)。
      ⚠️ 存在的理由:这些文案原先写死在 HTML 里(记 B14),发布 S2–S5 后界面仍显示 S1。 */
   function syncChrome() { if (RD && RD.applyChrome) { RD.applyChrome(currentRound()); } }
@@ -598,7 +614,8 @@
     }
 
     var TEAM = localStorage.getItem('fde.myTeam') || '—';
-    var isOpen = rnd.open !== false && rnd.round;
+    /* ⭐ 与导出按钮**共用** `submitState()` —— 不再各自算一遍(那正是缺陷来源) */
+    var isOpen = submitState().open;
 
     bar.appendChild(chip('组号', TEAM, true));
     bar.appendChild(el('span', 'color:#d1d5db;', '│'));
@@ -802,7 +819,9 @@
       var minLen = isSelect ? 1 : 4;
       if (isGate && val && String(val).trim().length >= minLen) { out.gates_passed.push(rkp + '-' + id); }
     });
-    out.round = (F.get(F.KEY.ROUND, {}) || {}).round || null;
+    /* ⭐ 与状态条/导出按钮**同一个来源**(`submitState`)—— 原先这里写 null、状态条显示 S1,
+       两个来源打架(2026-09-26 走查撞出)。 */
+    out.round = submitState().round;
     out.team_id = localStorage.getItem('fde.myTeam') || null;
     out.case_id = (F.get(F.KEY.CLASS, {}) || {}).case_id || null;
     out.npc_answers = collectNpc();      /* P8 甲方质询应答 —— 判 B 项的证据,不是交付物 */
@@ -945,11 +964,27 @@
                      '依据 C108 §2.3：指纹用于讲师核验，<b>改动一个字符就会失效</b>。';
     box.appendChild(hint);
 
+    /* ⭐ 导出必须**遵守界面已经声明过的状态**(🟢 提交开放 / 🔴 提交未开放)。
+       ⚠️ 未开班时导出的包 `round` 是空的 ⇒ 讲师归档不进去,所以这里锁住并**写明原因**,
+          而不是导出一个 `fde_null_*.json` 让人事后猜(2026-09-26 走查撞出)。 */
+    var ss = submitState();
     var btn = el('button',
-      'width:100%;padding:10px;border:0;border-radius:8px;background:#111827;color:#fff;' +
-      'font-size:13px;font-weight:600;cursor:pointer;', '⬇ 导出提交包');
+      'width:100%;padding:10px;border:0;border-radius:8px;font-size:13px;font-weight:600;' +
+      (ss.open ? 'background:#111827;color:#fff;cursor:pointer;'
+               : 'background:#e5e7eb;color:#6b7280;cursor:not-allowed;'),
+      ss.open ? '⬇ 导出提交包' : '🔒 提交未开放 —— 还不能导出');
+    if (!ss.open) {
+      btn.disabled = true;
+      box.appendChild(el('div', 'margin-top:8px;font-size:12px;color:#b42318;line-height:1.7;',
+        '讲师尚未开班、或尚未发布本回合（当前回合 = ' + (ss.round || '未开班') + '）。' +
+        '此时导出的话，提交包里「是哪一回合」是空的，讲师无法归档 —— 所以这里锁住了。'));
+    }
     btn.onclick = function () {
       var d = collectForm();
+      if (!submitState().open) {
+        alert('提交未开放：讲师尚未发布本回合，包内的回合号会是空的。请等讲师发布后再导出。');
+        return;
+      }
       if (!d.team_id) { alert('还没有设置组号。请点顶部「设置组号」。'); return; }
       if (!d.items.some(function (i) { return i.value && String(i.value).trim(); })) {
         alert('表单还是空的 —— 先填至少一项。'); return;
