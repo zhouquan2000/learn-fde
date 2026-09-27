@@ -161,7 +161,7 @@
     clsBtn.style.marginLeft = '10px';
     clsBtn.onclick = function () {
       if (confirm('清空开班配置与提交开关？（已导入的提交包与评分也会清掉）')) {
-        [F.KEY.CLASS, F.KEY.ROUND, F.KEY.SUBS, F.KEY.SCORES, F.KEY.RESULT].forEach(F.del);
+        [F.KEY.CLASS, F.KEY.ROUND, F.KEY.SUBS, F.KEY.SCORES, F.KEY.RESULT, DRY_KEY].forEach(F.del);
         location.reload();
       }
     };
@@ -195,6 +195,11 @@
 
   /* ══════════════════ P7 · 导入判分与排名 ══════════════════ */
   var SUBS = [];
+  /* 🧪 演练样本（`dry_run:true` 的包）**单独存放，绝不进 SUBS**。
+     理由:SUBS 是判分表与排名的唯一输入,演练样本混进去就会污染成绩 —— 所以这里不是"打个标签",
+     而是**结构上隔离**(周全裁定 2「加」的硬要求:讲师端一眼认得出、且不计入判分与排名)。 */
+  var DRYS = [];
+  var DRY_KEY = 'fde.dryruns';
   /* 回合决定价值分口径(D06 v1.3 §2.1.1):R1 打「预估的可核验性」1–5,R2 起打 EvalRun 的实测率。
      必须每次现算 —— 讲师可能在 P6 改了回合再切到 P7,模块级常量会陈旧。
      ⚠️ fde.round 存的是**对象** {round, open, published_at},不是字符串 ——
@@ -281,15 +286,17 @@
         box.appendChild(h3('待导入 ' + res.length + ' 个包'));
         var t = el('table', 'width:100%;border-collapse:collapse;font-size:12.5px;');
         t.innerHTML = '<thead><tr style="text-align:left;color:#6b7280">' +
-          '<th style="padding:5px 0">文件</th><th>组</th><th>回合</th><th>指纹</th><th>校验</th></tr></thead>';
+          '<th style="padding:5px 0">文件</th><th>组</th><th>回合</th><th>标记</th><th>指纹</th><th>校验</th></tr></thead>';
         var tb = el('tbody');
         res.forEach(function (r) {
           var ok = r.ok; var v = { ok: false, why: r.err };
           if (ok) { v = F.verifyPackage(r.data); }
-          var tr = el('tr', 'border-top:1px solid #eef0f3;' + (v.ok ? '' : 'background:#fdeaea;'));
+          var isDry = ok && r.data.dry_run === true;
+          var tr = el('tr', 'border-top:1px solid #eef0f3;' + (v.ok ? (isDry ? 'background:#fffbeb;' : '') : 'background:#fdeaea;'));
           tr.innerHTML = '<td style="padding:6px 0;font-family:ui-monospace,monospace">' + r.file + '</td>' +
             '<td>' + (ok ? (r.data.team_id || '—') : '—') + '</td>' +
             '<td>' + (ok ? (r.data.round || '—') : '—') + '</td>' +
+            '<td>' + (isDry ? '🧪 演练样本' : '—') + '</td>' +
             '<td style="font-family:ui-monospace,monospace">' + (ok ? r.data.fingerprint : '—') + '</td>' +
             '<td style="color:' + (v.ok ? '#0f7a3d' : '#b42318') + ';font-weight:' + (v.ok ? '500' : '700') + '">' +
             (v.ok ? '✅ 通过' : '❌ ' + v.why) + '</td>';
@@ -303,18 +310,28 @@
           (badN ? '（其中 ' + badN + ' 个指纹异常，会标红待你处置）' : ''), true);
         okBtn.style.marginTop = '12px';
         okBtn.onclick = function () {
-          var n = 0, bad = 0;
+          var n = 0, bad = 0, dry = 0;
           res.forEach(function (r) {
             if (!r.ok) return;
             var v = F.verifyPackage(r.data);
             if (!v.ok) { r.data.__tampered = v.why; bad++; }
+            /* 🧪 演练样本走**另一条路** —— 不进 SUBS,因此不会出现在判分表与排名里。 */
+            if (r.data.dry_run === true) {
+              var j = DRYS.map(function (s) { return s.fingerprint; }).indexOf(r.data.fingerprint);
+              if (j >= 0) { DRYS[j] = r.data; } else { DRYS.push(r.data); }
+              dry++; return;
+            }
             var idx = SUBS.map(function (s) { return s.team_id; }).indexOf(r.data.team_id);
             if (idx >= 0) { SUBS[idx] = r.data; } else { SUBS.push(r.data); }
             n++;
           });
           F.put(F.KEY.SUBS, SUBS);
+          F.put(DRY_KEY, DRYS);
           renderGrading();
-          okBtn.textContent = '✅ 已导入 ' + n + ' 个' + (bad ? '（含 ' + bad + ' 个指纹异常，已在表中标红）' : '');
+          renderDryRuns();
+          okBtn.textContent = '✅ 已导入 ' + n + ' 个' +
+            (dry ? '（另收下 ' + dry + ' 个 🧪 演练样本，不计入判分与排名）' : '') +
+            (bad ? '（含 ' + bad + ' 个指纹异常，已在表中标红）' : '');
         };
         box.appendChild(okBtn);
         imp.parentNode.insertBefore(box, imp.nextSibling);
@@ -326,7 +343,63 @@
     /* 恢复已导入的 */
     SUBS = F.get(F.KEY.SUBS, []) || [];
     SCORES = F.get(F.KEY.SCORES, {}) || {};
+    DRYS = F.get(DRY_KEY, []) || [];
     if (SUBS.length) { renderGrading(); }
+    if (DRYS.length) { renderDryRuns(); }
+  }
+
+  /* —— 🧪 演练样本面板 ——
+     只展示，不判分、不排名。存在的理由：开班前必须能确认「填表→导出→导入」整条链路通了，
+     而正常提交在未开班时被锁住（`round` 为空、无法归档）。这个面板就是那条链路的验证面。 */
+  function renderDryRuns() {
+    var old = document.getElementById('fde-dryruns');
+    if (old) old.remove();
+    if (!P7 || !DRYS.length) return;
+
+    var box = card('border:1px dashed #d1a000;background:#fffbeb;');
+    box.id = 'fde-dryruns';
+    box.appendChild(h3('🧪 演练样本 · ' + DRYS.length + ' 个（不计入判分与排名）'));
+    box.appendChild(el('div', 'font-size:12px;color:#8a6d00;margin-bottom:10px;line-height:1.7;',
+      '这些包带 <b>dry_run</b> 标记，是开班前用来验证链路的。它们<b>不在下面的判分表里</b>，' +
+      '也不会出现在排名中。开班后请让学员重新导出<b>正常提交包</b>。'));
+
+    var t = el('table', 'width:100%;border-collapse:collapse;font-size:12.5px;');
+    t.innerHTML = '<thead><tr style="text-align:left;color:#8a6d00">' +
+      '<th style="padding:5px 0">组</th><th>回合</th><th>交付物</th><th>指纹</th><th>校验</th><th></th></tr></thead>';
+    var tb = el('tbody');
+    DRYS.forEach(function (s) {
+      var v = F.verifyPackage(s);
+      var tr = el('tr', 'border-top:1px solid #f0e2bd;');
+      tr.innerHTML = '<td style="padding:6px 0">' + (s.team_id || '—') + '</td>' +
+        '<td>' + (s.round || '—（未开班）') + '</td>' +
+        '<td>' + ((s.items || []).length) + ' 项</td>' +
+        '<td style="font-family:ui-monospace,monospace">' + (v.ok ? s.fingerprint : '—') + '</td>' +
+        '<td style="color:' + (v.ok ? '#0f7a3d' : '#b42318') + ';font-weight:600">' +
+        (v.ok ? '✅ 通过' : '❌ ' + v.why) + '</td><td></td>';
+      var rm = el('a', 'color:#8a6d00;cursor:pointer;text-decoration:underline;', '移除');
+      rm.onclick = function () {
+        DRYS = DRYS.filter(function (x) { return x.fingerprint !== s.fingerprint; });
+        F.put(DRY_KEY, DRYS); renderDryRuns();
+      };
+      tr.lastChild.appendChild(rm);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb);
+    box.appendChild(t);
+
+    var clr = btn('清空演练样本');
+    clr.style.marginTop = '10px';
+    clr.style.background = '#8a6d00';
+    clr.onclick = function () {
+      if (confirm('清空所有演练样本？（不影响判分表里的正式提交）')) {
+        DRYS = []; F.put(DRY_KEY, []); renderDryRuns();
+      }
+    };
+    box.appendChild(clr);
+
+    /* 插在判分表**之前** —— 顺序本身在提示「这不是成绩」。 */
+    var g = document.getElementById('fde-grading');
+    if (g) { g.parentNode.insertBefore(box, g); } else { P7.appendChild(box); }
   }
 
   /* —— 判分表 —— */

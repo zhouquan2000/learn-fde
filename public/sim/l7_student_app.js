@@ -765,7 +765,7 @@
     return out;
   }
 
-  function collectForm() {
+  function collectForm(dryRun) {
     var out = { items: [], gates_passed: [], eng_self: {}, judge_self: {} };
     /* item_id 前缀随回合变 —— 原实现写死 'R1-'(记 B16),换回合后草稿键全错 */
     var rkp = roundKey() || 'R1';
@@ -825,6 +825,10 @@
     out.team_id = localStorage.getItem('fde.myTeam') || null;
     out.case_id = (F.get(F.KEY.CLASS, {}) || {}).case_id || null;
     out.npc_answers = collectNpc();      /* P8 甲方质询应答 —— 判 B 项的证据,不是交付物 */
+    /* 🧪 演练样本标记:只在**显式传 true** 时写进包(条件化 ⇒ 正常包的包体逐字节不变)。
+       ⚠️ 这里不能写成 `out.dry_run = !!dryRun` 无条件赋值 —— 那会给每个正常包都加一个
+          `dry_run:false` 字段,包体变了、指纹全变(历史包比对与已有的说明文档都会对不上)。 */
+    if (dryRun) { out.dry_run = true; }
     /* ⭐ ③-a EvalRun 产物登记 → 落进 `artifacts.eval`。
        ⚠️ 只写 `eval`(登记形态),**绝不写 `value_rate`** —— 那个率由讲师端
           `F.valueRate()` 从登记 + 参数算出来(D04 §6.4 约束③:不许手填)。 */
@@ -964,10 +968,35 @@
                      '依据 C108 §2.3：指纹用于讲师核验，<b>改动一个字符就会失效</b>。';
     box.appendChild(hint);
 
-    /* ⭐ 导出必须**遵守界面已经声明过的状态**(🟢 提交开放 / 🔴 提交未开放)。
-       ⚠️ 未开班时导出的包 `round` 是空的 ⇒ 讲师归档不进去,所以这里锁住并**写明原因**,
-          而不是导出一个 `fde_null_*.json` 让人事后猜(2026-09-26 走查撞出)。 */
+    /* ⭐ 导出必须**遵守界面已经声明过的状态**（🟢 提交开放 / 🔴 提交未开放）。
+       ⚠️ 未开班时导出的包 `round` 是空的 ⇒ 讲师归档不进去，所以正常导出锁住并**写明原因**，
+          而不是导出一个 `fde_null_*.json` 让人事后猜（2026-09-26 走查撞出）。
+       🧪 但「锁住」不能把整条链路也锁死 —— 开班前也必须能测通「填表→导出→导入判分」，
+          所以另给一个**明确标着演练**的出口（周全裁定 2「加」，2026-09-27）。 */
     var ss = submitState();
+
+    function doExport(dryRun) {
+      var d = collectForm(dryRun);
+      if (!d.team_id) { alert('还没有设置组号。请点顶部「设置组号」。'); return; }
+      if (!d.items.some(function (i) { return i.value && String(i.value).trim(); })) {
+        alert('表单还是空的 —— 先填至少一项。'); return;
+      }
+      if (!dryRun && !submitState().open) {
+        alert('提交未开放：讲师尚未发布本回合，包内的回合号会是空的。请等讲师发布后再导出。');
+        return;
+      }
+      var pkg = F.makePackage(d);
+      /* ⚠️ 文件名里的 `pkg.round` 未开班时是 null ⇒ 原实现会拼出 `fde_null_*.json`。
+         演练包一律用 `DRYRUN` 取代，让讲师在**文件名这一层**就分得清。 */
+      var name = 'fde_' + (pkg.round || (dryRun ? 'DRYRUN' : 'null')) + '_' +
+                 pkg.team_id + '_' + pkg.fingerprint + '.json';
+      F.download(name, JSON.stringify(pkg, null, 2));
+      box.appendChild(el('div', 'margin-top:10px;font-size:12px;font-weight:600;color:' +
+        (dryRun ? '#8a6d00' : '#0f7a3d') + ';',
+        (dryRun ? '🧪 已导出演练样本 ' : '✅ 已导出 ') + name +
+        (dryRun ? '（讲师端会标为演练、不计入判分与排名）' : '')));
+    }
+
     var btn = el('button',
       'width:100%;padding:10px;border:0;border-radius:8px;font-size:13px;font-weight:600;' +
       (ss.open ? 'background:#111827;color:#fff;cursor:pointer;'
@@ -979,24 +1008,21 @@
         '讲师尚未开班、或尚未发布本回合（当前回合 = ' + (ss.round || '未开班') + '）。' +
         '此时导出的话，提交包里「是哪一回合」是空的，讲师无法归档 —— 所以这里锁住了。'));
     }
-    btn.onclick = function () {
-      var d = collectForm();
-      if (!submitState().open) {
-        alert('提交未开放：讲师尚未发布本回合，包内的回合号会是空的。请等讲师发布后再导出。');
-        return;
-      }
-      if (!d.team_id) { alert('还没有设置组号。请点顶部「设置组号」。'); return; }
-      if (!d.items.some(function (i) { return i.value && String(i.value).trim(); })) {
-        alert('表单还是空的 —— 先填至少一项。'); return;
-      }
-      var pkg = F.makePackage(d);
-      var name = 'fde_' + pkg.round + '_' + pkg.team_id + '_' + pkg.fingerprint + '.json';
-      F.download(name, JSON.stringify(pkg, null, 2));
-      var ok = el('div', 'margin-top:10px;font-size:12px;color:#0f7a3d;font-weight:600;',
-        '✅ 已导出 ' + name);
-      box.appendChild(ok);
-    };
+    btn.onclick = function () { doExport(false); };
     box.appendChild(btn);
+
+    /* 🧪 演练出口 —— **只在未开班时出现**（开班后正常出口就是唯一正路，不给学员两条容易混淆的路）。 */
+    if (!ss.open) {
+      var dry = el('button',
+        'width:100%;padding:10px;margin-top:8px;border:1px dashed #d1a000;border-radius:8px;' +
+        'background:#fffbeb;color:#8a6d00;font-size:13px;font-weight:600;cursor:pointer;',
+        '🧪 导出演练样本（开班前自测用）');
+      dry.onclick = function () { doExport(true); };
+      box.appendChild(dry);
+      box.appendChild(el('div', 'margin-top:6px;font-size:12px;color:#8a6d00;line-height:1.7;',
+        '演练样本会带 <b>dry_run</b> 标记、文件名以 <b>DRYRUN</b> 开头，讲师端一眼认得出，' +
+        '且<b>不计入判分与排名</b>。用途：开班前把「填表→导出→导入判分」整条链路先跑通一次。'));
+    }
 
     var sub = el('div', 'font-size:12px;color:#9ca3af;margin-top:8px;display:flex;justify-content:space-between;');
     var h = el('span', '', ''); h.id = 'fde-save-hint';
