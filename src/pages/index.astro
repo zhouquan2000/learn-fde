@@ -1,193 +1,201 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { CATEGORIES, PATHS, TYPE_LABELS, categoryLabel } from '../lib/site';
+import Shell from '../layouts/Shell.astro';
 
-const posts = await getCollection('posts');
-const sorted = posts
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-const latest = sorted.slice(0, 5);
+/**
+ * 落地页 —— LearnFDE 模拟商战训练平台
+ *
+ * 内容纪律:**页面上出现的每个数字都要有出处**。这里只用了两类:
+ *   ① 系统已有的客观计数(五站/回合数/角色数)—— 来自 808/809 与 D04
+ *   ② 明确标为"设计目标"而非"已实现指标"的说法
+ * ⚠️ 上一版 demo 页头曾出现写死的「6 组 / 24 人」(假数,配置里根本没有人数字段),
+ *    本条刻意不再出现任何"看起来像统计"的写死数字。
+ */
 
-const countByCat = (slug: string) => posts.filter((p) => p.data.category === slug).length;
-const toolCount = posts.filter((p) => ['tool', 'agent', 'skill'].includes(p.data.type)).length;
+const STATIONS = [
+  { id: 'S1', name: '挑活', en: 'Pick', who: 'Echo 主责',
+    what: '从客户的杂乱诉求里选出「做哪个业务单元、不做什么」',
+    out: '切入点决策包（候选排序 / 五项可行性 / 主次价值 / 排除理由 / M1 边界 / 负责人判读 / 工作量）',
+    check: '核心考「说不」的能力 —— 排除理由权重最高' },
+  { id: 'S2', name: '诊断与共创 PoC', en: 'Diagnose', who: 'Delta 主责',
+    what: '用 workshop 与客户共创 PoC，把价值主张变成可验证的证据',
+    out: 'EvalRun 产物登记（eval_id / dataset_ref / 指标）、收益核算链原始参数',
+    check: '价值分不再手填 —— 只从带标识的 EvalRun 产物派生' },
+  { id: 'S3', name: '受控投产', en: 'Productionize', who: 'Delta 主责',
+    what: '真实运行、按已批准范围承担结果，不能拿评测数字代替真跑',
+    out: '生产许可、适用任务总量 / 实际进入 AI 路径 / 正确·失败·误放行',
+    check: 'r 改用真实运行实测值；分母按已批准范围冻结，不能事后改' },
+  { id: 'S4', name: '持续采纳', en: 'Adopt', who: 'Echo + Delta',
+    what: '30/60/90 天窗口内证明生意单元真的用起来了',
+    out: '采纳与价值验证、交接支持',
+    check: '采纳率是采纳证据、不是已兑现收入（808 §6）' },
+  { id: 'S5', name: '扩张复制', en: 'Expand', who: 'Reuse Engineer',
+    what: '把经验沉淀成可复用资产，扩张到其他业务单元，并给出复制决策',
+    out: '扩张批次（必达/可选冻结）、资产沉淀与产品反馈',
+    check: '代码复用率或模板数量不能单独证明新增业务价值（808 §7.2）' },
+];
 
-function fmt(d: Date): string {
-  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
-}
+const FEATURES = [
+  { t: '评分不能靠手填', d: '交付物里只有原始计数；Δ、上限、兑现率一律由平台算。价值分从带标识的 EvalRun 产物派生，学员在界面上根本改不了。' },
+  { t: '逐回合换口径', d: 'R2 用评测的 r；R3 起必须换真实运行的实测 r；R4/R5 沿用 R3 投产评审冻结的值。拿评测数字顶替真跑，S2→S5 的分数会当场塌下来。' },
+  { t: '跨回合参数平台带入', d: '案例级基线与开班锁定的「已批准范围」由平台带入，学员不可改 —— 对应 808 §5「不能事后改分母掩盖差距」。' },
+  { t: '防伪边界如实说', d: '指纹只防「随手填个数 / 事后篡改」，不防蓄意造假。真正的防线是：R3 起直接用实测数据算分（造假自动失效）+ 讲师现场重跑。' },
+];
+
+const ROLES = [
+  { n: 'Echo', cn: '策略工程师', d: '偏咨询顾问，负责业务价值（增收 / 降本 / 风控）与客户 CxO 沟通' },
+  { n: 'Delta', cn: '部署工程师', d: '与客户 workshop 共创 PoC/Demo，S2/S3 主责' },
+  { n: 'Reuse Engineer', cn: '复用插件师', d: '把五站经验沉淀成可复用资产，降低下一次交付成本' },
+];
 ---
-<BaseLayout
-  title="Learn FDE — 前线部署工程师的宝藏库"
-  description="一个关于 AI-FDE 的宝藏库，把知识、经验、工具、Agent、Skill 全部分类收好。"
->
-  <!-- Hero -->
+
+<Shell title="LearnFDE · FDE 模拟商战训练平台">
   <section class="hero">
     <div class="wrap">
-      <div class="eyebrow">Frontline Deployment Engineer · 前线部署工程师</div>
-      <h1>把 AI 落进<br /><span class="grad">生意现场</span>的前线。</h1>
-      <p class="hero-sub">
-        一个关于 AI-FDE 的宝藏库 —— 把 <em>知识、经验、工具、Agent、Skill</em>
-        无论文章、播客、视频还是代码，全部分类收好。给自学的小白、入行的从业者、要落地的企业。
+      <div class="eyebrow mono">FDE SIMULATION · 五站方法论 v1.0</div>
+      <h1>把 FDE 的五站，<br />做成一场<b>团队对抗</b>。</h1>
+      <p class="lede">
+        一支乙方交付团队，纵向走完五站：从「挑哪个业务单元」到「甲方是否同意复制扩张」。
+        每一站都有交付物、有门槛、有排名；分不是自己报的，是平台按业务价值算出来的。
       </p>
-      <div class="hero-cta">
-        <a class="btn-primary" href="#paths">选择你的路径</a>
-        <a class="btn-ghost" href="#posts">直接浏览内容库</a>
+      <div class="cta">
+        <a class="btn primary" href="/sim/">进入学员端 →</a>
+        <a class="btn" href="/sim/console/">讲师端（开班 / 判分）</a>
       </div>
-      <div class="ticker mono">
-        <b>{posts.length}</b> 篇内容 · <b>{toolCount}</b> 个工具与 Agent · <b>{CATEGORIES.length}</b> 个分类 · 中英双语
-      </div>
+      <p class="note mono">
+        ⚠️ 学员端需要讲师先开班并选定客户案例；未开班时页面会显示「未开班」。
+      </p>
     </div>
   </section>
 
-  <!-- 三大受众入口 -->
-  <section class="section" id="paths">
+  <section class="band">
     <div class="wrap">
-      <div class="section-head">
-        <div class="section-label">Three entry paths · 三条路径</div>
-        <div class="section-title">你是谁？从这儿进。</div>
-      </div>
-      <div class="paths">
-        {
-          PATHS.map((p) => (
-            <div class="path">
-              <div class="idx">{p.id}</div>
-              <h3>{p.cn}</h3>
-              <div class="en">{p.en}</div>
-              <p>{p.desc}</p>
-              <div class="go">进入路径 →</div>
+      <h2>五站 = 五个回合</h2>
+      <p class="sub">每一站都是一次「交出可运行产物」的检验，交不出就是 0 分（一票否决）。</p>
+      <div class="stations">
+        {STATIONS.map((s) => (
+          <article class="st">
+            <div class="st-h">
+              <span class="st-id mono">{s.id}</span>
+              <span class="st-nm">{s.name}</span>
+              <span class="st-en mono">{s.en}</span>
             </div>
-          ))
-        }
+            <div class="st-who mono">{s.who}</div>
+            <p class="st-what">{s.what}</p>
+            <div class="st-row"><span class="k">交付物</span><span class="v">{s.out}</span></div>
+            <div class="st-row"><span class="k">这一站的坑</span><span class="v">{s.check}</span></div>
+          </article>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- 分类导航 -->
-  <section class="section">
+  <section class="band alt">
     <div class="wrap">
-      <div class="section-head">
-        <div class="section-label">Browse by topic · 按主题浏览</div>
-        <div class="section-title">六个入口，覆盖整个 FDE 世界。</div>
-      </div>
-      <div class="cats">
-        {
-          CATEGORIES.map((c) => (
-            <a class="cat" href={`/${c.slug}/`}>
-              <span class="cn">{c.cn}</span>
-              <span class="en">{c.en}</span>
-              <span class="count">{countByCat(c.slug)} 篇</span>
-            </a>
-          ))
-        }
+      <h2>为什么这套评分不会被「填漂亮」</h2>
+      <div class="feats">
+        {FEATURES.map((f) => (
+          <div class="ft">
+            <div class="ft-t">{f.t}</div>
+            <p class="ft-d">{f.d}</p>
+          </div>
+        ))}
       </div>
     </div>
   </section>
 
-  <!-- 最新内容 -->
-  <section class="section posts" id="posts">
+  <section class="band">
     <div class="wrap">
-      <div class="section-head">
-        <div class="section-label">Latest · 最新入库</div>
-        <div class="section-title">最近收进来的宝藏。</div>
+      <h2>角色</h2>
+      <p class="sub">可兼岗，但审批权限不因称谓自动获得。</p>
+      <div class="roles">
+        {ROLES.map((r) => (
+          <div class="rl">
+            <div class="rl-n mono">{r.n}</div>
+            <div class="rl-c">{r.cn}</div>
+            <p class="rl-d">{r.d}</p>
+          </div>
+        ))}
       </div>
-      {
-        latest.map((post) => (
-          <a class="post" href={`/posts/${post.id}/`}>
-            <span class="tag">{categoryLabel(post.data.category)}</span>
-            <span class="t">{post.data.title}</span>
-            <span class="meta">{TYPE_LABELS[post.data.type]} · {fmt(post.data.date)}</span>
-          </a>
-        ))
-      }
     </div>
   </section>
-</BaseLayout>
+
+  <section class="band alt">
+    <div class="wrap">
+      <h2>怎么用</h2>
+      <div class="use">
+        <div class="u">
+          <div class="u-n mono">01</div>
+          <div class="u-t">讲师开班</div>
+          <p>在讲师端设置班次、分组，选定客户案例，然后逐站发布回合。</p>
+          <a class="u-a" href="/sim/console/">讲师端 →</a>
+        </div>
+        <div class="u">
+          <div class="u-n mono">02</div>
+          <div class="u-t">学员按站交付</div>
+          <p>在自己的电脑上跑 Agent、做 Eval，然后在学员端填交付物、登记 EvalRun 产物。</p>
+          <a class="u-a" href="/sim/">学员端 →</a>
+        </div>
+        <div class="u">
+          <div class="u-n mono">03</div>
+          <div class="u-t">导出 / 导入提交包</div>
+          <p>学员导出带指纹的 JSON 提交包，讲师导入判分 —— 零服务器、零账号。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Shell>
 
 <style>
-  .hero { padding: 116px 0 76px; }
-  .eyebrow {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--cyan); margin-bottom: 22px;
-  }
-  .hero h1 {
-    font-size: clamp(40px, 6vw, 70px); line-height: 1.08; font-weight: 700; letter-spacing: -0.02em;
-    max-width: 18ch;
-  }
-  .hero-sub { margin-top: 24px; font-size: 18px; color: var(--muted); max-width: 52ch; }
-  .hero-sub em { color: var(--ink); font-style: normal; }
-  .hero-cta { margin-top: 40px; display: flex; gap: 14px; align-items: center; }
-  .btn-primary {
-    font-family: var(--mono); font-size: 13.5px; text-decoration: none; font-weight: 600;
-    color: #fff; padding: 13px 24px; border-radius: 999px;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
-    box-shadow: 0 0 24px rgba(168, 85, 247, 0.5); transition: transform .15s, box-shadow .15s;
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 34px rgba(34, 211, 238, 0.6); }
-  .btn-ghost {
-    font-family: var(--mono); font-size: 13.5px; text-decoration: none; color: var(--ink);
-    padding: 12px 24px; border-radius: 999px;
-    background: var(--glass); border: 1px solid var(--glass-border);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    transition: border-color .15s;
-  }
-  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); }
-  .ticker { margin-top: 64px; font-family: var(--mono); font-size: 12px; color: var(--faint); }
-  .ticker b { color: var(--muted); font-weight: 500; }
+  .hero { padding: 84px 0 64px; }
+  .eyebrow { font-size: 12px; letter-spacing: .14em; color: var(--cyan); margin-bottom: 18px; }
+  h1 { font-size: clamp(32px, 5.2vw, 54px); font-weight: 800; letter-spacing: -.025em; line-height: 1.22; }
+  h1 b { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .lede { margin-top: 22px; max-width: 720px; font-size: 17px; color: var(--muted); }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+  .btn { display: inline-block; padding: 11px 22px; border-radius: 999px; text-decoration: none;
+         border: 1px solid var(--border); background: var(--surf); color: var(--ink);
+         font-size: 14px; font-weight: 600; transition: .15s; }
+  .btn:hover { border-color: var(--cyan); }
+  .btn.primary { background: var(--grad); color: #fff; border-color: transparent; }
+  .note { margin-top: 20px; font-size: 12.5px; color: var(--faint); }
 
-  .section { padding: 56px 0; }
-  .section-head { margin-bottom: 28px; }
-  .section-label { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
-  .section-title { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+  .band { padding: 56px 0; }
+  .band.alt { background: var(--surf2); }
+  h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: -.02em; }
+  .sub { margin-top: 10px; color: var(--muted); max-width: 760px; }
 
-  .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .path {
-    position: relative; border-radius: 18px; padding: 28px 24px; cursor: pointer;
-    background: var(--glass); border: 1px solid var(--glass-border);
-    backdrop-filter: blur(14px) saturate(150%);
-    -webkit-backdrop-filter: blur(14px) saturate(150%);
-    transition: transform .18s, border-color .18s, box-shadow .18s;
-  }
-  .path:hover { transform: translateY(-4px); border-color: rgba(34, 211, 238, 0.5); box-shadow: 0 0 28px rgba(168, 85, 247, 0.22); }
-  .path .idx { font-family: var(--mono); font-size: 12px; color: var(--faint); }
-  .path h3 { font-size: 19px; font-weight: 700; margin: 14px 0 8px; }
-  .path .en {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 12px;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  .path p { font-size: 14px; color: var(--muted); }
-  .path .go { margin-top: 18px; font-family: var(--mono); font-size: 12.5px; color: var(--cyan); opacity: 0; transition: opacity .18s; }
-  .path:hover .go { opacity: 1; }
+  .stations { margin-top: 32px; display: grid; gap: 14px; }
+  .st { background: var(--surf); border: 1px solid var(--border2); border-radius: 12px;
+        padding: 20px 22px; box-shadow: var(--shadow); }
+  .st-h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .st-id { font-size: 12px; font-weight: 700; color: #fff; background: var(--grad);
+           padding: 3px 10px; border-radius: 999px; }
+  .st-nm { font-size: 17px; font-weight: 700; }
+  .st-en { font-size: 11.5px; color: var(--faint); letter-spacing: .08em; text-transform: uppercase; }
+  .st-who { margin-top: 6px; font-size: 12px; color: var(--cyan); }
+  .st-what { margin-top: 10px; color: var(--muted); }
+  .st-row { display: flex; gap: 12px; margin-top: 9px; font-size: 13.5px; }
+  .st-row .k { flex: 0 0 88px; color: var(--faint); font-size: 12.5px; }
+  .st-row .v { flex: 1; color: var(--muted); }
 
-  .cats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .cat {
-    border-radius: 16px; padding: 22px; text-decoration: none; color: var(--ink);
-    background: var(--glass); border: 1px solid var(--glass-border);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    display: flex; flex-direction: column; gap: 6px;
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .cat:hover { border-color: rgba(168, 85, 247, 0.55); box-shadow: 0 0 22px rgba(168, 85, 247, 0.2); }
-  .cat .cn { font-size: 16px; font-weight: 700; }
-  .cat .en { font-family: var(--mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
-  .cat .count { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+  .feats { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .ft { background: var(--surf); border: 1px solid var(--border2); border-radius: 12px; padding: 20px; }
+  .ft-t { font-weight: 700; font-size: 15px; }
+  .ft-d { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
 
-  .posts { border-top: 1px solid var(--glass-border); }
-  .post {
-    display: flex; align-items: baseline; gap: 20px; padding: 20px 0;
-    border-bottom: 1px solid var(--glass-border); text-decoration: none; color: var(--ink);
-    transition: padding-left .15s;
-  }
-  .post:hover { padding-left: 8px; }
-  .post .tag {
-    font-family: var(--mono); font-size: 11px; color: #fff; white-space: nowrap;
-    padding: 3px 10px; border-radius: 999px;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
-  }
-  .post .t { font-size: 16.5px; font-weight: 600; }
-  .post .meta { font-family: var(--mono); font-size: 11.5px; color: var(--faint); white-space: nowrap; }
+  .roles { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .rl { background: var(--surf); border: 1px solid var(--border2); border-radius: 12px; padding: 20px; }
+  .rl-n { font-size: 13px; font-weight: 700; color: var(--violet); }
+  .rl-c { font-weight: 700; margin-top: 4px; }
+  .rl-d { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
 
-  @media (max-width: 860px) {
-    .paths, .cats { grid-template-columns: 1fr; }
-    .post { flex-wrap: wrap; }
-  }
+  .use { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .u { background: var(--surf); border: 1px solid var(--border2); border-radius: 12px; padding: 20px; }
+  .u-n { font-size: 12px; color: var(--faint); }
+  .u-t { font-weight: 700; margin-top: 4px; }
+  .u p { margin-top: 8px; font-size: 13.5px; color: var(--muted); }
+  .u-a { display: inline-block; margin-top: 12px; font-size: 13px; color: var(--cyan); font-weight: 600; text-decoration: none; }
+  .u-a:hover { text-decoration: underline; }
+
+  @media (max-width: 640px) { .st-row { flex-direction: column; gap: 2px; } .st-row .k { flex: none; } }
 </style>

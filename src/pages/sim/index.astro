@@ -1,0 +1,870 @@
+---
+/* ⚠️ 本文件由 _tools/port_prototype.py 从 L7 原型**机械移植**生成(勿手改)。
+   源:l7_prototype_v0.4_student.html · 重新移植:python3 _tools/port_prototype.py */
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>学员端 · FDE 模拟商战</title>
+  <!-- 主题须在首次绘制前定好,否则深色用户会看到白屏闪一下 -->
+  <script is:inline>try{var t=localStorage.getItem('fde.theme');if(t==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
+<style is:global>
+/* ══════════ 主题 token ══════════ */
+:root{ /* 浅色（默认）—— 长时间阅读优先 */
+  --bg:#f7f7f5; --surf:#ffffff; --surf2:#f1f1ee;
+  --ink:#34323d; --muted:#55535f; --faint:#6b6874;
+  --violet:#6d28d9; --cyan:#0e7490;
+  --border:rgba(20,18,30,.13); --border2:rgba(20,18,30,.075);
+  --warn:#92400e; --ok:#047857; --bad:#b91c1c;
+  --warn-t:rgba(180,83,9,.10); --ok-t:rgba(4,120,87,.10); --bad-t:rgba(185,28,28,.10);
+  --grad:linear-gradient(92deg,#6d28d9,#0e7490);
+  --track:rgba(20,18,30,.09);
+  --shadow:0 1px 2px rgba(20,18,30,.04), 0 6px 20px rgba(20,18,30,.055);
+  --warnface:linear-gradient(92deg,#d97706,#f59e0b);
+  --badface:linear-gradient(92deg,#b91c1c,#ef4444);
+  --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+[data-theme="dark"]{ /* 深色（可选）—— 投影/暗场/个人偏好；对比度已下调，避免晕光 */
+  --bg:#111119; --surf:#17171f; --surf2:#1d1d26;
+  --ink:#d8d6e2; --muted:#a4a1b2; --faint:#8f8c9c;
+  --violet:#b98cf8; --cyan:#5ad7ea;
+  --border:rgba(255,255,255,.13); --border2:rgba(255,255,255,.07);
+  /* ⚠️ 深色徽章降亮度：原 #fbbf24 / #34d399 / #f87171 在深底上"发光",
+     抢了警告条与主按钮的注意力。降到中档仍全部 ≥4.5:1（实算见 contrast_components.py） */
+  --warn:#e5a52c; --ok:#3fbf8c; --bad:#e26d6d;
+  --warn-t:rgba(251,191,36,.13); --ok-t:rgba(52,211,153,.13); --bad-t:rgba(248,113,113,.13);
+  --grad:linear-gradient(92deg,#b98cf8,#5ad7ea);
+  --track:rgba(255,255,255,.09);
+  --shadow:none;
+  --warnface:linear-gradient(92deg,#d97706,#fbbf24);
+  --badface:linear-gradient(92deg,#dc2626,#f87171);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.75;
+  font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  transition:background .2s,color .2s}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ---------- 顶栏 ---------- */
+header{position:sticky;top:0;z-index:50;background:var(--surf);border-bottom:1px solid var(--border2)}
+.hbar{display:flex;align-items:center;gap:18px;height:60px}
+.logo{font-weight:800;letter-spacing:-.5px;font-size:16px;white-space:nowrap}
+.logo b{color:var(--cyan)}
+.hsep{flex:1}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surf2);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.chip.on{border-color:var(--cyan);color:var(--cyan)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+.dot.p{background:var(--violet)}
+button.tog{font:inherit;font-size:12.5px;padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);transition:.15s}
+button.tog:hover{color:var(--ink);border-color:var(--cyan)}
+
+/* ---------- 标签导航 ---------- */
+nav.tabs{display:flex;gap:6px;padding:18px 0 0;flex-wrap:wrap}
+nav.tabs button{font:inherit;font-size:13.5px;padding:9px 17px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:var(--surf);color:var(--muted);transition:.15s}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-selected="true"]{color:#fff;border-color:transparent;background:var(--grad);font-weight:600}
+
+/* ---------- 通用 ---------- */
+section.screen{display:none;padding:28px 0 90px}
+section.screen[data-on="1"]{display:block}
+.lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:650}
+h1{font-size:33px;font-weight:800;letter-spacing:-.5px;margin:9px 0 8px;line-height:1.3}
+h2{font-size:19px;font-weight:700;margin-bottom:14px;letter-spacing:-.2px}
+h3{font-size:14.5px;font-weight:650;margin-bottom:8px}
+p.sub{color:var(--muted);font-size:14.5px;max-width:700px;line-height:1.8}
+.card{border:1px solid var(--border2);background:var(--surf);border-radius:14px;padding:22px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g13{grid-template-columns:1.55fr 1fr}
+@media(max-width:900px){.g3,.g13{grid-template-columns:1fr}}
+.mut{color:var(--muted);font-size:13px}
+.faint{color:var(--faint);font-size:12.5px}
+hr.sep{border:0;border-top:1px solid var(--border2);margin:18px 0}
+
+/* ---------- 徽章 ---------- */
+.badge{display:inline-block;padding:2.5px 9px;border-radius:6px;font-size:12px;font-weight:650}
+.b-gate{background:var(--warn-t);color:var(--warn);border:1px solid var(--warn)}
+.b-cont{background:var(--ok-t);color:var(--ok);border:1px solid var(--ok)}
+.b-hot{background:var(--bad-t);color:var(--bad);border:1px solid var(--bad)}
+.b-eng{background:transparent;color:var(--cyan);border:1px solid var(--cyan)}
+.b-val{background:transparent;color:var(--violet);border:1px solid var(--violet)}
+.b-no{background:var(--bad-t);color:var(--bad);border:1px solid var(--bad)}
+.b-card{background:var(--surf2);color:var(--faint);border:1px solid var(--border)}
+
+/* ---------- ③ 结构化数值项(2026-09-26) ---------- */
+/* 学员只填原始参数，派生量（Δ/上限/兑现率）由平台算并显示在下方读数区 */
+.fde-nums{margin-top:12px;padding:12px 14px;border-radius:11px;
+  background:var(--surf2);border:1px dashed var(--border2)}
+.fde-numgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px 14px}
+.fde-numcell{display:flex;flex-direction:column;gap:4px}
+.fde-numcap{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.fde-numlb{font-size:12.5px;color:var(--fg);font-weight:600}
+.fde-numin{width:100%;padding:7px 10px;border-radius:8px;font-family:var(--mono);
+  border:1px solid var(--border2);background:var(--bg);color:var(--fg);font-size:13.5px}
+.fde-numin:focus{outline:none;border-color:var(--cyan)}
+.fde-numro{padding:7px 10px;border-radius:8px;font-family:var(--mono);font-size:13.5px;
+  background:var(--bg);border:1px solid var(--border2);color:var(--faint)}
+.fde-numg{margin-top:8px}
+.fde-numout{margin-top:11px;padding-top:10px;border-top:1px solid var(--border2)}
+.fde-numl{font-family:var(--mono);font-size:12.5px;color:var(--faint);margin-bottom:6px}
+.fde-numv{font-size:13px;line-height:1.95}
+/* ⭐ ③-a EvalRun 产物登记：不是交付物，是判分证据 —— 视觉上要与 41 项区分开 */
+.fde-evrun{margin-top:14px;margin-bottom:25px;padding:14px 16px;border-radius:11px;
+  background:var(--surf2);border:1px dashed var(--cyan)}
+.fde-evnote{font-size:12.5px;line-height:1.9;color:var(--faint);
+  padding:9px 12px;border-radius:8px;background:var(--bg);
+  border-left:3px solid var(--cyan);margin-bottom:12px}
+.fde-evgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 14px}
+.fde-evin{width:100%;padding:7px 10px;border-radius:8px;font-family:var(--mono);
+  border:1px solid var(--border2);background:var(--bg);color:var(--fg);font-size:13.5px}
+.fde-evin:focus{outline:none;border-color:var(--cyan)}
+.fde-evro{background:var(--surf2);color:var(--faint);cursor:not-allowed}
+.fde-evout{margin-top:12px;padding-top:10px;border-top:1px solid var(--border2)}
+.fde-numv b{font-family:var(--mono);font-weight:650}
+.fde-numv.warn{color:var(--warn);font-size:12.5px;line-height:1.7}
+
+/* ---------- 交付物清单 ---------- */
+.dlist{display:flex;flex-direction:column;gap:9px}
+.drow{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;border-radius:11px;
+  border:1px solid var(--border2);background:var(--surf2);transition:.15s}
+.drow:hover{border-color:var(--border)}
+.dnum{font-family:var(--mono);font-size:12px;color:var(--faint);padding-top:2px;min-width:18px}
+.dbody{flex:1}
+.dtitle{font-size:14px;font-weight:620}
+/* ⚠️ .dmeta / .hint 是"学员要反复读的规则文字"，不放到最弱色阶 ——
+   实测 .dmeta 用 faint 只有 4.81:1，虽过 AA 但在 5 天长时段里偏累。
+   层级由字号与位置承载，不靠把规则文字调淡。 */
+.dmeta{font-size:12.5px;color:var(--muted);margin-top:2px}
+.dtags{display:flex;gap:6px;flex-wrap:wrap;padding-top:4px}
+.tick{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--faint);flex:none;margin-top:2px}
+.tick.done{background:var(--ok-t);border-color:var(--ok);color:var(--ok)}
+
+/* ---------- 数据 ---------- */
+.stats{display:flex;gap:26px;flex-wrap:wrap;align-items:baseline}
+.stat .k{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint)}
+.stat .v{font-size:25px;font-weight:750;font-family:var(--mono);letter-spacing:-.5px}
+.stat .v small{font-size:12.5px;color:var(--muted);font-weight:400;font-family:var(--sans)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:7px 16px;font-size:13px}
+.kv dt{color:var(--faint)}
+.kv dd{color:var(--ink);font-family:var(--mono);font-size:12.5px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);
+  font-weight:650;padding:9px 10px;border-bottom:1px solid var(--border)}
+table.t td{padding:11px 10px;border-bottom:1px solid var(--border2);vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+
+/* ---------- 表单 ---------- */
+label.f{display:block;font-size:13px;font-weight:630;margin-bottom:6px}
+.hint{font-size:12.5px;color:var(--faint);margin-bottom:10px;line-height:1.75}
+input[type=text],textarea,select{width:100%;font:inherit;font-size:13.5px;padding:11px 13px;border-radius:9px;
+  border:1px solid var(--border);background:var(--surf2);color:var(--ink);outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--ok-t)}
+textarea{resize:vertical;min-height:84px;line-height:1.75}
+.locked{position:relative}
+.locked input{color:var(--muted);cursor:not-allowed;padding-right:132px}
+.locksrc{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-size:11px;
+  font-family:var(--mono);color:var(--faint);pointer-events:none}
+.fieldset{margin-bottom:25px}
+.calc-note{border-left:3px solid var(--warn);padding:11px 14px;background:var(--warn-t);
+  border-radius:0 9px 9px 0;font-size:12.5px;color:var(--muted);margin-top:11px;line-height:1.75}
+.calc-note b{color:var(--ink)}
+
+/* ---------- 评分 ---------- */
+.score-hero{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:center}
+@media(max-width:820px){.score-hero{grid-template-columns:1fr}}
+.bignum{font-family:var(--mono);font-size:58px;font-weight:800;letter-spacing:-3px;line-height:1;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.bars{display:flex;flex-direction:column;gap:13px;min-width:290px}
+.bar{display:grid;grid-template-columns:80px 1fr 52px;gap:11px;align-items:center;font-size:12.5px}
+.bar .track{height:8px;border-radius:99px;background:var(--track);overflow:hidden}
+.bar .fill{display:block;height:100%;border-radius:99px;background:var(--grad)}
+.bar .fill.warn{background:var(--warnface)}
+.bar .fill.bad{background:var(--badface)}
+.bar .val{font-family:var(--mono);text-align:right;color:var(--muted)}
+.formula{font-family:var(--mono);font-size:12.5px;color:var(--muted);padding:11px 14px;border-radius:9px;
+  background:var(--surf2);border:1px solid var(--border2);margin-top:14px;overflow-x:auto;white-space:nowrap}
+
+/* ---------- 提示条 ---------- */
+.callout{border-radius:11px;padding:14px 17px;font-size:13px;display:flex;gap:11px;align-items:flex-start;line-height:1.75}
+.c-warn{background:var(--warn-t);border:1px solid var(--warn)}
+.c-info{background:var(--ok-t);border:1px solid var(--ok)}
+.c-bad{background:var(--bad-t);border:1px solid var(--bad)}
+.callout .ic{font-size:15px;line-height:1.5}
+
+.footnote{margin-top:28px;padding-top:18px;border-top:1px solid var(--border2);
+  font-size:12px;color:var(--faint);line-height:1.9}
+.footnote code{font-family:var(--mono);color:var(--muted);background:var(--surf2);
+  padding:1px 5px;border-radius:4px;font-size:11.5px;border:1px solid var(--border2)}
+/* ══════════ P5 方法论参考抽屉 ══════════
+   ⚠️ 设计要点：必须是「抽屉」不是「跳页」——
+   学员正在填表时查方法论，不能丢掉已填内容。 */
+.drawer{position:fixed;inset:0;z-index:60;display:none}
+.drawer.open{display:block}
+.drawer .mask{position:absolute;inset:0;background:rgba(20,18,30,.45)}
+.drawer .panel{position:absolute;top:0;right:0;bottom:0;width:min(700px,95vw);
+  background:var(--bg);border-left:1px solid var(--border);overflow-y:auto;
+  padding:22px 26px 70px;box-shadow:-18px 0 48px rgba(20,18,30,.16)}
+.dhead{display:flex;align-items:center;gap:10px;position:sticky;top:-22px;
+  background:var(--bg);padding:14px 0 12px;border-bottom:1px solid var(--border2);
+  z-index:2;margin-bottom:8px}
+.dclose{margin-left:auto;font-size:13px;padding:5px 13px;border-radius:8px;
+  border:1px solid var(--border);background:var(--surf);color:var(--muted);
+  cursor:pointer;font-family:inherit}
+.dclose:hover{border-color:var(--violet);color:var(--violet)}
+.dtabs{display:flex;gap:7px;margin:14px 0 18px;flex-wrap:wrap}
+.dtab{font-size:13px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:inherit}
+.dtab.on{background:var(--violet-t);border-color:var(--violet);color:var(--violet);font-weight:650}
+.stn{background:var(--surf);border:1px solid var(--border);border-radius:11px;
+  padding:14px 16px;margin-bottom:10px}
+.stn .sh{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
+.stn .sid{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--violet)}
+.stn .sn{font-size:14.5px;font-weight:650}
+.stn dl{margin:8px 0 0;font-size:13px;line-height:1.85}
+.stn dt{display:inline;font-weight:650;color:var(--ink)}
+.stn dd{display:inline;margin:0 0 0 4px;color:var(--muted)}
+.stn dd::after{content:"";display:block}
+.tool{display:flex;gap:10px;padding:9px 11px;border-radius:8px;background:var(--surf2);
+  border:1px solid var(--border2);margin-bottom:6px;font-size:13px}
+.tool .fid{font-family:var(--mono);font-size:12.5px;font-weight:700;color:var(--violet);
+  flex:none;min-width:56px}
+.tool .ftx{flex:1;color:var(--muted)}
+.tool .ftx b{color:var(--ink);font-weight:620}
+/* 本回合（S1）该用的工具高亮 —— 让学员"打开就知道用哪张" */
+.tool[data-s1="1"]{background:var(--violet-t);border-color:var(--violet)}
+.tool[data-s1="1"]::after{content:"本回合用";font-size:11px;font-weight:650;
+  color:var(--violet);align-self:center;flex:none;white-space:nowrap}
+</style>
+<style is:global>
+a.logo{text-decoration:none;color:inherit}
+a.logo:hover b{text-decoration:underline}
+</style>
+</head>
+<body>
+<header><div class="wrap hbar">
+  <a class="logo" href="/">Learn<b>FDE</b> <span class="mut" style="font-weight:400">Sim</span></a>
+  <span class="chip on" data-fde-round><span class="dot p"></span>回合 S1 · 挑活</span>
+  <span class="chip">组 <b class="mono" id="fde-banner-team">（未设组号）</b></span>
+  <span class="hsep"></span>
+  <span class="chip mono" data-fde-clock-chip>—</span>
+  <button class="tog" onclick="openM()">📘 方法论参考</button>
+  <button class="tog" onclick="theme()">🌗 浅色 / 深色</button>
+</div></header>
+
+<div class="wrap">
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true"  onclick="go(0,this)">① 回合工作台</button>
+  <button role="tab" aria-selected="false" onclick="go(1,this)">② 客户档案</button>
+  <button role="tab" aria-selected="false" onclick="go(2,this)">③ 交付物表单</button>
+  <button role="tab" aria-selected="false" onclick="go(3,this)">④ 甲方质询预演</button>
+  <button role="tab" aria-selected="false" onclick="go(4,this)">⑤ 评分看板</button>
+</nav>
+
+<!-- ══════════ P5 方法论参考抽屉 ══════════ -->
+<div class="drawer" id="mdrawer" onclick="if(event.target===this||event.target.classList.contains('mask'))closeM()">
+  <div class="mask"></div>
+  <div class="panel">
+    <div class="dhead">
+      <span class="lbl">Methodology Reference · 方法论参考</span>
+      <button class="dclose" onclick="closeM()">关闭 ✕</button>
+    </div>
+    <p class="sub" style="margin-top:2px">
+      内容来自 <b>808 五站业务方法论 正式版 v1.0</b>（2026-09-15）与 <b>809 工具包 v1.0</b>。
+      <b>不用背</b> —— 做作业时随时打开查。
+    </p>
+
+    <div class="note info" style="font-size:13px">
+      <b>⏱ 当前回合：S1 挑活</b> —— 本站最小工具组合是
+      <b class="mono">F00 / F01 / F02 / F09 / F03 / F07</b>（见下方「工具包」页高亮项）。
+    </div>
+
+    <div class="dtabs">
+      <button class="dtab on" onclick="dt(0,this)">① 五站（S1–S5）</button>
+      <button class="dtab" onclick="dt(1,this)">② 工具包（F00–F15）</button>
+    </div>
+
+    <!-- ① 五站 -->
+    <div class="dsec" data-don="1">
+      <div class="stn">
+        <div class="sh"><span class="sid">S1</span><span class="sn">AI业务用例筛选与切片</span>
+          <span class="badge b-vio">挑活</span></div>
+        <dl>
+          <dt>目的</dt><dd>从多条业务流程中选出<b>值得且能启动</b>的最小切片。</dd>
+          <dt>入口</dt><dd>客户愿意提供候选流程；双方指定筛选联系人和授权投入。</dd>
+          <dt>出站 M1</dt><dd>选择理由、边界、价值假设、负责人、运行预期及准备责任已确认；开营还须 F04 全部就绪。</dd>
+        </dl>
+      </div>
+      <div class="stn">
+        <div class="sh"><span class="sid">S2</span><span class="sn">诊断共创 PoC</span></div>
+        <dl>
+          <dt>目的</dt><dd>在共同工作中诊断、构建、评估<b>可运行原型</b>。</dd>
+          <dt>入口</dt><dd>M1 + 客户关键人员 / 数据权限 / 环境 / 判据就绪 + 商业授权。</dd>
+          <dt>出站 M2</dt><dd>原型按约定 PoC 范围验收通过，冻结 Eval v1.0 及失败记录，明确生产差距和后续承诺；<b>不授予生产权限</b>。</dd>
+        </dl>
+      </div>
+      <div class="stn">
+        <div class="sh"><span class="sid">S3</span><span class="sn">受控投产与验证</span>
+          <span class="badge b-hot">M3 最终定义</span></div>
+        <dl>
+          <dt>目的</dt><dd>使系统在<b>限定真实业务</b>中运行并验证。</dd>
+          <dt>入口</dt><dd>M2 + 生产及采纳工作范围 / 预算已授权，本站人员环境到位。</dd>
+          <dt>出站 M3</dt><dd>限定真实运行<b>已发生</b>，质量、安全、运行、人工接续及阶段业务标准通过；<b>不只是获准上线</b>。</dd>
+        </dl>
+      </div>
+      <div class="stn">
+        <div class="sh"><span class="sid">S4</span><span class="sn">持续采纳与价值兑现</span></div>
+        <dl>
+          <dt>目的</dt><dd>形成常态使用、明确运行责任并<b>证明阶段价值</b>。</dd>
+          <dt>入口</dt><dd>M3 + 稳定范围、支持安排、采纳及价值指标 / 窗口已确认。</dd>
+          <dt>出站 M4</dt><dd>约定群体 / 业务任务持续使用，阶段价值和服务承接达标；<b>长期结果尚待观察的部分明确列示</b>。</dd>
+        </dl>
+      </div>
+      <div class="stn">
+        <div class="sh"><span class="sid">S5</span><span class="sn">扩张与复制</span></div>
+        <dl>
+          <dt>目的</dt><dd>管理一批扩张目标，验证新增价值，积累乙方能力。</dd>
+          <dt>入口</dt><dd>源用例 M4；原范围稳定；扩张评估资源获准。</dd>
+          <dt>出站 M5</dt><dd>本批全部必达目标完成各自必要 S3 / S4 及批次约定要求；乙方另完成资产与产品反馈处置记录。</dd>
+        </dl>
+      </div>
+
+      <div class="note" style="font-size:13px">
+        <b>⚠️ 三条贯通全流程的规则（808 §1）</b>
+        <br>① <b>一张用例卡走五站</b>：同一张 F01 用例卡贯穿筛选、共创、运行、采纳及扩张。
+        <br>② <b>三种价值</b>：增收 / 降本 / 风控，确定主价值、可选次价值及各自证据。
+        <br>③ <b>三类指标分开记</b>：模型指标、使用指标、业务价值，<b>不能混为一谈</b>。
+      </div>
+      <div class="note bad" style="font-size:13px">
+        <b>⚠️ 808 §1 的三条硬边界</b><br>
+        · <b>里程碑验收 ≠ 继续投入 ≠ 生产权限 ≠ 开票 ≠ 回款</b> —— 这是五种不同状态。<br>
+        · 服务按约完成但 PoC 未达标时，<b>可以按合同结算服务，却不能把 M2 写成通过</b>。<br>
+        · <b>签约不等于采纳；采纳不等于收到款项。</b>
+      </div>
+    </div>
+
+    <!-- ② 工具包 -->
+    <div class="dsec" data-don="2" style="display:none">
+      <p style="font-size:13px">按站分组。本回合（S1）该用的已高亮。</p>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">共用治理与用例档案（全站沿用）</h3>
+      <div class="tool" data-s1="1"><span class="fid">F00</span><span class="ftx"><b>项目、对象与决策授权</b> —— 真实姓名、授权凭据、替补、权限范围、期限、冲突升级路径</span></div>
+      <div class="tool" data-s1="1"><span class="fid">F01</span><span class="ftx"><b>AI业务用例卡（跨站沿用）</b> —— 机会 ID、主价值、范围版本、各站决策</span></div>
+      <div class="tool"><span class="fid">F06</span><span class="ftx"><b>问题、例外、变更与暂停恢复</b> —— 暂停 / 回退触发、负责人、时间预算上限、复评日</span></div>
+      <div class="tool" data-s1="1"><span class="fid">F07</span><span class="ftx"><b>决策单（每次决定独立编号）</b> —— 明确本次只批准哪件事</span></div>
+      <div class="tool" data-s1="1"><span class="fid">F09</span><span class="ftx"><b>运行预期与结果响应共识</b> —— 校准客户对生产期望</span></div>
+      <div class="tool"><span class="fid">F14</span><span class="ftx"><b>证据登记、冻结及访问</b> —— 每次门槛冻结证据清单及版本引用</span></div>
+      <div class="tool"><span class="fid">F15</span><span class="ftx"><b>常态服务交接、终止与退役</b> —— 业务接续、数据交接、账户撤销、支持终止</span></div>
+      <div class="tool"><span class="fid">G</span><span class="ftx"><b>门槛参数表</b>（F07 引用，不是新增站点）—— 对象与范围、指标定义及分母、基线、阈值、核验人</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">S1 筛选与就绪</h3>
+      <div class="tool" data-s1="1"><span class="fid">F02</span><span class="ftx"><b>持续机会清单及排序快照</b> —— 先做<b>五项可行性检查</b>，再比较价值与投入</span></div>
+      <div class="tool" data-s1="1"><span class="fid">F03-S1</span><span class="ftx">S1 执行清单</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">S2 诊断共创 PoC</h3>
+      <div class="tool"><span class="fid">F04</span><span class="ftx"><b>开营准备与责任落实</b> —— <b>不能仅凭 M1 开营</b></span></div>
+      <div class="tool"><span class="fid">F03-S2</span><span class="ftx">S2 执行清单</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">S3 受控投产与验证</h3>
+      <div class="tool"><span class="fid">F08-A</span><span class="ftx"><b>运行就绪与生产许可</b>（中间检查点，<b>不是 M3</b>）</span></div>
+      <div class="tool"><span class="fid">F08-B</span><span class="ftx"><b>真实运行与 M3 证据</b></span></div>
+      <div class="tool"><span class="fid">F03-S3</span><span class="ftx">S3 执行清单</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">S4 持续采纳与价值兑现</h3>
+      <div class="tool"><span class="fid">F11-A</span><span class="ftx">采纳与启用计划</span></div>
+      <div class="tool"><span class="fid">F11-B</span><span class="ftx">周期观察与阻碍</span></div>
+      <div class="tool"><span class="fid">F11-C</span><span class="ftx"><b>三种价值核验</b>（增收 / 降本 / 风控）</span></div>
+      <div class="tool"><span class="fid">F11-D</span><span class="ftx">支持与 M4 评审</span></div>
+      <div class="tool"><span class="fid">F03-S4</span><span class="ftx">S4 执行清单</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">S5 扩张复制与资产沉淀</h3>
+      <div class="tool"><span class="fid">F12-A</span><span class="ftx">扩张批次章程</span></div>
+      <div class="tool"><span class="fid">F12-B</span><span class="ftx">目标路由和证据矩阵</span></div>
+      <div class="tool"><span class="fid">F12-C</span><span class="ftx">批次经济性与 M5</span></div>
+      <div class="tool"><span class="fid">F13-A</span><span class="ftx">乙方复用资产登记与验收卡</span></div>
+      <div class="tool"><span class="fid">F13-B</span><span class="ftx">产品迭代反馈闭环</span></div>
+      <div class="tool"><span class="fid">F13-C</span><span class="ftx">内部资产结项（独立于客户 M5）</span></div>
+      <div class="tool"><span class="fid">F03-S5</span><span class="ftx">S5 执行清单</span></div>
+
+      <h3 style="font-size:13.5px;margin:16px 0 7px">贯通全过程</h3>
+      <div class="tool"><span class="fid">F05</span><span class="ftx"><b>Eval 评估集与执行记录</b> —— 样本 / 评分 / 运行 / 结论。<b>区分调试样本与独立验收样本</b></span></div>
+      <div class="tool"><span class="fid">F10</span><span class="ftx"><b>商业授权、实际成本与结算台账</b> —— 订单、预算、实际 / 剩余预测、开票回款</span></div>
+
+      <div class="note bad" style="font-size:13px">
+        <b>⚠️ 两条最容易踩的红线（直接关系本课程的硬红线）</b><br>
+        · <b>F05</b>：反复用于调优的样本<b>不再冒充独立验收集</b> —— 这正是 D06 硬红线③。<br>
+        · 填写约定：<b>【待填】不能视为完成</b>；复选框<b>只有引用可核验证据才能勾选</b>；不能只写"客户同意"。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ ① 回合工作台 ══════════ -->
+<section class="screen" data-on="1">
+  <div class="lbl">Round Workspace · 回合工作台</div>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— &#123;D&#125;">S1 · 挑活 —— 切入点决策包</h1>
+  <p class="sub" data-fde-sub>本回合的胜负手是 <b>「说不」的能力</b>：核心不是选中，而是<b>排除</b>。你要从 4 个候选生意单元里挑 1 个，并把另外 3 个为什么不选说清楚。</p>
+
+  <div class="grid g13" style="margin-top:26px">
+    <div class="card">
+      <h2>交付物清单 <span class="mut" id="fde-done-txt" style="font-weight:400;font-size:13px">7 项 · 已完成 0 项</span></h2>
+      <div class="dlist">
+        <div class="drow" data-item="R1-01"><div class="tick"></div><div class="dnum">01</div><div class="dbody">
+          <div class="dtitle">候选单元排序表</div>
+          <div class="dmeta">3–5 个全排 · 不排名次不给分</div>
+          <div class="dtags"><span class="badge b-cont">连续分</span></div></div></div>
+
+        <div class="drow" data-item="R1-02"><div class="tick"></div><div class="dnum">02</div><div class="dbody">
+          <div class="dtitle">五项可行性检查打分</div>
+          <div class="dmeta">任一不符须说明，不说明 → 驳回</div>
+          <div class="dtags"><span class="badge b-gate">门槛</span></div></div></div>
+
+        <div class="drow" data-item="R1-03"><div class="tick"></div><div class="dnum">03</div><div class="dbody">
+          <div class="dtitle">主价值声明（增收 / 降本 / 风控）+ 次价值</div>
+          <div class="dmeta">决定后续计分轨</div>
+          <div class="dtags"><span class="badge b-gate">门槛</span><span class="badge b-hot">定轨</span></div></div></div>
+
+        <div class="drow" data-item="R1-04"><div class="tick"></div><div class="dnum">04</div><div class="dbody">
+          <div class="dtitle">⭐ 排除理由 —— 为什么不选其余 3 个</div>
+          <div class="dmeta">本回合得分权重最高的一项</div>
+          <div class="dtags"><span class="badge b-hot">高权重</span><span class="badge b-cont">连续分</span></div></div></div>
+
+        <div class="drow" data-item="R1-05"><div class="tick"></div><div class="dnum">05</div><div class="dbody">
+          <div class="dtitle">M1 边界与准备责任</div>
+          <div class="dmeta">谁做什么、谁签字</div>
+          <div class="dtags"><span class="badge b-gate">门槛</span></div></div></div>
+
+        <div class="drow" data-item="R1-06"><div class="tick"></div><div class="dnum">06</div><div class="dbody">
+          <div class="dtitle">「该生意单元实际负责人」态度判读 + 应对策略</div>
+          <div class="dmeta">负责人的态度<b>不是卡里预设的档位</b>，而是<b>随你的行为变化</b>（C105 裁定）—— 读得出她的真实立场，才谈得上应对。</div>
+          <div class="dtags"><span class="badge b-cont">连续分</span><span class="badge b-hot">照妖镜</span></div></div></div>
+
+        <div class="drow" data-item="R1-07"><div class="tick"></div><div class="dnum">07</div><div class="dbody">
+          <div class="dtitle">工作量预估（人时 + 关键假设 + 最大风险）</div>
+          <div class="dmeta">计入偏差率</div>
+          <div class="dtags"><span class="badge b-cont">低权重</span></div></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>你的团队 <span class="faint">4 人</span></h3>
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:13px">
+          <div style="display:flex;justify-content:space-between"><span class="mut">Amelia Chen</span><span class="badge b-hot">客户经理</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="mut">Ravi Patel</span><span class="badge b-cont">方案架构师</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="mut">Nina Zhao</span><span class="badge b-cont">交付工程师</span></div>
+          <div style="display:flex;justify-content:space-between"><span class="mut">Tom Reyes</span><span class="badge b-gate">复用工程师</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>本回合客户</h3>
+        <div class="mut" style="font-size:13.5px;line-height:1.8">
+          <b style="color:var(--ink)">优选生活</b><br>零售电商 · 客服售后<br>
+          <span class="faint">虚拟客户 · 由该格 71 条真实案例汇编</span>
+        </div>
+        <hr class="sep">
+        <div class="callout c-warn" style="padding:11px 13px">
+          <span class="ic">⚠️</span><div style="font-size:12.5px" data-fde-tip>
+            <b>先读「该生意单元实际负责人」</b> —— 她的考核表与公司战略不同向，不读就动手是最典型的失败前置动作。</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>倒计时</h3>
+        <div class="stat"><div class="v"><span data-fde-clock-left>—</span><small data-fde-clock-total></small></div></div>
+        <div class="bar" style="margin-top:13px"><span class="mut">进度</span>
+          <span class="track"><span class="fill" data-fde-clock-fill style="width:0%"></span></span><span class="val" data-fde-clock-pct>—</span></div>
+        <div class="faint" style="margin-top:9px" data-fde-clock-note>讲师未设本回合时限 —— 不显示倒计时。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ② 客户档案 ══════════ -->
+<section class="screen">
+  <div class="lbl">Case File · 客户档案</div>
+  <h1>优选生活 <span class="faint" style="font-size:16px;font-weight:400">虚拟客户 · 零售电商 × 客服售后</span></h1>
+  <p class="sub">本卡由该格 <b>71 条</b>一手公开案例汇编而成（其中带量化 51 条），每个数字都挂真实出处。<b>主体为虚构，分歧保留真实世界原样。</b></p>
+
+  <div class="grid g13" style="margin-top:26px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h2>§3 · 客户背景 <span class="mut" style="font-weight:400;font-size:13px">虚构设定参数</span></h2>
+        <dl class="kv">
+          <dt>年 GMV</dt><dd>¥62 亿</dd>
+          <dt>注册用户</dt><dd>4,100 万</dd>
+          <dt>SKU</dt><dd>18 万</dd>
+          <dt>座席</dt><dd>自有 280 人 + 外包 420 人<br><span class="faint">售前 180 / 售后 520</span></dd>
+          <dt>服务渠道</dt><dd>在线 71% · 热线 19% · 工单 7% · 社交私信 3%</dd>
+          <dt>月会话量</dt><dd>在线 210 万次 / 热线 24 万通</dd>
+          <dt>大促峰值</dt><dd><b style="color:var(--warn)">双 11 单日 6.5×</b><br><span class="faint">外包临时扩容占全年客服预算 31%</span></dd>
+        </dl>
+        <div class="callout c-warn" style="margin-top:13px;padding:11px 13px">
+          <span class="ic">⚠️</span><div style="font-size:12.5px">
+            以上是<b>虚拟客户设定</b>，不是任何真实电商的数字。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>§4 · 候选生意单元 <span class="mut" style="font-weight:400;font-size:13px">4 个 · 请全排后选 1</span></h2>
+        <table class="t">
+          <thead><tr><th style="width:34%">候选单元</th><th>卡里埋的陷阱</th><th style="width:88px">难度</th></tr></thead>
+          <tbody>
+            <tr><td><b>A. 大促峰值客服弹性</b> ⭐</td><td>只在峰值省钱 → <b>需按全年摊销</b>，不能只算双 11 那两天</td><td><span class="badge b-cont">中</span></td></tr>
+            <tr><td><b>B. 售前智能导购与转化</b></td><td><b>属「增收」不是「降本」</b>；归因难，收益核算要单独设计</td><td><span class="badge b-gate">中高</span></td></tr>
+            <tr><td><b>C. 退换货自动化</b></td><td>涉逆向物流与资金，跨系统集成重</td><td><span class="badge b-gate">中</span></td></tr>
+            <tr><td><b>D. 售后退款时效治理</b></td><td>属<b>风控/体验</b>边界；折钱公式不同</td><td><span class="badge b-cont">低</span></td></tr>
+          </tbody>
+        </table>
+        <div class="callout c-info" style="margin-top:14px;padding:11px 13px">
+          <span class="ic">🎯</span><div style="font-size:12.5px">
+            <b>S1 的胜负手：A（降本）与 B（增收）的取舍。</b>
+            本卡是全部 12 张卡里<b>三类价值分野最锐利</b>的一张 —— 选 A 和选 B 的小组，
+            <b>收益公式完全不同，严禁加总</b>。选错口径，到 S4 会被打回。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>§6 · 基线参数</h2>
+        <dl class="kv">
+          <dt><code class="mono">V</code> 月在线会话</dt><dd>2,100,000 次</dd>
+          <dt><code class="mono">V'</code> 月热线量</dt><dd>240,000 通</dd>
+          <dt><code class="mono">A</code> 会话平均时长</dt><dd>4 分 10 秒 <span class="faint">（人工承接时）</span></dd>
+          <dt><code class="mono">A'</code> 转人工后时长</dt><dd>4 分 50 秒 <b style="color:var(--bad)">（&gt; A，要重述）</b></dd>
+          <dt><code class="mono">c</code> 单位人分钟成本</dt><dd>¥2.2</dd>
+          <dt><code class="mono">k</code> 每次 AI 边际成本</dt><dd>¥0.16</dd>
+          <dt><code class="mono">M</code> 月维护成本</dt><dd>¥34,000</dd>
+          <dt>峰值倍数</dt><dd>双 11 单日 <b>6.5×</b> · 日常促销 2.2×</dd>
+          <dt>外包溢价</dt><dd>峰值期单位成本 <b>× 1.45</b></dd>
+          <dt>转化价值 <span class="faint">（选 B 用）</span></dt><dd>售前转化率基准 <b>3.2%</b> · 客单价 <b>¥280</b></dd>
+        </dl>
+        <div class="callout c-info" style="margin-top:15px">
+          <span class="ic">📐</span><div style="font-size:12.5px">
+            <b>原成本 C₀（降本口径）</b> = 2,100,000 × 4.17 × 2.2 ≈
+            <b class="mono">¥19,265,000 / 月</b></div>
+        </div>
+        <div class="callout c-bad" style="margin-top:11px">
+          <span class="ic">🔴</span><div style="font-size:12.5px">
+            <b>本卡<b style="color:var(--bad)">已给出</b> A′ = 4 分 50 秒，且 A′ &gt; A。</b><br>
+            你必须<b>识别出 A′ &gt; A 并在收益核算里用它</b> —— 转人工要重述，反而更慢。
+            直接拿 A 算 = <b>收益虚高</b> = 判错。<br>
+            <span class="faint">⚠️ 转化价值是<b>增收</b>口径，与降本<b>严禁加总</b>。</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>§3 · 「该生意单元实际负责人」</h3>
+        <div class="mut" style="font-size:13px;line-height:1.8">
+          <b style="color:var(--ink)">客户服务中心总经理 · 俞敏</b><br>
+          今年<b style="color:var(--warn)">背转化指标</b>，但考核表仍是<b style="color:var(--warn)">「每会话成本」</b>
+        </div>
+        <hr class="sep">
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.85">
+          <b style="color:var(--ink)">她的处境</b>：公司的战略要她做转化，但她的考核表还是成本导向 ——
+          <b>做转化她花预算，年底看表她的成本反而涨了</b>。<br><br>
+          <b style="color:var(--ink)">🎬 她的开场白（讲师念）</b>
+        </div>
+        <div style="margin-top:9px;padding:11px 13px;background:#f8fafc;border-left:3px solid var(--cont);border-radius:0 8px 8px 0;font-size:12.5px;line-height:1.9;color:var(--ink)">
+          「坐。先说清楚我的处境啊 —— <b>公司今年让客服部背转化指标，但我的考核表还是『每会话成本』。</b><br>
+          所以你们待会儿跟我说『售前导购能提转化』，我认。<br>
+          但我要先问一句：<b style="color:var(--bad)">这个转化算谁的？预算从哪出？</b>」
+        </div>
+        <div class="callout c-warn" style="margin-top:13px;padding:11px 13px">
+          <span class="ic">⚠️</span><div style="font-size:12.5px">
+            <b>她的态度由你的行为触发，不是预设档位</b>（C105）。<br>
+            主动挖她的考核表、问转化归因、问大促时间窗 → 她会转支持；
+            只讲「能提多少转化」而不讲「收益记在谁账上」→ 她会转反对。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>§9 · 三类价值与红线</h3>
+        <div style="font-size:12.5px;line-height:2;color:var(--muted)">
+          <span class="badge b-cont">降本</span> 峰值外包削减 + 常规座席人分钟节省 —— <b>主轨</b><br>
+          <span class="badge b-hot">增收</span> 售前转化 —— <b>主轨</b><br>
+          <span class="faint" style="font-size:11.5px">⚠️ 本卡是唯一的三类价值<b>双主线</b>卡；两条公式<b>严禁加总</b></span><br>
+          <span class="badge b-gate">风控</span> 退款时效（候选 D）—— 走门槛项
+        </div>
+        <div class="callout c-bad" style="margin-top:14px">
+          <span class="ic">🔴</span><div style="font-size:12.5px">
+            <b>红线（乘法归零）</b><br>
+            ① 用户消费数据用于模型训练<br>
+            ② 未经用户同意做个性化推荐（<b>个保法</b>）<br>
+            ③ 大促期间 AI 误导导致承诺不实</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>溯源</h3>
+        <div class="faint" style="line-height:1.95">
+          该格 71 条真实案例 · 带量化 51 条 · 全部一手公开来源<br>
+          <span class="mono" style="font-size:11px">Zendesk 44 / Genesys 10 / Intercom 8 / ServiceNow 2 / 京东云 2 / 阿里云 / 百度智能云 / 华为云 AICC / Oracle</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ③ 交付物表单 ══════════ -->
+<section class="screen">
+  <div class="lbl">Deliverable Form · 交付物表单</div>
+  <h1 data-fde-h1="&#123;S&#125; 交付物 · &#123;D&#125;">R1 交付物 · 切入点决策包</h1>
+  <p class="sub">字段与 <code class="mono" style="font-size:12px">Deliverable.items[]</code> 一一对应。橙色标记项为<b>门槛项</b> —— 未填或说明不足会被驳回。</p>
+
+  <div class="grid g13" style="margin-top:26px">
+    <div class="card">
+
+      <div id="fde-fields">
+      <div class="fieldset">
+        <label class="f">01 · 候选单元排序 <span class="badge b-cont">连续分</span></label>
+        <div class="hint">把 4 个候选<b>全部排进第 1–4 名</b>，并给出排序依据。<b>不排名次不给分。</b><br>本卡的胜负手是 <b>A（降本）与 B（增收）的取舍</b> —— 两条公式<b>严禁加总</b>。</div>
+        <div class="fde-ranks" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="fde-rank" data-rank="1"><option value="">第 1 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="2"><option value="">第 2 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="3"><option value="">第 3 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="4"><option value="">第 4 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select></div><textarea class="fde-rank-why" style="margin-top:8px;min-height:62px" placeholder="排序依据：为什么第 1 名是它？为什么最后一名不是它？（本卡胜负手是 A 降本 与 B 增收 的取舍，两条公式严禁加总）"></textarea>
+      </div>
+
+      <div class="fieldset">
+        <label class="f">02 · 五项可行性检查 <span class="badge b-gate">门槛</span></label>
+        <div class="hint">对选中单元逐项打分；任一不符必须写明说明，否则驳回。</div>
+        <textarea placeholder="① 数据可得性 / ② 系统可接入性 / ③ 业务 owner 意愿 / ④ 合规与授权 / ⑤ 价值可量化性&#10;……"></textarea>
+      </div>
+
+      <div class="fieldset">
+        <label class="f">03 · 主价值声明 <span class="badge b-gate">门槛</span><span class="badge b-hot">定轨</span></label>
+        <div class="hint"><b>必须主动选</b>，不选＝本门槛项未达成。选择将决定后续计分轨（增收 / 降本 / 风控）。</div>
+        <select class="fde-track"><option value="">请选择 —— 将决定后续计分轨</option><option value="降本">降本 —— 峰值外包削减 + 座席人分钟节省</option><option value="增收">增收 —— 售前导购转化（⚠️ 公式不同，严禁与降本加总）</option><option value="风控">风控 —— 退款时效治理（走门槛项）</option></select>
+      </div>
+
+      <div class="fieldset">
+        <label class="f">04 · ⭐ 排除理由 <span class="badge b-hot">本回合最高权重</span></label>
+        <div class="hint">逐一说明<b>为什么不选</b>其余 3 个候选。这是本回合的核心考点 —— 只说「选了 A」不得分。</div>
+        <textarea style="min-height:124px" placeholder="候选 B（售前导购与转化）：卡里明说属「增收」不是「降本」，转化率基准 3.2%、客单价 ¥280 —— 收益公式与降本不同，且归因难，本期先不选……&#10；候选 A（大促峰值弹性）：陷阱是「只在峰值省钱」，必须按全年摊销，不能只算双 11 那两天，我们要把口径钉死……"></textarea>
+        <div class="calc-note">
+          <b>评分提示</b>：D06 §2.3 中「排除理由」占<b>判断分权重 40%</b>，而判断分占总成绩 25%。
+          漏掉或写空话，是分数掉得最快的地方。
+        </div>
+      </div>
+
+      <div class="fieldset">
+        <label class="f">05 · M1 边界与准备责任 <span class="badge b-gate">门槛</span></label>
+        <div class="hint">谁做什么、谁签字。对应 F04 就绪清单 / F00 授权。</div>
+        <input type="text" placeholder="例：数据抽取由客户 IT 提供；生产环境变更需 CIO 签字……">
+      </div>
+
+      <div class="fieldset">
+        <label class="f">06 · 负责人态度判读 + 应对策略 <span class="badge b-cont">连续分</span></label>
+        <div class="hint">读「该生意单元实际负责人」，判断<b>俞敏</b>的处境，并给出你的应对。这是「是否读卡」的照妖镜。<br>⚠️ 她的态度<b>由你的行为触发</b>，不是预设档位（C105）—— 你问什么，决定你听到什么。</div>
+        <textarea placeholder="判读：俞敏今年背转化指标，但考核表仍是「每会话成本」—— 做转化她要花预算，年底看表成本反而涨了。她的犹豫源于激励错配，而非不认可技术……&#10；应对：先把「转化收益记在谁的账上、怎么被确认」讲清楚，再把第一期价值锚定在她考核表能兑现的指标上……"></textarea>
+      </div>
+
+      <div class="fieldset" style="margin-bottom:0">
+        <label class="f">07 · 工作量预估 <span class="badge b-cont">低权重</span></label>
+        <div class="hint"><b>R1 判据 = 预估的可核验性</b>：① 人时<b>有数</b>（不是「大概两周」）② 关键<b>假设写明</b> ③ 最大<b>风险具体</b>。<br><span class="faint">R2 起改为按「偏差率」评（预估 vs 实际）—— D06 v1.3 §2.3.1</span></div>
+        <input type="text" placeholder="人时 + 关键假设 + 最大风险">
+      </div>
+      </div><!-- /#fde-fields -->
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>提交状态</h3>
+        <div class="stats" style="gap:20px">
+          <div class="stat" data-fde-stat="items"><div class="k">已完成</div><div class="v">0<small> / —</small></div></div>
+          <div class="stat" data-fde-stat="gates"><div class="k">门槛项</div><div class="v">0<small> / —</small></div></div>
+        </div>
+        <hr class="sep">
+        <div class="callout c-info" style="padding:11px 13px">
+          <span class="ic">ℹ️</span><div style="font-size:12.5px">
+            门槛项未完成也可提交，但会在评分时触发<b>门槛达成数</b>扣减，不进乘法公式。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔒 本界面刻意不做的事</h3>
+        <div class="mut" style="font-size:12.5px;line-height:1.85">
+          本站<b>不允许学员填写解决率 <code class="mono">r</code></b>。
+        </div>
+        <div class="locked" style="margin-top:11px">
+          <label class="f" style="font-size:12.5px">解决率 r <span class="badge b-no">只读</span></label>
+          <input type="text" value="" placeholder="—" disabled>
+          <span class="locksrc">⟵ EvalRun</span>
+        </div>
+        <div class="faint" style="margin-top:11px;line-height:1.8">
+          来源约束（D04 §6.4）：<code>r</code> 只能由 <code>EvalRun</code> 带出。
+          否则学员会自己填 90%。<b>该字段在 R2 由 Eval 跑出后自动回填。</b></div>
+      </div>
+
+      <div class="card">
+        <h3>💾 数据契约</h3>
+        <div class="faint" style="line-height:1.95">
+          本表单写入 <code>Deliverable</code> 对象<br>
+          与 <code>EvalRun</code> / <code>CostModel</code> / <code>CaseFile</code> / <code>DialogSample</code> 共享
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ④ 甲方质询预演（P8 学员侧） ══════════ -->
+<section class="screen">
+  <div class="lbl">Client Challenge Rehearsal · 甲方质询预演</div>
+  <h1><span data-fde-h1="&#123;S&#125; 甲方质询 —— "></span>你答得上来吗</h1>
+  <p class="sub">
+    下面是<b>甲方负责人最可能在这个回合问你</b>的话。讲师会在现场挑 <b>2–3 句</b>用。
+    这里写下的应答<b>不是交付物</b>，而是<b>判断分 B 项（组织／越权识别，权重 .30）</b>的证据 ——
+    没有它，你这一项只能靠讲师的印象。
+  </p>
+
+  <div class="card" style="margin-top:20px">
+    <div class="faint">
+      ⚠️ <b>答不上来是允许的</b>，而且是好事 —— 宁可写「我不确定，需要先确认 X」，
+      也不要写一个听起来很顺的承诺。真实的 FDE 丢项目，几乎都栽在<b>过度承诺</b>上，
+      不是栽在「没答上来」。
+    </div>
+  </div>
+
+  <div id="fde-npc" style="margin-top:20px"></div>
+
+  <div class="card" style="margin-top:20px">
+    <div class="faint" data-fde-npc-rule></div>
+  </div>
+</section>
+
+<!-- ══════════ ⑤ 评分看板 ══════════ -->
+<section class="screen">
+  <div class="lbl">Scoreboard · 评分看板</div>
+  <h1><span data-fde-h1="&#123;S&#125; 结果 —— "></span><span id="fde-result-team">（未设组号）</span></h1>
+  <p class="sub">评分结构来自 D06 定稿。总成绩 = 门槛系数 × 几何平均 × 稳定系数。</p>
+
+  <div class="card" style="margin-top:26px">
+    <div class="score-hero">
+      <div style="text-align:center">
+        <div class="faint" style="margin-bottom:5px">总成绩</div>
+        <div class="bignum">0.5849</div>
+        <div class="mut" style="margin-top:9px">第 <b style="color:var(--ink)">2</b> / 6 组</div>
+      </div>
+      <div class="bars">
+        <div class="bar"><span class="mut">价值分</span><span class="track"><span class="fill" style="width:90%"></span></span><span class="val">0.90</span></div>
+        <div class="bar"><span class="mut">工程分</span><span class="track"><span class="fill bad" style="width:30%"></span></span><span class="val">0.30</span></div>
+        <div class="bar"><span class="mut">判断分</span><span class="track"><span class="fill warn" style="width:60%"></span></span><span class="val">0.60</span></div>
+        <div class="formula">G × C × S = 1.0 × ( 0.90^0.45 × 0.30^0.30 × 0.60^0.25 ) × 1.0 = 0.5849</div>
+        <div class="faint" style="margin-top:8px">阈值着色：&lt;0.5 红 · 0.5–0.8 琥珀 · &gt;0.8 主题色</div>
+      </div>
+    </div>
+    <hr class="sep">
+    <div class="callout c-warn">
+      <span class="ic">⚠️</span><div style="font-size:13px">
+        <b>你的工程分只有 0.30 —— 这是本次排名没能第一的唯一原因。</b><br>
+        权重 0.30 意味着它被连乘放大：即使价值分 0.90 接近满分，工程分塌到 0.30 会让总分从 0.80 掉到 0.58。
+        <b>交不出可运行产物的组，在这里拿不到分。</b></div>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:16px">
+    <div class="card">
+      <h3>门槛层</h3>
+      <div class="kv" style="grid-template-columns:1fr auto">
+        <dt>门槛系数 G</dt><dd style="color:var(--ok)">1.0</dd>
+        <dt>门槛达成数</dt><dd>4 / 5</dd>
+        <dt>硬红线</dt><dd style="color:var(--ok)">未触发</dd>
+      </div>
+      <div class="faint" style="margin-top:12px;line-height:1.8">
+        风控类门槛项<b>不进乘法公式</b>，单独计「达成数」（D06 ⑦）。</div>
+    </div>
+    <div class="card">
+      <h3>稳定系数 S</h3>
+      <div class="stat"><div class="v">— <small>MVP 暂不生效</small></div></div>
+      <div class="faint" style="margin-top:12px;line-height:1.85">
+        MVP 只有 R1/R2 两回合，「持续稳定性」物理上测不出来。
+        <b>本平台选择诚实地说「暂时不算」，而不是用一个假算法糊弄。</b></div>
+    </div>
+    <div class="card">
+      <h3>逐项反馈</h3>
+      <div style="font-size:12.5px;line-height:2.2;color:var(--muted)">
+        <span class="badge b-hot">强</span> 排除理由 —— 写清了 B/D 的天花板<br>
+        <span class="badge b-gate">弱</span> 工程分 —— 无 Eval 冻结<br>
+        <span class="badge b-cont">优</span> 负责人态度判读 —— 读出激励错配
+      </div>
+    </div>
+  </div>
+
+  <div class="callout c-info" style="margin-top:16px">
+    <span class="ic">🔍</span><div style="font-size:12.5px">
+      <b>四组对照（同卡 PK —— 各组做同一张客户卡，率直接可比）：</b><br>
+      <span class="mono" style="font-size:12px"><span id="fde-example-team">你们组</span> = 0.5849（价值强 / 工程弱）</span> ·
+      <span class="mono" style="font-size:12px">对手组 = 0.6450（均衡偏价值）</span><br>
+      ⚠️ 对手组用<b>算术平均</b>本可拿 0.6450，但那会违反 Marketplace「乘法而非加法」哲学 ——
+      <b>本平台选几何平均，就是要惩罚偏科。</b>
+    </div>
+  </div>
+</section>
+
+<div class="footnote">
+  <b>L7 界面原型 v0.4（学员端 P1–P5）</b> · 2026-09-26 ·
+  <code>零外部 CDN</code> <code>零外部字体</code> <code>零持续动效</code> <code>零毛玻璃</code><br>
+  默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
+  对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
+  交付物字段来自 <code>08_D04 定稿 v1.1</code> · 评分结构来自 <code>14_D06 定稿 v1.4</code> ·
+  客户档案（②）取自 <code class="mono">11_客户卡_03_优选生活_v1.3</code> 正文；负责人档案在讲师侧的 <code class="mono">19_NPC卡片层_03</code><br>
+  ✅ <b>状态层已接入</b>（方案 A-δ）—— 交付物表单自动存草稿、可导出<b>带指纹</b>的提交包；讲师判分后成绩回传到此页
+</div>
+
+</div>
+
+<script is:inline>function go(i, btn){
+  document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected','false'));
+  btn.setAttribute('aria-selected','true');
+  document.querySelectorAll('section.screen').forEach((s,k) => s.dataset.on = (k===i ? '1' : '0'));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function theme(){
+  const h = document.documentElement;
+  h.dataset.theme = (h.dataset.theme === 'dark') ? 'light' : 'dark';
+}</script>
+<script is:inline>// ══════════ P5 方法论参考抽屉 ══════════
+// 关键：抽屉不跳页、不卸载原页面 —— 学员填表到一半打开查，关闭后内容还在。
+function openM(){ document.getElementById('mdrawer').classList.add('open'); }
+function closeM(){ document.getElementById('mdrawer').classList.remove('open'); }
+function dt(i,btn){
+  document.querySelectorAll('.dtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.querySelectorAll('.dsec').forEach(function(s){
+    s.style.display = (parseInt(s.dataset.don,10)===i+1) ? '' : 'none';
+  });
+}
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); });</script>
+
+<!-- ───── 状态层 A-δ:本地核心 + 交互层（零外部依赖）───── -->
+
+<script is:inline>
+(function () {
+  var files = ['/sim/l7_core.js?v=1.13.2','/sim/l7_rounds.js?v=1.13.2','/sim/l7_student_app.js?v=1.13.2'];
+  var i = 0;
+  function next() {
+    if (i >= files.length) { return; }
+    var s = document.createElement('script');
+    s.src = files[i++];
+    s.onload = next;
+    s.onerror = function () {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;'
+        + 'background:#b91c1c;color:#fff;padding:10px 16px;font:13px/1.6 system-ui,sans-serif';
+      d.textContent = '⚠️ 平台脚本加载失败：' + s.src
+        + ' —— 页面功能不可用。请刷新；若持续失败，请把这条提示报告给讲师。';
+      document.body.appendChild(d);
+    };
+    document.body.appendChild(s);
+  }
+  next();
+})();
+</script>
+</body>
+</html>

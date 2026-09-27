@@ -1,0 +1,657 @@
+---
+/* ⚠️ 本文件由 _tools/port_prototype.py 从 L7 原型**机械移植**生成(勿手改)。
+   源:l7_prototype_v0.4_instructor.html · 重新移植:python3 _tools/port_prototype.py */
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>讲师端 · FDE 模拟商战</title>
+  <!-- 主题须在首次绘制前定好,否则深色用户会看到白屏闪一下 -->
+  <script is:inline>try{var t=localStorage.getItem('fde.theme');if(t==='dark')document.documentElement.dataset.theme='dark';}catch(e){}</script>
+<style is:global>
+:root{ /* 浅色（默认）—— 长时段阅读优先 */
+  --bg:#f7f7f5; --surf:#ffffff; --surf2:#f1f1ee; --surf3:#e9e9e5;
+  --ink:#34323d; --muted:#55535f; --faint:#6b6874;
+  --violet:#6d28d9; --cyan:#0e7490;
+  --border:rgba(20,18,30,.13); --border2:rgba(20,18,30,.075);
+  --warn:#92400e; --ok:#047857; --bad:#b91c1c;
+  --warn-t:rgba(180,83,9,.10); --ok-t:rgba(4,120,87,.10); --bad-t:rgba(185,28,28,.10);
+  --violet-t:rgba(109,40,217,.09); --cyan-t:rgba(14,116,144,.09);
+  --grad:linear-gradient(92deg,#6d28d9,#0e7490);
+  --track:rgba(20,18,30,.09);
+  --shadow:0 1px 2px rgba(20,18,30,.05),0 8px 22px rgba(20,18,30,.045);
+  --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#111119; --surf:#17171f; --surf2:#1d1d26; --surf3:#23232e;
+  --ink:#d8d6e2; --muted:#a4a1b2; --faint:#8f8c9c;
+  --violet:#b98cf8; --cyan:#5ad7ea;
+  --border:rgba(255,255,255,.13); --border2:rgba(255,255,255,.07);
+  --warn:#e5a52c; --ok:#3fbf8c; --bad:#e26d6d;
+  --warn-t:rgba(251,191,36,.13); --ok-t:rgba(52,211,153,.13); --bad-t:rgba(248,113,113,.13);
+  --violet-t:rgba(185,140,248,.13); --cyan-t:rgba(90,215,234,.13);
+  --grad:linear-gradient(92deg,#b98cf8,#5ad7ea);
+  --track:rgba(255,255,255,.09);
+  --shadow:none;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.page{max-width:1180px;margin:0 auto;padding:0 22px 64px}
+
+/* ---------- 顶栏 ---------- */
+header{display:flex;align-items:center;gap:12px;padding:16px 0;flex-wrap:wrap;
+  border-bottom:1px solid var(--border2);margin-bottom:22px}
+.logo{font-weight:700;font-size:16px;letter-spacing:.2px}
+.logo em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent}
+.hbadge{font-size:12.5px;padding:3px 10px;border-radius:999px;border:1px solid var(--border);
+  color:var(--muted);background:var(--surf)}
+.hbadge.on{color:var(--violet);border-color:var(--violet);background:var(--violet-t);font-weight:650}
+.spacer{flex:1}
+.tgl{font-size:12.5px;padding:4px 11px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:inherit}
+.tgl:hover{border-color:var(--violet);color:var(--violet)}
+
+/* ---------- 角色/标签页 ---------- */
+.roles{display:flex;gap:8px;margin-bottom:16px}
+.role{font-size:13.5px;padding:6px 16px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:inherit;font-weight:600}
+.role.on{background:var(--grad);color:#fff;border-color:transparent}
+.role .mono{opacity:.75;font-size:11.5px}
+.tabs{display:flex;gap:8px;margin:18px 0 22px;flex-wrap:wrap}
+.tab{font-size:13.5px;padding:7px 15px;border-radius:9px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:inherit}
+.tab.on{background:var(--violet-t);border-color:var(--violet);color:var(--violet);font-weight:650}
+
+.lbl{font-size:11.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--cyan);font-weight:700}
+h1{font-size:24px;margin:8px 0 10px;letter-spacing:-.2px;line-height:1.35}
+h2{font-size:17px;margin:30px 0 12px;letter-spacing:-.1px}
+h3{font-size:14.5px;margin:20px 0 8px}
+p{margin:0 0 10px;color:var(--muted)}
+.sub{font-size:14.5px;color:var(--muted)}
+hr.sep{border:0;border-top:1px solid var(--border2);margin:22px 0}
+
+/* ---------- 卡片 ---------- */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:13px;
+  padding:18px 20px;box-shadow:var(--shadow)}
+.card+.card{margin-top:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:880px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ---------- 徽章 ---------- */
+.badge{display:inline-block;padding:2.5px 9px;border-radius:6px;font-size:12px;font-weight:650;
+  line-height:1.5}
+.b-gate{background:var(--warn-t);color:var(--warn);border:1px solid var(--warn)}
+.b-cont{background:var(--ok-t);color:var(--ok);border:1px solid var(--ok)}
+.b-hot{background:var(--bad-t);color:var(--bad);border:1px solid var(--bad)}
+.b-auto{background:var(--ok-t);color:var(--ok);border:1px solid var(--ok)}
+.b-man{background:var(--bad-t);color:var(--bad);border:1px solid var(--bad)}
+.b-half{background:var(--warn-t);color:var(--warn);border:1px solid var(--warn)}
+.b-info{background:var(--cyan-t);color:var(--cyan);border:1px solid var(--cyan)}
+.b-vio{background:var(--violet-t);color:var(--violet);border:1px solid var(--violet)}
+.b-ghost{background:var(--surf2);color:var(--muted);border:1px solid var(--border)}
+
+/* ---------- 提示条 ---------- */
+.note{border-left:3px solid var(--warn);background:var(--warn-t);border-radius:0 9px 9px 0;
+  padding:11px 15px;font-size:13.5px;color:var(--ink);margin:14px 0}
+.note.info{border-left-color:var(--cyan);background:var(--cyan-t)}
+.note.bad{border-left-color:var(--bad);background:var(--bad-t)}
+.note.ok{border-left-color:var(--ok);background:var(--ok-t)}
+
+/* ---------- 打分控件 ---------- */
+.row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-radius:10px;
+  background:var(--surf2);border:1px solid var(--border2);margin-bottom:9px}
+.row.auto{background:var(--surf3);border-style:dashed}
+.rbody{flex:1;min-width:0}
+.rtitle{font-size:14px;font-weight:620;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rmeta{font-size:12.5px;color:var(--muted);margin-top:3px}
+.rctl{flex:none;display:flex;align-items:center;gap:7px}
+
+.dial{display:flex;gap:3px}
+.dial button{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);
+  background:var(--surf);color:var(--muted);cursor:pointer;font-family:var(--mono);
+  font-size:12.5px;font-weight:650;padding:0}
+.dial button:hover{border-color:var(--violet);color:var(--violet)}
+.dial button.on{background:var(--violet);border-color:var(--violet);color:#fff}
+.dial button.zero{background:var(--bad-t);border-color:var(--bad);color:var(--bad)}
+.dial button.zero.on{background:var(--bad);color:#fff}
+
+.chk{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;color:var(--ink);cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:var(--violet)}
+
+/* ---------- 组列表 ---------- */
+.glist{display:flex;flex-direction:column;gap:7px}
+.gitem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;
+  border:1px solid var(--border2);background:var(--surf);cursor:pointer;font-size:13.5px}
+.gitem:hover{border-color:var(--violet)}
+.gitem.on{border-color:var(--violet);background:var(--violet-t);font-weight:650}
+.gname{flex:1}
+.gitem .mono{font-size:12px;color:var(--muted)}
+
+/* ---------- 汇总 ---------- */
+.calc{font-family:var(--mono);font-size:13px;background:var(--surf2);border:1px solid var(--border2);
+  border-radius:10px;padding:14px 16px;line-height:2}
+.calc .k{color:var(--muted)}
+.calc .v{color:var(--ink);font-weight:650}
+.calc .big{font-size:21px;color:var(--violet);font-weight:700}
+.bar{height:9px;border-radius:999px;background:var(--track);overflow:hidden;margin-top:7px}
+.bar .fill{display:block;height:100%;border-radius:999px;background:var(--grad)}
+.bar .fill.warn{background:var(--warn)}
+.bar .fill.bad{background:var(--bad)}
+
+/* ---------- 表格 ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--faint);
+  font-weight:700;padding:8px 10px;border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid var(--border2);vertical-align:top}
+td.mono,th.mono{font-family:var(--mono);font-size:12.5px}
+
+/* ---------- 占位/待建块 ---------- */
+.pending{border:1px dashed var(--border);border-radius:11px;padding:16px 18px;background:var(--surf2)}
+.pending .ptitle{font-size:14px;font-weight:650;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.footnote{margin-top:34px;padding-top:16px;border-top:1px solid var(--border2);font-size:12.5px;
+  color:var(--faint);line-height:2}
+.footnote code{background:var(--surf2);padding:1.5px 6px;border-radius:5px;color:var(--muted)}
+.hide{display:none!important}
+</style>
+<style is:global>
+a.logo{text-decoration:none;color:inherit}
+a.logo:hover b{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <a class="logo" href="/">LearnFDE <em>Sim</em></a>
+  <span class="hbadge on">讲师端</span>
+  <span class="hbadge" data-fde-round>回合 S1 · 挑活</span>
+  <span class="hbadge" data-fde-class-chip>未开班</span>
+  <div class="spacer"></div>
+  <span class="hbadge mono" id="clock" data-fde-clock-chip>—</span>
+  <button class="tgl" id="themeBtn">🌗 浅色 / 深色</button>
+</header>
+
+<div class="roles">
+  <button class="role" id="roleStu">学员组 <span class="mono">P1–P5</span></button>
+  <button class="role on" id="roleIns">讲师 <span class="mono">P6–P7</span></button>
+</div>
+
+<nav class="tabs">
+  <button class="tab on" data-p="p6">⑥ 控制台</button>
+  <button class="tab" data-p="p7">⑦ 评分工作台</button>
+  <button class="tab" data-p="p8">⑧ 甲方质询</button>
+</nav>
+
+<!-- ═══════════════════ P6 讲师控制台 ═══════════════════ -->
+<section id="p6">
+  <div class="lbl">Instructor Console · 讲师控制台</div>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 开班与回合发布">S1 · 挑活 —— 开班与回合发布</h1>
+  <p class="sub">管住三件事：<b>谁在哪个组</b>、<b>这一回合各组做哪张卡</b>、<b>什么时候收卷</b>。</p>
+
+  <div class="note ok" style="border-left:4px solid #0f7a3d">
+    <b>✅ 状态层已接通（方案 A-δ）。</b> 本屏的「🎓 开班配置」是<b>真实功能</b> ——
+    保存后写入浏览器本地状态，学员端读同一份（同一台机器同一浏览器）。
+    <br>提交通道两条：<b>① 学员导出 JSON 提交包 → 讲师在此导入判分</b>（首跑用这条）;
+    <b>② 飞书表单</b>（在配置里填链接，真实开班用，站点无需改造）。
+    <br>下面两张卡（<span class="mono">开班设置</span> / <span class="mono">选卡</span>）是<b>📐 设计意向样例</b>，数据为静态示意，不作为操作依据。
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="opacity:.72">
+      <h3 style="margin-top:0">📐 设计意向 · 开班设置<span class="mono" style="font-size:11px;color:var(--faint);font-weight:400">（静态样例）</span></h3>
+      <table>
+        <tr><td>学员人数</td><td class="mono">24</td></tr>
+        <tr><td>分组方式</td><td>4 人 / 组 → <b>6 组</b></td></tr>
+        <tr><td>组名规则</td><td class="mono">T01 … T06</td></tr>
+        <tr><td>课程时长</td><td>5 天 4 夜</td></tr>
+        <tr><td>语言</td><td>中文 / English（顶栏切换）</td></tr>
+      </table>
+      <button class="tab" style="margin-top:6px">编辑开班设置</button>
+      <span class="mono" style="font-size:12px;color:var(--faint)">← 📐 样例，实际用上方「🎓 开班配置」</span>
+    </div>
+
+    <div class="card" style="opacity:.72">
+      <h3 style="margin-top:0">📐 设计意向 · 选卡（本回合用哪张）<span class="mono" style="font-size:11px;color:var(--faint);font-weight:400">（静态样例，实际用上方配置）</span></h3>
+      <p style="font-size:13.5px">从 15 张客户卡中挑。按 <b>§6.4</b>：卡内必须限定候选单元 3–5 个且难度档位相当。</p>
+      <table>
+        <tr><th>卡</th><th>行业 × 单元</th><th>总分</th></tr>
+        <tr style="background:#fffbeb"><td class="mono"><b>#03 ⭐</b></td><td><b>零售电商 × 客服售后</b> <span style="font-size:11px;color:#92400e">（首期已定，C107）</span></td><td class="mono"><b>37.0</b></td></tr>
+        <tr><td class="mono">#09</td><td>电信 × 网络运维</td><td class="mono">35.0</td></tr>
+        <tr><td class="mono">#11</td><td>物流 × 调度</td><td class="mono">34.0</td></tr>
+      </table>
+      <div class="note info" style="margin:10px 0 6px">
+        <b>⭐ 同卡 PK 的硬前提</b>（D06 ⑤）：本回合<b>6 个组必须做同一张卡</b>，率才直接可比。
+        若做不到 → 整个 D06 的 PK 前提崩塌（见 D8）。
+      </div>
+      <button class="tab">锁定本回合用卡</button>
+      <span class="mono" style="font-size:12px;color:var(--faint)">← 📐 样例，实际用上方「🎓 开班配置」</span>
+    </div>
+  </div>
+
+  <h2>各组进度总览<span class="mono" style="font-size:12px;color:var(--faint);font-weight:400"> · 📐 静态样例（真实进度见 P7 导入后的判分表）</span></h2>
+  <div class="card">
+    <table>
+      <tr><th>组</th><th>人数</th><th>交付物</th><th>提交时间</th><th>判分状态</th></tr>
+      <tr><td class="mono">T01</td><td class="mono">4</td><td class="mono">7 / 7</td><td class="mono">03:41:22</td><td><span class="badge b-cont">已判分</span></td></tr>
+      <tr><td class="mono">T02</td><td class="mono">4</td><td class="mono">7 / 7</td><td class="mono">03:52:08</td><td><span class="badge b-cont">已判分</span></td></tr>
+      <tr><td class="mono">T03</td><td class="mono">4</td><td class="mono">7 / 7</td><td class="mono">03:58:44</td><td><span class="badge b-half">待人工判分</span></td></tr>
+      <tr><td class="mono">T04</td><td class="mono">4</td><td class="mono">6 / 7</td><td class="mono">—</td><td><span class="badge b-hot">未交齐</span></td></tr>
+      <tr><td class="mono">T05</td><td class="mono">4</td><td class="mono">7 / 7</td><td class="mono">03:59:51</td><td><span class="badge b-half">待人工判分</span></td></tr>
+      <tr><td class="mono">T06</td><td class="mono">4</td><td class="mono">0 / 7</td><td class="mono">—</td><td><span class="badge b-ghost">未开始</span></td></tr>
+    </table>
+    <div class="note" style="margin-bottom:0">
+      <b>📐 本表 = 设计意向的静态样例。</b> 真实提交与判分进度请看 <b>P7 评分工作台</b>的判分表（那里是导入的<b>真数据</b>）。
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ P7 评分工作台 ═══════════════════ -->
+<section id="p7" class="hide">
+  <div class="lbl">Scoring Workbench · 评分工作台</div>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 判分">S1 · 挑活 —— 判分</h1>
+  <p class="sub">
+    脚本能算的<b>已经算好了</b>（价值分、工程分主体），你只需要处理<b>机器判不了的那部分</b>（工程分 C、判断分 A–D、门槛）。
+    左边选组，右边判分。
+  </p>
+
+  <div class="grid2" style="grid-template-columns:250px 1fr;align-items:start">
+    <!-- 组列表 -->
+    <div class="card" style="padding:14px">
+      <h3 style="margin:0 0 10px;font-size:13px;letter-spacing:.6px;color:var(--faint)">待判分组</h3>
+      <div class="glist">
+        <div class="gitem"><span class="gname">T01</span><span class="mono">已判</span></div>
+        <div class="gitem"><span class="gname">T02</span><span class="mono">已判</span></div>
+        <div class="gitem on"><span class="gname">T03</span><span class="badge b-half" style="font-size:11px">进行中</span></div>
+        <div class="gitem"><span class="gname">T04</span><span class="mono">未交齐</span></div>
+        <div class="gitem"><span class="gname">T05</span><span class="mono">待判</span></div>
+        <div class="gitem"><span class="gname">T06</span><span class="mono">未开始</span></div>
+      </div>
+      <hr class="sep" style="margin:14px 0">
+      <div style="font-size:12.5px;color:var(--muted);line-height:1.9">
+        本回合用卡<br><b style="color:var(--ink)">#03 优选生活</b><br>
+        零售电商 × 客服售后<br>
+        <span class="badge b-ghost" style="margin-top:6px">虚拟客户 · 该格 71 条真实案例汇编</span>
+      </div>
+    </div>
+
+    <!-- 评分面板 -->
+    <div>
+      <!-- 自动分区 -->
+      <div class="card">
+        <h2 style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge b-auto">✅ 脚本已算好</span> 不用你管
+        </h2>
+        <p style="font-size:13.5px">这部分由评分脚本自动落盘，讲师<b>只读不填</b>。字段来源：D04 定稿 v1.1。</p>
+        <table>
+          <tr><th>层级</th><th>项</th><th>算法 / 依据</th><th>本组值</th><th>来源</th></tr>
+          <tr>
+            <td><span class="badge b-ghost">维度</span></td>
+            <td><b>价值分</b><span class="mono" style="color:var(--faint)"> .45</span></td>
+            <td class="mono">Δ实际 ÷ Δ上限</td>
+            <td class="mono"><b>0.62</b></td>
+            <td><span class="badge b-info">EvalRun</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge b-ghost">子项</span></td>
+            <td><b>工程分 A</b><span class="mono" style="color:var(--faint)"> .35</span></td>
+            <td>原型真跑起来（非伪代码/截图）</td>
+            <td class="mono"><b>1.00</b> ✅</td>
+            <td><span class="badge b-info">脚本探测</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge b-ghost">子项</span></td>
+            <td><b>工程分 B</b><span class="mono" style="color:var(--faint)"> .30</span></td>
+            <td>Eval v1.0 冻结 + holdout 隔离</td>
+            <td class="mono"><b>1.00</b> ✅</td>
+            <td><span class="badge b-info">脚本校验</span></td>
+          </tr>
+          <tr>
+            <td><span class="badge b-ghost">子项</span></td>
+            <td><b>工程分 D</b><span class="mono" style="color:var(--faint)"> .15</span></td>
+            <td>数据契约（M3↔M5 共数据）</td>
+            <td class="mono"><b>0.70</b> 🟡</td>
+            <td><span class="badge b-info">脚本比对</span></td>
+          </tr>
+        </table>
+        <div class="note" style="margin-bottom:0">
+          <b>⚠️ 这张表混了两个层级，权重不能直接相加</b>：
+          <b>价值分</b>是<b>维度级</b>（它的 <code>.45</code> 直接进 C 的指数）;
+          <b>工程分 A/B/D</b> 是<b>工程分内部子项</b>（先在工程分内部加总，工程分才作为维度进指数）。
+          <br>⇒ <b>工程分 = A×.35 + B×.30 + C×.20 + D×.15</b>（C 待你在下面打），四项子权重和为 1。
+          <br>⇒ 三个维度权重 <b>.45 + .30 + .25 = 1</b>，进 C 的指数。两张表的权重属于不同层级，<b>不要跨表相加</b>。
+        </div>
+        <div class="note info" style="margin:10px 0 0">
+          <b>⚠️ 硬约束（D04 §6.4）</b>：<code>r</code> 由 <code>EvalRun</code> 带出，<b>界面不允许学员手填</b> ——
+          所以价值分不可能被学员"算出来"，只能被脚本"测出来"。本屏同样只读。
+        </div>
+      </div>
+
+      <!-- 待人工判分 -->
+      <div class="card">
+        <h2 style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge b-man">🔴 待人工判分</span> 你的工作在这里
+        </h2>
+        <p style="font-size:13.5px">1–5 数值打分（D06 统一口径）。点数字即可选。</p>
+
+        <div class="note ok">
+          <b>✅ 换算口径已定（2026-09-26 周全裁定）：用 A —— (x−1) ÷ 4</b><br>
+          背景：讲师打的是 <b>1–5</b>，但乘法公式 <code>C = 价值^0.45 × 工程^0.30 × 判断^0.25</code> 要的是 <b>0–1</b>。
+          D06 定稿时只写了"天然落在 0–1" —— <b>那对脚本算的比率成立</b>（价值分 = Δ实际 ÷ Δ上限）,
+          <b>对人工打的 1–5 是悬空的</b>。此缺口由助手在 P7 原型设计时实查发现，用户裁定补 A。
+          <br>⇒ 生效口径：<b>组件分 = (评分 − 1) ÷ 4</b>，即 <b>5 → 1.00 / 4 → 0.75 / 3 → 0.50 / 2 → 0.25 / 1 → 0.00</b>。
+        </div>
+
+        <table>
+          <tr><th>候选换算</th><th class="mono">1</th><th class="mono">2</th><th class="mono">3</th><th class="mono">4</th><th class="mono">5</th><th>性质差别</th></tr>
+          <tr>
+            <td><b>A. (x−1) ÷ 4</b><br><span class="badge b-cont" style="margin-top:3px">已采纳</span></td>
+            <td class="mono">0.00</td><td class="mono">0.25</td><td class="mono">0.50</td><td class="mono">0.75</td><td class="mono">1.00</td>
+            <td><b>5 = 满分 1.0</b>，与"率"口径一致（率满分也是 1.0）;<b>打 1 分 = 0</b> —— 保留乘法公式"一项为 0 则总分归零"的能力</td>
+          </tr>
+          <tr style="opacity:.55">
+            <td><b>B. x ÷ 5</b><br><span class="badge b-ghost" style="margin-top:3px">未采纳</span></td>
+            <td class="mono">0.20</td><td class="mono">0.40</td><td class="mono">0.60</td><td class="mono">0.80</td><td class="mono">1.00</td>
+            <td>打 1 分仍有 <b>0.20 保底</b> → 判断分<b>永远不可能为 0</b>，乘法公式对该维度失去"归零"能力</td>
+          </tr>
+        </table>
+
+        <div class="note info" style="margin-bottom:14px">
+          <b>为什么选 A（裁定理由）</b>：D06 ① 整套设计的立意是"交不出可运行产物就是 0 分"。
+          若用 B，最差的判断也能拿 0.20 保底 —— <b>"一票否决"就只剩工程分一个来源</b>，与该设计意图不符。
+          <br>⚠️ <b>本项须回填 D06</b>（<b>v1.0 起漏写，至 v1.4 仍未补</b> —— 2026-09-26 升版时复核确认），已登记为修订项。
+        </div>
+
+        <h3>工程分 C（权重 .20） —— <code>A′ &gt; A</code> 是否被论证</h3>
+        <div class="row">
+          <div class="rbody">
+            <div class="rtitle">是否论证了「实施后上限 A′ 高于基线上限 A」
+              <span class="badge b-hot">漏掉即本子项 0 分</span></div>
+            <div class="rmeta">
+              <b>LLM 初筛建议：🟡 部分论证</b> —— 提到了产能提升，但<b>没给 A′ 的量化</b>。
+              讲师复核后定分。<span class="mono">（半自动：LLM 判"有没有论证"，人复核）</span>
+            </div>
+          </div>
+          <div class="rctl">
+            <div class="dial" data-s="1"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button></div>
+          </div>
+        </div>
+
+        <h3>判断分（权重 .25，共 4 子项）</h3>
+
+        <div class="row">
+          <div class="rbody">
+            <div class="rtitle">A. 排除理由 <span class="mono" style="color:var(--faint)">子权重 .40</span>
+              <span class="badge b-vio">本回合最高权重</span></div>
+            <div class="rmeta">为什么不选其余 3 个候选单元。这是 S1「说不的能力」的主战场。</div>
+          </div>
+          <div class="rctl">
+            <div class="dial" data-s="1"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rbody">
+            <div class="rtitle">B. 「该生意单元实际负责人」态度判读 <span class="mono" style="color:var(--faint)">子权重 .30</span>
+              <span class="badge b-hot">需 NPC 质询后填</span></div>
+            <div class="rmeta">
+              客户卡 §3 已预设态度（支持 / 暧昧 / 反对），学员是否<b>读出来并给了应对</b>。
+              <b>本项必须等 NPC 质询环节结束后再打</b>（D06 §6:客户 NPC + 讲师）。NPC 剧本内容尚未产出 → <b>P8 待建</b>。
+            </div>
+          </div>
+          <div class="rctl">
+            <div class="dial" data-s="1"><button disabled style="opacity:.4">1</button><button disabled style="opacity:.4">2</button><button disabled style="opacity:.4">3</button><button disabled style="opacity:.4">4</button><button disabled style="opacity:.4">5</button></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rbody">
+            <div class="rtitle">C. 五项可行性检查 <span class="mono" style="color:var(--faint)">子权重 .20</span></div>
+            <div class="rmeta">F02 的五项（高任务量 / 可切窄路径 / 对错可判 / 证据可测 / 关键人员可投入）是否<b>真做而非走过场</b>。</div>
+          </div>
+          <div class="rctl">
+            <div class="dial" data-s="1"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="rbody">
+            <div class="rtitle">D. 工作量预估偏差 <span class="mono" style="color:var(--faint)">子权重 .10</span></div>
+            <div class="rmeta">偏差率越大分越低（计入但低权重）。</div>
+          </div>
+          <div class="rctl">
+            <div class="dial" data-s="1"><button>1</button><button>2</button><button>3</button><button>4</button><button>5</button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 门槛层 -->
+      <div class="card">
+        <h2 style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge b-gate">门槛层 G</span> 一票否决 / 折扣
+        </h2>
+
+        <h3>🔴 硬红线（勾任一 → G = 0，总分归零）</h3>
+        <div class="note bad" style="margin-top:6px">
+          <b>D06 ③：只有 4 条</b> —— 一票否决是重武器，列多了学员会变成"防错型选手"，与"敢判断"的培养目标相反。
+        </div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ① 使用未授权 / 未脱敏数据</label></div></div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ② 方案违反合规（金发〔2026〕8号红线）</label></div></div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ③ 用调优样本冒充独立验收集（809 F05 明令禁止）</label>
+          <div class="rmeta">这是最需要判据清楚的一条 —— D3 数据显示若"假独立验收集"逃过，说明本项判据模糊。</div></div></div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ④ 提交内容是纯 PPT，无任何可运行产物</label>
+          <div class="rmeta">⚠️ 与工程分 A 联动：此项触发时，几何平均本就该把总分拉到接近 0。</div></div></div>
+
+        <h3>🟡 软门槛（勾一项 → 总分 ×0.7，不归零）</h3>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ① 主价值类型未声明（增收 / 降本 / 风控）</label></div></div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ② PoC 范围未写"不做什么"</label></div></div>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> ③ F07 决定单缺失</label></div></div>
+
+        <div class="note" style="margin-bottom:0">
+          <b>⚠️ D06 ④ 提醒</b>：<code>×0.7</code> 这个数字<b>是拍脑袋的，没有任何实证</b>。
+          复核时要看<b>各项触发率</b> —— 若某项触发率 <b>&gt;50%</b>，说明是<b>任务设计问题</b>（表单没引导好）,
+          应<b>先修表单而非扣分</b>。
+        </div>
+      </div>
+
+      <!-- 实时汇总 -->
+      <div class="card">
+        <h2 style="margin-top:0">实时汇总</h2>
+        <div class="calc">
+          <span class="k">价值分 0.62</span> <span class="k">× 权重</span> <span class="v">0.45</span><br>
+          <span class="k">工程分 0.94</span> <span class="k">× 权重</span> <span class="v">0.30</span><br>
+          <span class="k">判断分 0.72</span> <span class="k">× 权重</span> <span class="v">0.25</span><br>
+          <hr class="sep" style="margin:8px 0">
+          <span class="k">C = 0.62^0.45 × 0.94^0.30 × 0.72^0.25 =</span> <span class="v">0.8123</span>
+          <div style="font-size:12px;color:var(--faint);line-height:1.7">
+            ↑ <b>加权几何平均</b>，不是加权求和 —— D06 ①：交不出可运行产物就是 0 分。
+          </div>
+          <hr class="sep" style="margin:8px 0">
+          <span class="k">G =</span> <span class="v">1.0</span> <span class="k">（无红线，0 项软门槛）</span><br>
+          <span class="k">S =</span> <span class="v">—</span> <span class="badge b-ghost" style="font-size:11px">MVP 暂不生效</span>
+          <br>
+          <span class="k">总成绩 = G × C × S =</span> <span class="big">0.8123</span>
+        </div>
+        <div class="note ok" style="margin-top:12px">
+          <b>S 为什么是「—」而不是 1.0</b>：D06 ⑥ 的诚实原则 —— MVP 只有 R1/R2 两回合，
+          <b>"持续稳定性"物理上测不出来</b>。用一个 1.0 假装算过，不如明说"暂不生效"。
+        </div>
+        <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap">
+          <button class="tab on">冻结本组评分</button>
+          <button class="tab">发布给学员</button>
+          <button class="tab">发起申诉受理</button>
+        </div>
+      </div>
+
+      <!-- ⭐ 预注册数据采集 -->
+      <div class="card" style="border-color:var(--violet)">
+        <h2 style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span class="badge b-vio">⭐ 预注册数据采集</span> 这一屏最重要的部分
+        </h2>
+        <div class="note info">
+          <b>为什么它在这里</b>：D06 §8 定了 8 项必采数据（D1–D8），用来在 S1→S5 推演完成后
+          <b>证伪或确认</b>那七项建议。这些数据<b>只能在讲师判分过程中产生</b> ——
+          <b>不在这里采，复核门就没有数据，约定好的 review 就落不了地。</b>
+          <br>⇒ 所以采集<b>不是"以后再说"，是 P7 的内置功能</b>。
+        </div>
+
+        <table>
+          <tr><th class="mono">编号</th><th>必须采集</th><th>采集方式</th><th>用来判什么</th><th>状态</th></tr>
+          <tr><td class="mono">D1</td><td>每组三项分 + G + S + 总分 + 排名</td><td>脚本自动落盘</td><td>② 权重是否有效</td>
+              <td><span class="badge b-auto">自动</span></td></tr>
+          <tr><td class="mono">D2</td><td>三项分与总分的<b>相关系数</b></td><td>复核时脚本算</td><td>② 若某项 &lt;0.3 → 权重白给</td>
+              <td><span class="badge b-auto">自动</span></td></tr>
+          <tr><td class="mono">D3</td><td><b>讲师实际执红线的次数与情形</b></td><td><b>本屏记录</b></td><td>③ 4 条红线是否够用 / 是否形同虚设</td>
+              <td><span class="badge b-half">需你记录 ✍️</span></td></tr>
+          <tr><td class="mono">D4</td><td>3 项软门槛各自<b>触发率</b></td><td>脚本统计</td><td>④ 若某项 &gt;50% → 是任务设计问题</td>
+              <td><span class="badge b-auto">自动</span></td></tr>
+          <tr><td class="mono">D5</td><td><b>学员申诉记录</b></td><td><b>本屏记录</b></td><td>① 几何平均是否被测量噪声反噬</td>
+              <td><span class="badge b-half">需你记录 ✍️</span></td></tr>
+          <tr><td class="mono">D6</td><td><b>各组交付物的差异性</b></td><td><b>本屏记录</b></td><td>① 几何平均是否把学员训练成"保底型选手"</td>
+              <td><span class="badge b-half">需你记录 ✍️</span></td></tr>
+          <tr><td class="mono">D7</td><td><b>R1 vs R2 的投入度</b></td><td>本屏 + 提交时间</td><td>⑥ 没有持续分是否导致 R2 划水</td>
+              <td><span class="badge b-half">需你记录 ✍️</span></td></tr>
+          <tr><td class="mono">D8</td><td><b>现场是否真能做到"各组同卡"</b></td><td>开班时组织一次</td><td>⑤ 做不到 → 整个 PK 前提崩塌</td>
+              <td><span class="badge b-info">开班事项</span></td></tr>
+        </table>
+
+        <h3>D5 · 学员申诉记录</h3>
+        <div class="row"><div class="rbody">
+          <label class="chk"><input type="checkbox"> 本回合出现「三项分都不差，总分却很低」类申诉</label>
+          <div class="rmeta">
+            <b>证伪信号</b>：累计出现 <b>≥3 组同类申诉</b> → 说明加权<b>几何平均</b>把测量误差放大成了悬崖，
+            应考虑改为「加权求和 + 独立门槛层」。<b>这是判定 D06 ① 的核心证据。</b>
+          </div>
+        </div></div>
+
+        <h3>D3 · 执红线记录</h3>
+        <div class="row"><div class="rbody">
+          <div class="rmeta">
+            <b>证伪信号</b>：整期<b>执红线 0 次</b>，且讲师事后复议认为"本该校零" → 红线形同虚设；
+            <b>或 &gt;30% 组触发</b> → 判据太严 / 说明不清。
+            <br>记录字段：组 · 触发条目 · 当时情形 · 讲师判断依据。
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ P8 甲方质询记录台 ═══════════════════ -->
+<section id="p8" class="hide">
+  <div class="lbl">Client Challenges · 甲方质询记录台</div>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 甲方质询">S1 · 挑活 —— 甲方质询</h1>
+  <p class="sub">
+    你扮甲方负责人时的<b>提词器 + 记录台</b>。上面是本站题库，下面记下每组守没守住 ——
+    这份记录是<b>判断分 B 项（组织／越权识别，权重 .30）</b>的判分依据，也是 D06 §8 复核门要的原始数据。
+    <br><b>学员端能提前看到同一批题并写下应答</b>（学员端 ④ 屏），判分时两边对着看。
+  </p>
+
+  <div class="card" style="margin-top:18px">
+    <h3 style="margin-top:0">本站题库 <span style="font-size:12px;font-weight:400;color:var(--muted)" data-fde-npc-count></span></h3>
+    <div style="font-size:12.5px;color:var(--muted)" data-fde-npc-rule></div>
+    <div id="fde-p8-pool" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">8 组「不等于」—— 拍板前必须逼学员说清的（跨站通用，锚 809 F07）</h3>
+    <div id="fde-p8-eq8"></div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">分组记录</h3>
+    <div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">
+      记录写入浏览器本地状态（键 <span style="font-family:ui-monospace,monospace">fde.npc</span>），刷新不丢。
+      <b>学员端看不到这里的记录</b> —— 它只进你的判分依据。
+    </div>
+    <div id="fde-p8-record"></div>
+  </div>
+</section>
+
+<div class="footnote">
+  L7 界面原型 v0.4（讲师端） · 2026-09-26 ·
+  <code>零外部 CDN</code> <code>零外部字体</code> <code>零动效</code> <code>零毛玻璃</code><br>
+  分项构成来自 <code>14_D06 定稿 v1.4</code> §2/§3/§6；数据采集来自 §8；交付物字段来自 <code>08_D04 定稿 v1.1</code>。<br>
+  默认浅色（长时段阅读优先）；深色为可切换主题，对比度已下调避免晕光 · 对比度全部经 <code>contrast_check.py</code> 实算。<br>
+  <b>P6 开班配置 / P7 判分排名 / P8 甲方质询 = 已接通（状态层 A-δ）</b>。
+</div>
+
+</div>
+
+<script is:inline>(function(){
+  // 主题切换
+  var root=document.documentElement, btn=document.getElementById('themeBtn');
+  btn.addEventListener('click',function(){
+    root.setAttribute('data-theme', root.getAttribute('data-theme')==='dark'?'light':'dark');
+  });
+  // 标签页
+  // ⚠️ 原实现写死 ['p6','p7'] 逐个 hide —— 加第 3 屏时静默失败（新屏永远可见 / 旧屏不隐藏）,
+  //    与 B13/B15/B17 同类：写死的清单必然在扩展时失效。改为**从按钮自己推出屏 id**。
+  var tabs=[].slice.call(document.querySelectorAll('.tab[data-p]'));
+  function show(id){
+    tabs.forEach(function(x){
+      var s=document.getElementById(x.getAttribute('data-p'));
+      if(s) s.classList.add('hide');
+    });
+    var t=document.getElementById(id);
+    if(t) t.classList.remove('hide');
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('on');});
+      t.classList.add('on');
+      show(t.getAttribute('data-p'));
+      window.scrollTo(0,0);
+    });
+  });
+  // 打分拨盘
+  [].slice.call(document.querySelectorAll('.dial')).forEach(function(d){
+    var cur=null;
+    d.addEventListener('click',function(e){
+      var b=e.target.closest('button'); if(!b||b.disabled) return;
+      [].slice.call(d.children).forEach(function(x){x.classList.remove('on');});
+      b.classList.add('on'); cur=b.textContent;
+    });
+  });
+})();</script>
+
+<!-- ───── 状态层 A-δ:本地核心 + 交互层（零外部依赖）───── -->
+
+<script is:inline>
+(function () {
+  var files = ['/sim/l7_core.js?v=1.13.2','/sim/l7_rounds.js?v=1.13.2','/sim/l7_instructor_app.js?v=1.13.2'];
+  var i = 0;
+  function next() {
+    if (i >= files.length) { return; }
+    var s = document.createElement('script');
+    s.src = files[i++];
+    s.onload = next;
+    s.onerror = function () {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;'
+        + 'background:#b91c1c;color:#fff;padding:10px 16px;font:13px/1.6 system-ui,sans-serif';
+      d.textContent = '⚠️ 平台脚本加载失败：' + s.src
+        + ' —— 页面功能不可用。请刷新；若持续失败，请把这条提示报告给讲师。';
+      document.body.appendChild(d);
+    };
+    document.body.appendChild(s);
+  }
+  next();
+})();
+</script>
+</body>
+</html>

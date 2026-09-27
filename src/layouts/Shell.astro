@@ -1,0 +1,111 @@
+---
+/**
+ * Shell.astro — 全站外壳(落地页/文档页用)
+ *
+ * ⚠️ 这里的主题 token 是从 L7 原型 `l7_prototype_v0.4_student.html` **原样抄来**的。
+ *    为什么抄而不是抽成共享 css:原型那两份是**机械移植**生成的(见 _tools/port_prototype.py),
+ *    抽换会让「原型 vs 生产」出现两个事实源。宁可重复,也要保证两边**逐字一致** ——
+ *    将来若改主题,三处一起改,并由对比度实算脚本复核。
+ *
+ * 设计约束(L7 铁律,来自 C101/C102):
+ *   · 浅色默认(5 天训练营长时间阅读)、深色可切换 · **零外部 CDN / 零外部字体**
+ *   · 去霓虹、去持续动效、去毛玻璃 · 全部文字对比度 ≥4.5:1(实算见 案例库/_scripts/contrast_check.py)
+ */
+interface Props { title: string; desc?: string; }
+const { title, desc = 'FDE 模拟商战训练平台 —— 五站方法论驱动的团队对抗式训练' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={desc} />
+  <meta name="generator" content={Astro.generator} />
+  <!-- 主题须在首次绘制前定好,否则深色用户会看到白屏闪一下 -->
+  <script is:inline>
+    try {
+      var t = localStorage.getItem('fde.theme');
+      if (t === 'dark') document.documentElement.dataset.theme = 'dark';
+    } catch (e) {}
+  </script>
+  <style is:global>
+:root{ /* 浅色(默认)—— 长时间阅读优先 */
+  --bg:#f7f7f5; --surf:#ffffff; --surf2:#f1f1ee;
+  --ink:#34323d; --muted:#55535f; --faint:#6b6874;
+  --violet:#6d28d9; --cyan:#0e7490;
+  --border:rgba(20,18,30,.13); --border2:rgba(20,18,30,.075);
+  --warn:#92400e; --ok:#047857; --bad:#b91c1c;
+  --warn-t:rgba(180,83,9,.10); --ok-t:rgba(4,120,87,.10); --bad-t:rgba(185,28,28,.10);
+  --grad:linear-gradient(92deg,#6d28d9,#0e7490);
+  --track:rgba(20,18,30,.09);
+  --shadow:0 1px 2px rgba(20,18,30,.04), 0 6px 20px rgba(20,18,30,.055);
+  --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#111119; --surf:#17171f; --surf2:#1d1d26;
+  --ink:#d8d6e2; --muted:#a4a1b2; --faint:#8f8c9c;
+  --violet:#b98cf8; --cyan:#5ad7ea;
+  --border:rgba(255,255,255,.13); --border2:rgba(255,255,255,.07);
+  --warn:#e5a52c; --ok:#3fbf8c; --bad:#e26d6d;
+  --warn-t:rgba(251,191,36,.13); --ok-t:rgba(52,211,153,.13); --bad-t:rgba(248,113,113,.13);
+  --grad:linear-gradient(92deg,#b98cf8,#5ad7ea);
+  --track:rgba(255,255,255,.09);
+  --shadow:none;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1.75;
+  font-size:15px;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  transition:background .2s,color .2s}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+.mono{font-family:var(--mono)}
+a{color:inherit}
+header{position:sticky;top:0;z-index:50;background:var(--surf);border-bottom:1px solid var(--border2)}
+.hbar{display:flex;align-items:center;gap:18px;height:60px}
+.logo{font-weight:800;letter-spacing:-.5px;font-size:16px;white-space:nowrap;text-decoration:none}
+.logo b{color:var(--cyan)}
+.hsep{flex:1}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:999px;
+  border:1px solid var(--border);background:var(--surf2);font-size:12.5px;color:var(--muted);white-space:nowrap}
+button.tog{font:inherit;font-size:12.5px;padding:6px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--border);background:var(--surf2);color:var(--muted);transition:.15s}
+button.tog:hover{color:var(--ink);border-color:var(--cyan)}
+footer{border-top:1px solid var(--border2);margin-top:64px;padding:28px 0 40px;
+  color:var(--faint);font-size:12.5px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hbar">
+      <a class="logo" href="/">Learn<b>FDE</b></a>
+      <span class="chip">FDE 模拟商战训练平台</span>
+      <span class="hsep"></span>
+      <slot name="nav" />
+      <button class="tog" onclick="fdeTheme()">🌗 浅色 / 深色</button>
+    </div>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>LearnFDE · FDE 模拟商战训练平台 · 五站方法论 v1.0</div>
+      <div style="margin-top:6px">
+        零外部 CDN · 零外部字体 · 全站文字对比度 ≥4.5:1（WCAG AA）
+      </div>
+    </div>
+  </footer>
+
+  <script is:inline>
+    function fdeTheme() {
+      var h = document.documentElement;
+      h.dataset.theme = (h.dataset.theme === 'dark') ? 'light' : 'dark';
+      try { localStorage.setItem('fde.theme', h.dataset.theme); } catch (e) {}
+    }
+  </script>
+</body>
+</html>
