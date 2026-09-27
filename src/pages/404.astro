@@ -1,0 +1,37 @@
+---
+import Shell from '../layouts/Shell.astro';
+---
+
+<Shell title="页面不存在 · LearnFDE">
+  <section class="nf">
+    <div class="wrap">
+      <div class="code mono">404</div>
+      <h1>这个页面不存在</h1>
+      <p class="lede">
+        可能是链接拼错了，或者这个页面还没做。下面是目前站点上真实存在的入口。
+      </p>
+      <div class="links">
+        <a class="btn primary" href="/">落地页</a>
+        <a class="btn" href="/sim/">学员端（P1–P5）</a>
+        <a class="btn" href="/sim/console/">讲师端（P6–P8）</a>
+      </div>
+      <p class="note mono">
+        ⚠️ 学员端需要讲师先开班并选定客户案例；未开班时状态条会显示「未开班」、提交锁住。
+      </p>
+    </div>
+  </section>
+</Shell>
+
+<style>
+  .nf { padding: 96px 0 120px; }
+  .code { font-size: 13px; letter-spacing: .2em; color: var(--faint); }
+  h1 { margin-top: 10px; font-size: clamp(28px, 4.4vw, 44px); font-weight: 800; letter-spacing: -.02em; }
+  .lede { margin-top: 18px; max-width: 620px; color: var(--muted); }
+  .links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+  .btn { display: inline-block; padding: 11px 22px; border-radius: 999px; text-decoration: none;
+         border: 1px solid var(--border); background: var(--surf); color: var(--ink);
+         font-size: 14px; font-weight: 600; transition: .15s; }
+  .btn:hover { border-color: var(--cyan); }
+  .btn.primary { background: var(--grad); color: #fff; border-color: transparent; }
+  .note { margin-top: 26px; font-size: 12.5px; color: var(--faint); }
+</style>
