@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>组织架构 | 精工机械</title>
+<style>
+  :root{--bg:#F7F8FA;--panel:#FFFFFF;--ink:#1F2933;--mute:#5B6B7A;--accent:#1F4E79;--accent-2:#2E6F9E;--line:#DDE3EA;--note:#616B78;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC","Noto Sans CJK SC",sans-serif;font-size:16px;line-height:1.75;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  header{background:var(--panel);border-bottom:1px solid var(--line);}
+  .nav{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:16px 0;}
+  .brand{font-size:20px;font-weight:700;letter-spacing:0.06em;color:var(--accent);}
+  .brand small{display:block;font-size:11px;font-weight:400;letter-spacing:0.14em;color:var(--mute);}
+  .menu{display:flex;flex-wrap:wrap;gap:22px;font-size:15px;}
+  .menu a{color:var(--ink);text-decoration:none;padding-bottom:2px;border-bottom:2px solid transparent;}
+  .menu a:hover{border-bottom-color:var(--accent-2);}
+  .menu a.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:700;}
+  .page-head{background:linear-gradient(135deg,#1F4E79 0%,#2E6F9E 100%);color:#FFFFFF;padding:34px 0;}
+  .page-head h1{margin:0;font-size:26px;letter-spacing:0.04em;}
+  .page-head p{margin:6px 0 0;font-size:14.5px;color:#E4EDF5;}
+  .crumb{font-size:13.5px;color:var(--mute);padding:14px 0 0;}
+  .crumb a{color:var(--mute);text-decoration:none;}
+  section{padding:34px 0;}
+  .sec-title{font-size:20px;font-weight:700;margin:0 0 6px;padding-left:12px;border-left:4px solid var(--accent);}
+  .sec-desc{margin:0 0 20px;color:var(--mute);font-size:15px;}
+  .org{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:26px 24px;}
+  .org .top{text-align:center;}
+  .org .node{display:inline-block;background:var(--accent);color:#FFFFFF;padding:10px 30px;border-radius:2px;font-weight:700;font-size:15.5px;}
+  .org .node.sub{background:#EFF3F7;color:var(--accent);border:1px solid #C9D6E2;}
+  .org .line{width:1px;height:26px;background:#B9C7D4;margin:0 auto;}
+  .org .centers{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:14px;margin-top:6px;}
+  .center{background:#FBFCFD;border:1px solid var(--line);border-radius:3px;padding:16px 18px;}
+  .center h3{margin:0 0 8px;font-size:15.5px;color:var(--accent);padding-bottom:8px;border-bottom:1px dashed #D5DEE7;}
+  .center ul{list-style:none;margin:0;padding:0;}
+  .center li{font-size:14px;color:var(--mute);line-height:1.9;padding-left:14px;position:relative;}
+  .center li::before{content:"·";position:absolute;left:2px;color:var(--accent-2);font-weight:700;}
+  .note{background:#FBFCFD;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:3px;padding:16px 20px;font-size:14.5px;color:var(--mute);}
+  footer{background:#1B2A38;color:#D6E0EA;padding:34px 0 40px;font-size:14px;margin-top:20px;}
+  footer .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px;}
+  footer h4{margin:0 0 8px;font-size:14.5px;color:#FFFFFF;}
+  footer p,footer li{margin:0;color:#C3D0DC;font-size:13.5px;line-height:1.9;}
+  footer ul{list-style:none;margin:0;padding:0;}
+  footer a{color:#C3D0DC;text-decoration:none;}
+  .disclaimer{margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.18);color:#AAB6C2;font-size:12.5px;line-height:1.85;}
+  .disclaimer .hl{color:#D6E0EA;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav class="nav">
+      <div class="brand">精工机械<small>JINGGONG MACHINERY</small></div>
+      <div class="menu">
+        <a href="../">首页</a>
+        <a href="../about/">关于我们</a>
+        <a class="on" href="./">组织架构</a>
+        <a href="../business/">业务与产线</a>
+        <a href="../quality/">质量与体系</a>
+        <a href="../news/">新闻动态</a>
+        <a href="../jobs/">人才招聘</a>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <h1>组织架构</h1>
+    <p>公司治理与职能设置</p>
+  </div>
+</div>
+
+<div class="wrap"><div class="crumb"><a href="../">首页</a> &nbsp;/&nbsp; 组织架构</div></div>
+
+<section>
+  <div class="wrap">
+    <h2 class="sec-title">公司治理结构</h2>
+    <p class="sec-desc">股东会与董事会领导下，由总经理负责日常经营管理</p>
+    <div class="org">
+      <div class="top">
+        <span class="node">股东会</span>
+        <div class="line"></div>
+        <span class="node">董事会</span>
+        <div class="line"></div>
+        <span class="node">总经理</span>
+        <div class="line"></div>
+        <span class="node sub">各职能中心</span>
+      </div>
+      <div class="line" style="height:30px;"></div>
+      <div class="centers">
+        <div class="center">
+          <h3>生产制造中心</h3>
+          <ul>
+            <li>统筹三个厂区的生产计划与产线运行</li>
+            <li>冲压、焊接、涂装、装配车间管理</li>
+            <li>设备维护与产能保障</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>质量管理中心</h3>
+          <ul>
+            <li>质量管理体系运行与内审</li>
+            <li>来料、过程与终检的质量控制</li>
+            <li>客户投诉与不符合项闭环</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>工程与技术中心</h3>
+          <ul>
+            <li>产品与模具工艺开发</li>
+            <li>工艺改进与产线技术方案</li>
+            <li>工装夹具与检具管理</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>采购与供应链中心</h3>
+          <ul>
+            <li>原材料与外协件采购</li>
+            <li>供应商准入与绩效考核</li>
+            <li>仓储、物流与交付协调</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>综合管理中心</h3>
+          <ul>
+            <li>行政、总务与对外接待</li>
+            <li>人力资源与培训</li>
+            <li>安全生产与环保管理</li>
+            <li>信息化建设与信息系统运维</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>财务中心</h3>
+          <ul>
+            <li>财务核算与成本管理</li>
+            <li>资金与预算管理</li>
+            <li>税务与合规</li>
+          </ul>
+        </div>
+        <div class="center">
+          <h3>市场营销中心</h3>
+          <ul>
+            <li>客户开发与商务谈判</li>
+            <li>项目报价与合同管理</li>
+            <li>客户关系维护</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="wrap">
+    <h2 class="sec-title">职能说明</h2>
+    <p class="sec-desc">关于本页披露范围的说明</p>
+    <div class="note">
+      <p style="margin:0 0 10px;">本页仅对外披露至「中心」层级的职能设置。各中心下设的部门、岗位编制与人员名单属公司内部管理信息，不在网站公开范围。</p>
+      <p style="margin:0;">来访、考察与业务接洽由综合管理中心总经办统一受理与安排；需要对接具体职能中心的事项，请先通过总经办预约。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <h4>精工机械</h4>
+        <p>汽车零部件精密制造<br>冲压 · 焊接 · 涂装 · 装配</p>
+      </div>
+      <div>
+        <h4>公司</h4>
+        <ul>
+          <li><a href="../about/">关于我们</a></li>
+          <li><a href="../organization/">组织架构</a></li>
+          <li><a href="../news/">新闻动态</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>业务</h4>
+        <ul>
+          <li><a href="../business/">业务与产线</a></li>
+          <li><a href="../quality/">质量与体系</a></li>
+          <li><a href="../jobs/">人才招聘</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>联系方式</h4>
+        <p>江苏常州 · 武进厂区<br>电话：0519-8888 0000<br>邮箱：info@jinggong-machinery.example</p>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <span class="hl">合成声明：</span>本网站为 FDE 训练课程的教学模拟素材。所载企业「精工机械」为虚构主体，组织架构、职能设置与联系方式等均为教学设定，不代表任何真实企业；与真实企业如有名称或情节雷同，纯属巧合。本页内容仅用于课堂演练，不构成任何商业或投资参考。
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
