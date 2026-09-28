@@ -30,8 +30,9 @@
 
   /* ═══════════════ R1 · S1 挑活 ═══════════════ */
   R.R1 = {
-    key: 'R1', station: 'S1', name: '挑活',
-    full: 'AI 业务用例筛选与切片',
+    key: 'R1', station: 'S1',
+    name: '挑活',                          /* 顶栏短标签：908 保留的 S1 口语别名 */
+    full: 'AI业务用例筛选与切片（挑活）',      /* 908 §1 官方站名（回合标题渲染这个） */
     milestone: 'M1 选择、边界与准备责任确认',
     order: 1,
     h1: '切入点决策包',
@@ -491,16 +492,22 @@
         发布 S2–S5 后界面仍显示「S1 · 挑活」,静态度量冒充实际状态。
 
      模板占位符(挂在 data-fde-h1 / data-fde-sub / data-fde-tip 上):
-       {S} → 站号(S1..S5)   {N} → 站名(挑活 / 诊断共创 PoC …)   {D} → 该回合交付物名(切入点决策包 …)
+       {S} → 站号(S1..S5)   {N} → **908 官方站名**(该回合 full 字段)   {D} → 该回合交付物名(切入点决策包 …)
+      ⚠️ {N} 必须取 full、不能取 name。name 是顶栏用的**口语别名**(挑活)，拿它当站名会把标题钉死
+         在换版前的 **740 旧命名**上(挑活/进门与诊断/证明/采纳/扩张与复制 —— 见 1000 §61)，
+         与同页「① 五站」面板(已用 908 官方名)自相矛盾。依据 1050 §431「站名一律用 908 站名」。
      无占位符时按「{S} · {N} —— 原值」处理,兼容只写后缀的旧写法。 */
   function applyChrome(stationOrKey) {
     var m = /^S?([1-5])$/.exec(String(stationOrKey === undefined || stationOrKey === null ? '' : stationOrKey));
     var s = m ? R['R' + m[1]] : null;
     if (!s) { return false; }
+    /* 顶栏旗标刻意用**短别名**(挑活)：横向空间有限，官方全名放各屏 h1。 */
     var label = s.station + ' · ' + s.name, i;
     var fill = function (tpl) {
       if (tpl.indexOf('{') < 0) { return label + ' —— ' + tpl; }   /* 旧写法:整段当后缀 */
-      return tpl.replace(/\{S\}/g, s.station).replace(/\{N\}/g, s.name).replace(/\{D\}/g, s.h1 || '');
+      /* {N} 取 908 官方站名(full)，**不是**口语别名 s.name —— 旧写法取 s.name，
+         导致标题停在换版前 740 的旧命名上（记 C123）。name 只留给顶栏短标签。 */
+      return tpl.replace(/\{S\}/g, s.station).replace(/\{N\}/g, s.full || s.name).replace(/\{D\}/g, s.h1 || '');
     };
 
     var els = document.querySelectorAll('[data-fde-round]');
