@@ -95,7 +95,11 @@
 
     /* 开关 */
     var openCb = el('input'); openCb.type = 'checkbox';
-    openCb.checked = rnd.open !== false;
+    /* ⚠️ 安全默认 = **不勾**(2026-09-27 真机走查抓到):原实现 `rnd.open !== false` 在
+       「没保存过配置」时 `rnd.open === undefined` ⇒ 判定为真 ⇒ **未开班却预先勾上「允许提交」**,
+       与同一个页面顶部的「未开班」胶囊自相矛盾,讲师顺手点保存就会静默开通提交。
+       判据与学员端 `submitState()` 对齐:没配置 = 关。 */
+    openCb.checked = rnd.open === true;
     var openWrap = el('label', 'display:flex;gap:6px;align-items:center;font-size:12.5px;');
     openWrap.appendChild(openCb);
     openWrap.appendChild(el('span', '', '允许学员提交'));
@@ -359,7 +363,7 @@
     var box = card('border:1px dashed #d1a000;background:#fffbeb;');
     box.id = 'fde-dryruns';
     box.appendChild(h3('🧪 演练样本 · ' + DRYS.length + ' 个（不计入判分与排名）'));
-    box.appendChild(el('div', 'font-size:12px;color:#8a6d00;margin-bottom:10px;line-height:1.7;',
+    box.appendChild(elHTML('div', 'font-size:12px;color:#8a6d00;margin-bottom:10px;line-height:1.7;',
       '这些包带 <b>dry_run</b> 标记，是开班前用来验证链路的。它们<b>不在下面的判分表里</b>，' +
       '也不会出现在排名中。开班后请让学员重新导出<b>正常提交包</b>。'));
 

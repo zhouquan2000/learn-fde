@@ -87,6 +87,16 @@
     if (txt !== undefined) e.textContent = txt;
     return e;
   }
+  /* 需要标签时**显式**用这个(只喂我们自己写的固定模板,绝不喂用户内容)。
+     ⚠️ 存在的理由(2026-09-27 真机走查抓到):`el()` 走 textContent ⇒ 字符串里的 `<b>` 会
+        **原样显示成 `<b>` 这几个字符**。演练说明那段就是这么写坏的(学员端与讲师端各一处)。
+        与讲师端的同名函数保持同一语义,避免两端各修一次。 */
+  function elHTML(tag, css, html) {
+    var e = document.createElement(tag);
+    if (css) e.style.cssText = css;
+    if (html !== undefined) e.innerHTML = html;
+    return e;
+  }
   function card(t) { return el('div', 'background:#fff;border:1px solid #e3e6ea;border-radius:10px;padding:14px 16px;', t); }
   function h3(t) { var e = el('h3', 'margin:0 0 10px;font-size:14px;font-weight:700;', t); return e; }
   function cl(tag, cls, txt) {
@@ -1019,7 +1029,7 @@
         '🧪 导出演练样本（开班前自测用）');
       dry.onclick = function () { doExport(true); };
       box.appendChild(dry);
-      box.appendChild(el('div', 'margin-top:6px;font-size:12px;color:#8a6d00;line-height:1.7;',
+      box.appendChild(elHTML('div', 'margin-top:6px;font-size:12px;color:#8a6d00;line-height:1.7;',
         '演练样本会带 <b>dry_run</b> 标记、文件名以 <b>DRYRUN</b> 开头，讲师端一眼认得出，' +
         '且<b>不计入判分与排名</b>。用途：开班前把「填表→导出→导入判分」整条链路先跑通一次。'));
     }
