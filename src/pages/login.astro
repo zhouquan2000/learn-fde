@@ -37,15 +37,26 @@ import Shell from '../layouts/Shell.astro';
         </div>
         <div class="err" id="err" hidden></div>
         <button class="btn primary wide" type="submit">进入 →</button>
+        <button class="btn wide ghost" type="button" id="quick">🎓 以学员身份进入（免口令）</button>
       </form>
 
+      <p class="note tight">
+        <b>学员身份不需要口令</b> —— 账号填 <span class="mono">echo1</span>，口令留空，<b>直接回车</b>即可；
+        或点上面那个黄色按钮。
+        <br />
+        <b>⚠️ 但「echo1」不是你在系统里的身份。</b>本课不使用个人账号 ——
+        <b>学员在系统里的身份是组号（T01、T02…）</b>，由讲师发的组卡给出。
+        进学员端后仍然要点顶部「设置组号」填上它；<span class="mono">echo1</span> 只是进门的标签。
+      </p>
+
       <details class="demo">
-        <summary>本页两个演示账号（点开）</summary>
+        <summary>本页三个演示账号（点开）</summary>
         <table class="tbl">
           <thead><tr><th>账号</th><th>口令</th><th>进入</th></tr></thead>
           <tbody>
+            <tr><td class="mono">echo1</td><td><b>（免口令 · 直接回车）</b></td><td>学员端（填交付物 / 看评分看板）</td></tr>
+            <tr><td class="mono">student1</td><td class="mono">students</td><td>学员端（同上，带口令版本）</td></tr>
             <tr><td class="mono">admin</td><td class="mono">admin2026</td><td>讲师端（开班 / 判分 / 质询）</td></tr>
-            <tr><td class="mono">student1</td><td class="mono">students</td><td>学员端（填交付物 / 看评分看板）</td></tr>
           </tbody>
         </table>
         <p class="note">
@@ -75,22 +86,54 @@ import Shell from '../layouts/Shell.astro';
   </section>
 
   <script is:inline>
-    /* ⚠️ 明文口令 —— 见文件头注释：本页不构成访问控制，只做入口分流。 */
+    /* ⚠️ 明文口令 —— 见文件头注释：本页不构成访问控制，只做入口分流。
+       `psw: ''` = **免口令账号**（回车即进）；非空则须逐字匹配。 */
     var FDE_ACCOUNTS = [
-      { id: 'admin',    psw: 'admin2026', role: 'instructor', to: '/sim/console/' },
-      { id: 'student1', psw: 'students',  role: 'student',    to: '/sim/' }
+      { id: 'echo1',    psw: '',          role: 'student',    to: '/sim/' },
+      { id: 'student1', psw: 'students',  role: 'student',    to: '/sim/' },
+      { id: 'admin',    psw: 'admin2026', role: 'instructor', to: '/sim/console/' }
     ];
     var SESSION_KEY = 'fde.session';
+
+    /* 只按账号判：`psw: ''` 的账号**免口令**（口令栏填什么都放行）；
+       其余账号要求口令逐字相等。 */
+    function pickAccount(id, psw) {
+      for (var i = 0; i < FDE_ACCOUNTS.length; i++) {
+        var a = FDE_ACCOUNTS[i];
+        if (a.id !== id) continue;
+        if (a.psw === '' || a.psw === psw) return a;
+      }
+      return null;
+    }
 
     (function () {
       var form = document.getElementById('entForm');
       var acc = document.getElementById('acc');
       var psw = document.getElementById('psw');
       var err = document.getElementById('err');
+      var quick = document.getElementById('quick');
 
       function fail(msg) {
         err.textContent = '⚠️ ' + msg;
         err.hidden = false;
+      }
+
+      function enter(hit) {
+        try {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+            id: hit.id, role: hit.role, at: new Date().toISOString()
+          }));
+        } catch (e2) { /* 存不下也照样让他进 —— 身份只是提示，不是权限 */ }
+        location.href = hit.to;
+      }
+
+      /* 一键以学员身份进入（免口令）—— 走同一个 pickAccount，不另开一条判据 */
+      if (quick) {
+        quick.addEventListener('click', function () {
+          var hit = pickAccount('echo1', '');
+          if (!hit) { fail('免口令账号 echo1 不存在（配置被改了？）。'); return; }
+          enter(hit);
+        });
       }
 
       form.addEventListener('submit', function (e) {
@@ -98,21 +141,18 @@ import Shell from '../layouts/Shell.astro';
         err.hidden = true;
         var a = (acc.value || '').trim();
         var p = psw.value || '';
-        if (!a || !p) { fail('账号和口令都要填。'); return; }
+        if (!a) { fail('请填账号。（学员身份可留空口令，直接回车进入。）'); return; }
 
-        var hit = null;
-        for (var i = 0; i < FDE_ACCOUNTS.length; i++) {
-          if (FDE_ACCOUNTS[i].id === a && FDE_ACCOUNTS[i].psw === p) { hit = FDE_ACCOUNTS[i]; break; }
+        var hit = pickAccount(a, p);
+        if (!hit) {
+          /* 区分两种失败，避免让人误以为"口令错了"其实是账号不存在 */
+          var known = false;
+          for (var i = 0; i < FDE_ACCOUNTS.length; i++) if (FDE_ACCOUNTS[i].id === a) { known = true; break; }
+          fail(known ? '口令不对。' : '没有这个账号。');
+          if (known) { psw.value = ''; psw.focus(); }
+          return;
         }
-        if (!hit) { fail('账号或口令不对。'); psw.value = ''; psw.focus(); return; }
-
-        try {
-          sessionStorage.setItem(SESSION_KEY, JSON.stringify({
-            id: hit.id, role: hit.role, at: new Date().toISOString()
-          }));
-        } catch (e2) { /* 存不下也照样让他进 —— 身份只是提示，不是权限 */ }
-
-        location.href = hit.to;
+        enter(hit);
       });
 
       /* 已在本标签页登过：直接把账号填好（口令不填，避免"看起来已登录"的错觉） */
@@ -146,7 +186,9 @@ import Shell from '../layouts/Shell.astro';
       border:1px solid var(--border);background:var(--surf2);color:var(--ink);text-decoration:none;
       display:inline-block;transition:.15s}
     .btn.primary{background:var(--grad);color:#fff;border-color:transparent;font-weight:600}
+    .btn.ghost{background:transparent;border-style:dashed;color:var(--violet);font-weight:600}
     .btn.wide{width:100%;margin-top:6px;text-align:center}
+    .note.tight{margin-top:12px;font-size:12.5px;line-height:1.85;max-width:460px}
     .err{margin:4px 0 10px;padding:9px 12px;border-radius:8px;font-size:13.5px;
       background:var(--warn-t);border:1px solid var(--border);color:var(--warn)}
     .demo{max-width:660px;margin-top:22px;border:1px solid var(--border);border-radius:10px;
