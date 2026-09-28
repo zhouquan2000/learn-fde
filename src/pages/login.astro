@@ -1,0 +1,160 @@
+---
+import Shell from '../layouts/Shell.astro';
+
+/**
+ * 进入系统 —— 身份分流页
+ *
+ * ⚠️ 诚实边界（必须写在页面上，也必须写在代码注释里）：
+ *   这是一个**纯静态站**（Cloudflare Pages，源码在 public 仓库）。
+ *   本页的账号口令**明文写在页面 JS 里**，任何人都能查看源码看到。
+ *   ⇒ 它**只做「把两个身份分流到正确的端」，不构成任何访问控制**。
+ *   直接访问 /sim/ 或 /sim/console/ 同样能进（见下方「为什么不做硬门禁」）。
+ *
+ * 身份存 **sessionStorage**（不是 localStorage）：
+ *   · localStorage 必须两端共享 —— 那是「讲师开班 → 学员读到」能跑通的前提
+ *   · sessionStorage **每个标签页独立** ⇒ 一个标签当 admin、另一个当 student1，互不干扰
+ */
+---
+
+<Shell title="进入系统 · LearnFDE 模拟商战">
+  <section class="ent">
+    <div class="wrap">
+      <div class="eyebrow mono">FDE SIMULATION · 进入系统</div>
+      <h1>进入系统</h1>
+      <p class="lede">
+        本班不使用个人账号 —— <b>组号即身份</b>。这里只是把「讲师」与「学员」两个身份
+        分流到对应的端，省得手输网址。
+      </p>
+
+      <form class="card" id="entForm" autocomplete="off">
+        <div class="row">
+          <label class="lb" for="acc">账号</label>
+          <input id="acc" class="inp" type="text" placeholder="admin 或 student1" autocomplete="off" />
+        </div>
+        <div class="row">
+          <label class="lb" for="psw">口令</label>
+          <input id="psw" class="inp" type="password" placeholder="口令" autocomplete="off" />
+        </div>
+        <div class="err" id="err" hidden></div>
+        <button class="btn primary wide" type="submit">进入 →</button>
+      </form>
+
+      <details class="demo">
+        <summary>本页两个演示账号（点开）</summary>
+        <table class="tbl">
+          <thead><tr><th>账号</th><th>口令</th><th>进入</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">admin</td><td class="mono">admin2026</td><td>讲师端（开班 / 判分 / 质询）</td></tr>
+            <tr><td class="mono">student1</td><td class="mono">students</td><td>学员端（填交付物 / 看评分看板）</td></tr>
+          </tbody>
+        </table>
+        <p class="note">
+          <b>⚠️ 演示用途，不是密钥。</b>本站是纯静态站，上面两行口令就写在页面源码里 ——
+          任何人查看源码都能看到。真实开班时请勿把本页当作访问控制；
+          它唯一的职责是「分流入口」。学员端的组身份仍然靠讲师发的<b>组卡</b>。
+        </p>
+      </details>
+
+      <details class="demo">
+        <summary>为什么不做硬门禁？（点开）</summary>
+        <p class="note">
+          要做成「没登录就跳回本页」，就得在每个页面开头检查登录态。
+          而你要<b>同时</b>演学员与讲师 ⇒ 需要开两个标签页 ⇒ 新标签页没有登录态，
+          会被<b>立刻弹回本页</b>，每开一个标签都要重新登一次。
+          所以本页<b>只分流、不拦截</b>：直接访问 <span class="mono">/sim/</span> 或
+          <span class="mono">/sim/console/</span> 依然能进。
+        </p>
+        <p class="note">
+          另一个必须说清的点：两端<b>共享同一个 <span class="mono">localStorage</span></b> ——
+          这正是「讲师开班 → 学员端立刻读到」能成立的原因。
+          所以身份<b>不能</b>存 <span class="mono">localStorage</span>（存了就会互相覆盖），
+          本页存的是 <span class="mono">sessionStorage</span>（<b>每个标签页独立</b>）。
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <script is:inline>
+    /* ⚠️ 明文口令 —— 见文件头注释：本页不构成访问控制，只做入口分流。 */
+    var FDE_ACCOUNTS = [
+      { id: 'admin',    psw: 'admin2026', role: 'instructor', to: '/sim/console/' },
+      { id: 'student1', psw: 'students',  role: 'student',    to: '/sim/' }
+    ];
+    var SESSION_KEY = 'fde.session';
+
+    (function () {
+      var form = document.getElementById('entForm');
+      var acc = document.getElementById('acc');
+      var psw = document.getElementById('psw');
+      var err = document.getElementById('err');
+
+      function fail(msg) {
+        err.textContent = '⚠️ ' + msg;
+        err.hidden = false;
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        err.hidden = true;
+        var a = (acc.value || '').trim();
+        var p = psw.value || '';
+        if (!a || !p) { fail('账号和口令都要填。'); return; }
+
+        var hit = null;
+        for (var i = 0; i < FDE_ACCOUNTS.length; i++) {
+          if (FDE_ACCOUNTS[i].id === a && FDE_ACCOUNTS[i].psw === p) { hit = FDE_ACCOUNTS[i]; break; }
+        }
+        if (!hit) { fail('账号或口令不对。'); psw.value = ''; psw.focus(); return; }
+
+        try {
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+            id: hit.id, role: hit.role, at: new Date().toISOString()
+          }));
+        } catch (e2) { /* 存不下也照样让他进 —— 身份只是提示，不是权限 */ }
+
+        location.href = hit.to;
+      });
+
+      /* 已在本标签页登过：直接把账号填好（口令不填，避免"看起来已登录"的错觉） */
+      try {
+        var s = sessionStorage.getItem(SESSION_KEY);
+        if (s) {
+          var o = JSON.parse(s);
+          if (o && o.id) {
+            acc.value = o.id;
+            err.textContent = 'ℹ️ 本标签页上次进入的是「' + o.id + '」。要换身份请重新输入口令。';
+            err.hidden = false;
+          }
+        }
+      } catch (e3) {}
+    })();
+  </script>
+
+  <style>
+    .ent{padding:56px 0 8px;min-height:60vh}
+    .eyebrow{font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+    h1{font-size:36px;letter-spacing:-1px;line-height:1.2;margin-bottom:14px}
+    .lede{color:var(--muted);max-width:660px;margin-bottom:28px}
+    .card{max-width:460px;background:var(--surf);border:1px solid var(--border);
+      border-radius:14px;padding:22px 22px 20px;box-shadow:var(--shadow)}
+    .row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .lb{width:48px;flex:none;font-size:13.5px;color:var(--muted)}
+    .inp{flex:1;font:inherit;font-size:15px;padding:9px 12px;border-radius:8px;
+      border:1px solid var(--border);background:var(--surf2);color:var(--ink)}
+    .inp:focus{outline:2px solid var(--cyan);outline-offset:1px}
+    .btn{font:inherit;font-size:15px;padding:10px 18px;border-radius:8px;cursor:pointer;
+      border:1px solid var(--border);background:var(--surf2);color:var(--ink);text-decoration:none;
+      display:inline-block;transition:.15s}
+    .btn.primary{background:var(--grad);color:#fff;border-color:transparent;font-weight:600}
+    .btn.wide{width:100%;margin-top:6px;text-align:center}
+    .err{margin:4px 0 10px;padding:9px 12px;border-radius:8px;font-size:13.5px;
+      background:var(--warn-t);border:1px solid var(--border);color:var(--warn)}
+    .demo{max-width:660px;margin-top:22px;border:1px solid var(--border);border-radius:10px;
+      background:var(--surf);padding:12px 16px}
+    .demo summary{cursor:pointer;font-size:14px;color:var(--muted)}
+    .tbl{width:100%;border-collapse:collapse;margin:12px 0 6px;font-size:13.5px}
+    .tbl th,.tbl td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--border2)}
+    .tbl th{color:var(--faint);font-weight:600;font-size:12.5px}
+    .note{margin-top:10px;font-size:13px;color:var(--muted);line-height:1.8}
+  </style>
+</Shell>
