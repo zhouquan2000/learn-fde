@@ -47,6 +47,10 @@
   footer a{color:#C3D0DC;text-decoration:none;}
   .disclaimer{margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.18);color:#AAB6C2;font-size:12.5px;line-height:1.85;}
   .disclaimer .hl{color:#D6E0EA;}
+
+  .diagram{margin:0 0 22px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:18px 20px;overflow-x:auto;}
+  .diagram svg{display:block;width:100%;min-width:780px;height:auto;font-family:inherit;}
+  .diagram figcaption{margin-top:12px;font-size:13px;color:var(--mute);}
 </style>
 </head>
 <body>
@@ -114,6 +118,45 @@
   <div class="wrap">
     <h2 class="sec-title">质量控制点</h2>
     <p class="sec-desc">从来料到出线的三道关口</p>
+    <!-- SVG:QUALITY-LOOP -->
+<figure class="diagram">
+<svg viewBox="0 0 1000 344" role="img" aria-labelledby="dg2t" preserveAspectRatio="xMidYMid meet">
+  <title id="dg2t">质量控制三道关口与不符合项处置闭环示意</title>
+  <rect x="0" y="0" width="224" height="86" rx="3" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <text x="112.0" y="34" fill="#1F2933" font-size="15" font-weight="700" text-anchor="middle">来料检验</text>
+  <text x="112.0" y="60" fill="#1F2933" font-size="12.5" text-anchor="middle">按批次抽检 · 材质与尺寸复核</text>
+  <line x1="224" y1="43" x2="241" y2="43" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="250,43 241,38.5 241,47.5" fill="#2E6F9E"/>
+  <rect x="250" y="0" width="224" height="86" rx="3" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <text x="362.0" y="34" fill="#1F2933" font-size="15" font-weight="700" text-anchor="middle">过程检验</text>
+  <text x="362.0" y="60" fill="#1F2933" font-size="12.5" text-anchor="middle">在线目检 + 定时抽检</text>
+  <line x1="474" y1="43" x2="491" y2="43" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="500,43 491,38.5 491,47.5" fill="#2E6F9E"/>
+  <rect x="500" y="0" width="224" height="86" rx="3" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <text x="612.0" y="34" fill="#1F2933" font-size="15" font-weight="700" text-anchor="middle">终检放行</text>
+  <text x="612.0" y="60" fill="#1F2933" font-size="12.5" text-anchor="middle">尺寸 · 外观 · 功能项</text>
+  <line x1="724" y1="43" x2="741" y2="43" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="750,43 741,38.5 741,47.5" fill="#2E6F9E"/>
+  <rect x="750" y="0" width="250" height="86" rx="3" fill="#1F4E79" stroke="#1F4E79"/>
+  <text x="875.0" y="34" fill="#FFFFFF" font-size="15" font-weight="700" text-anchor="middle">出线交付</text>
+  <text x="875.0" y="60" fill="#FFFFFF" font-size="12.5" text-anchor="middle">随附检验记录</text>
+  <text x="0" y="118" fill="#5B6B7A" font-size="13">出线产品须通过终检方可放行；未通过终检的产品不得放行。</text>
+  <rect x="0" y="138" width="1000" height="150" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/>
+  <text x="20" y="166" fill="#1F4E79" font-size="15" font-weight="700">不符合项处置（纠正措施闭环）</text>
+  <g transform="translate(0,188)">
+    <rect x="20" y="0" width="168" height="44" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/><text x="104.0" y="28" fill="#1F2933" font-size="13.5" text-anchor="middle">识别与记录</text>
+    <line x1="188" y1="22" x2="203" y2="22" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="212,22 203,17.5 203,26.5" fill="#2E6F9E"/>
+    <rect x="212" y="0" width="168" height="44" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/><text x="296.0" y="28" fill="#1F2933" font-size="13.5" text-anchor="middle">隔离与标识</text>
+    <line x1="380" y1="22" x2="395" y2="22" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="404,22 395,17.5 395,26.5" fill="#2E6F9E"/>
+    <rect x="404" y="0" width="168" height="44" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/><text x="488.0" y="28" fill="#1F2933" font-size="13.5" text-anchor="middle">原因分析</text>
+    <line x1="572" y1="22" x2="587" y2="22" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="596,22 587,17.5 587,26.5" fill="#2E6F9E"/>
+    <rect x="596" y="0" width="190" height="44" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/><text x="691.0" y="28" fill="#1F2933" font-size="13.5" text-anchor="middle">纠正措施与验证</text>
+    <line x1="786" y1="22" x2="803" y2="22" stroke="#2E6F9E" stroke-width="1.6"/><polygon points="812,22 803,17.5 803,26.5" fill="#2E6F9E"/>
+    <rect x="812" y="0" width="168" height="44" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/><text x="896.0" y="28" fill="#1F2933" font-size="13.5" text-anchor="middle">效果确认</text>
+  </g>
+  <text x="20" y="278" fill="#5B6B7A" font-size="13">过程参数（压力 · 电流 · 焊接参数 · 尺寸测量）按统计过程控制（SPC）方法观察趋势，用于识别过程偏移与异常波动。</text>
+  <text x="0" y="322" fill="#5B6B7A" font-size="13">质量记录按 IATF 16949 要求保留与管理；客户提出的质量改进要求由质量管理中心牵头组织跨部门分析与措施跟踪。</text>
+</svg>
+<figcaption>图 2 · 质量控制点与不符合项处置闭环示意（教学模拟素材）</figcaption>
+</figure>
+<!-- /SVG:QUALITY-LOOP -->
     <table>
       <tr><th style="width:160px;">环节</th><th style="width:220px;">主要方式</th><th>控制要求</th></tr>
       <tr>

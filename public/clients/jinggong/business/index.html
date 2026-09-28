@@ -49,6 +49,10 @@
   footer a{color:#C3D0DC;text-decoration:none;}
   .disclaimer{margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.18);color:#AAB6C2;font-size:12.5px;line-height:1.85;}
   .disclaimer .hl{color:#D6E0EA;}
+
+  .diagram{margin:0 0 22px;background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:18px 20px;overflow-x:auto;}
+  .diagram svg{display:block;width:100%;min-width:780px;height:auto;font-family:inherit;}
+  .diagram figcaption{margin-top:12px;font-size:13px;color:var(--mute);}
 </style>
 </head>
 <body>
@@ -100,6 +104,35 @@
   <div class="wrap">
     <h2 class="sec-title">产能与产线分布</h2>
     <p class="sec-desc">3 个厂区 · 7 条主要生产线 · 年产能超 1,000 万件</p>
+    <!-- SVG:PARK-DIST -->
+<figure class="diagram">
+<svg viewBox="0 0 1000 316" role="img" aria-labelledby="dg1t" preserveAspectRatio="xMidYMid meet">
+  <title id="dg1t">精工机械厂区与产线分布示意：3 个厂区，7 条主要生产线</title>
+  <rect x="0" y="0" width="312" height="36" rx="3" fill="#1F4E79"/>
+  <text x="16" y="24" fill="#FFFFFF" font-size="15" font-weight="700">武进厂区（一号）</text>
+  <rect x="0" y="36" width="312" height="150" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <rect x="16" y="56" width="280" height="40" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/><text x="30" y="81" fill="#1F2933" font-size="14">冲压线</text><text x="282" y="81" fill="#1F4E79" font-size="14" font-weight="700" text-anchor="end">× 3 条</text>
+  <rect x="16" y="104" width="280" height="40" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/><text x="30" y="129" fill="#1F2933" font-size="14">焊接线</text><text x="282" y="129" fill="#1F4E79" font-size="14" font-weight="700" text-anchor="end">× 1 条</text>
+  <text x="16" y="168" fill="#5B6B7A" font-size="13">车身结构件、支架类零件</text>
+  <rect x="344" y="0" width="312" height="36" rx="3" fill="#1F4E79"/>
+  <text x="360" y="24" fill="#FFFFFF" font-size="15" font-weight="700">二号厂区</text>
+  <rect x="344" y="36" width="312" height="150" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <rect x="360" y="56" width="280" height="40" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/><text x="374" y="81" fill="#1F2933" font-size="14">焊接线</text><text x="626" y="81" fill="#1F4E79" font-size="14" font-weight="700" text-anchor="end">× 2 条</text>
+  <rect x="360" y="104" width="280" height="40" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/><text x="374" y="129" fill="#1F2933" font-size="14">装配线</text><text x="626" y="129" fill="#1F4E79" font-size="14" font-weight="700" text-anchor="end">× 1 条</text>
+  <text x="360" y="168" fill="#5B6B7A" font-size="13">分总成焊接与总成装配</text>
+  <rect x="688" y="0" width="312" height="36" rx="3" fill="#1F4E79"/>
+  <text x="704" y="24" fill="#FFFFFF" font-size="15" font-weight="700">三号厂区</text>
+  <rect x="688" y="36" width="312" height="102" fill="#FFFFFF" stroke="#DDE3EA"/>
+  <rect x="704" y="56" width="280" height="40" rx="3" fill="#FBFCFD" stroke="#DDE3EA"/><text x="718" y="81" fill="#1F2933" font-size="14">涂装线</text><text x="970" y="81" fill="#1F4E79" font-size="14" font-weight="700" text-anchor="end">× 1 条</text>
+  <text x="704" y="120" fill="#5B6B7A" font-size="13">电泳与喷涂表面处理</text>
+  <rect x="0" y="228" width="1000" height="88" rx="3" fill="#EFF3F7" stroke="#DDE3EA"/>
+  <text x="20" y="256" fill="#1F4E79" font-size="15" font-weight="700">主要生产线合计 7 条</text>
+  <text x="20" y="280" fill="#1F2933" font-size="14">冲压 3 条 · 焊接 3 条 · 装配 1 条（涂装线单独设置 1 条，不计入主要生产线）</text>
+  <text x="20" y="304" fill="#5B6B7A" font-size="13">各厂区按客户区域就近布局，以压缩物流距离、支撑准时化（JIT）交付；订单为多品种、中小批量，产线换型较频繁。</text>
+</svg>
+<figcaption>图 1 · 厂区与产线分布示意（教学模拟素材）</figcaption>
+</figure>
+<!-- /SVG:PARK-DIST -->
     <table>
       <tr><th style="width:150px;">厂区</th><th style="width:180px;">主要产线</th><th>主要产品方向</th></tr>
       <tr><td>武进厂区（一号）</td><td>冲压线 3 条 · 焊接线 1 条</td><td>车身结构件、支架类零件</td></tr>
