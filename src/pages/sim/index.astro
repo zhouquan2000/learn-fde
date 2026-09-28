@@ -411,7 +411,7 @@ a.logo:hover b{text-decoration:underline}
 <!-- ══════════ ① 回合工作台 ══════════ -->
 <section class="screen" data-on="1">
   <div class="lbl">Round Workspace · 回合工作台</div>
-  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— &#123;D&#125;">S1 · 挑活 —— 业务单元切入决策</h1>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— &#123;D&#125;">S1 · 挑活 —— 业务单元切入决策包</h1>
   <p class="sub" data-fde-sub>本回合的胜负手是 <b>「说不」的能力</b>：核心不是选中，而是<b>排除</b>。你要从 4 个候选试点业务单元里挑 1 个，并把另外 3 个为什么不选说清楚。</p>
 
   <div class="grid g13" style="margin-top:26px">
@@ -618,7 +618,7 @@ a.logo:hover b{text-decoration:underline}
 <!-- ══════════ ③ 交付物表单 ══════════ -->
 <section class="screen">
   <div class="lbl">Deliverable Form · 交付物表单</div>
-  <h1 data-fde-h1="&#123;S&#125; 交付物 · &#123;D&#125;">R1 交付物 · 业务单元切入决策</h1>
+  <h1 data-fde-h1="&#123;S&#125; 交付物 · &#123;D&#125;">R1 交付物 · 业务单元切入决策包</h1>
   <p class="sub">字段与 <code class="mono" style="font-size:12px">Deliverable.items[]</code> 一一对应。橙色标记项为<b>门槛项</b> —— 未填或说明不足会被驳回。</p>
 
   <div class="grid g13" style="margin-top:26px">
@@ -846,7 +846,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.15.3','/sim/l7_rounds.js?v=1.15.3','/sim/l7_student_app.js?v=1.15.3'];
+  var files = ['/sim/l7_core.js?v=1.15.4','/sim/l7_rounds.js?v=1.15.4','/sim/l7_student_app.js?v=1.15.4'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
