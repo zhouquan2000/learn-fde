@@ -41,7 +41,7 @@
   /* ══════════════════ P6 · 开班与回合发布 ══════════════════ */
   var CASE_LIB = [
     ['C03', '优选生活（零售电商 × 客服售后）★首期'],
-    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；✅ 成本池型核算（R2–R5）已接入（Δ上限 = P_opt）；⚠️ 学员端「成本池逐项表」UI 待接，故 R2–R5 的 Δ 目前仍只在讲师侧可算'],
+    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；✅ 成本池型核算（R2–R5）已接入（**Δ上限 = 本单元可影响池 ¥4,953.8 万** · B 方案 2026-09-30）；✅ 学员端「📊 成本池逐项表」已接入（学员自列池项 → 平台加 Δ → 讲师侧按金额对账）'],
     ['C01', '云岭通信（电信通信 × 客服售后）'],
     ['C07', '云栈科技（高科技软件 × 客服售后）'],
     ['C12', '磐云数据（高科技软件 × 运营调度）'],
@@ -224,9 +224,11 @@
       return;
     }
 
+    var UP_LABEL = { P_opt: '全池 P_opt', movable_sum: '本单元可影响池（③④⑤）', C0: '卡面可见池 C₀' };
     box.appendChild(el('div', 'font-size:12.5px;color:#374151;margin-bottom:8px;line-height:1.8',
       '案例 ' + p.case_id + ' · ' + p.name + ' ｜ 核算形状 = **成本池**（件数 × 率 × 价值）｜ '
-      + 'Δ上限 取 **' + p.upperFrom + '**（C130 ①）'));
+      + 'Δ上限 = **' + (UP_LABEL[p.upperFrom] || p.upperFrom) + ' ¥' + (p[p.upperFrom] / 10000).toFixed(1)
+      + ' 万**（`C130` ① · **B 方案**,2026-09-30）'));
 
     var tb = document.createElement('table');
     tb.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
@@ -258,9 +260,9 @@
 
     box.appendChild(el('div', 'margin-top:10px;font-size:12.5px;line-height:1.9;color:#111827',
       'C₀（卡面可见 ①+②）= **¥' + (p.C0 / 10000).toFixed(1) + ' 万** ｜ '
-      + 'P_opt（Δ上限）= **¥' + (p.P_opt / 10000).toFixed(1) + ' 万** ｜ '
-      + '候选 A 可影响（③④⑤）= **¥' + (p.movable_sum / 10000).toFixed(1) + ' 万**'
-      + '（占 P_opt 的 ' + (p.movable_sum / p.P_opt * 100).toFixed(1) + '%）'));
+      + 'P_opt（全池）= **¥' + (p.P_opt / 10000).toFixed(1) + ' 万** ｜ '
+      + '**本单元可影响池（③④⑤）= ¥' + (p.movable_sum / 10000).toFixed(1) + ' 万**'
+      + '（占 P_opt 的 ' + (p.movable_sum / p.P_opt * 100).toFixed(1) + '%）← **Δ上限**'));
     box.appendChild(el('div', 'margin-top:6px;font-size:12px;color:#6b7280;line-height:1.8',
       p.ceiling_note));
 
@@ -497,7 +499,15 @@
         ? '<b>R1 由讲师打「预估的可核验性」1–5</b> —— 判据：① 收益口径是否选对（降本/增收/风控三分，严禁混算）' +
           '② 基线与上限是否写明 ③ 关键假设是否可核验。<b>R2 起改由平台自动带出，届时本框只读。</b>' +
           '<br><span style="color:#92400e">⚠️ <b>R1 不填价值分 ⇒ 该组总分算不出（显示 —），无法排名。</b></span>'
-        : (rspec() && rspec().evalrun
+        : ((window.FDE_POOL && SUBS.some(function (s) { return !!window.FDE_POOL.of(s.case_id || ''); }))
+            ? '<b>价值分 = </b><code>Δ ÷ Δ上限</code>（0–1 率，<b>不换算</b>）。' +
+              '<br><b style="color:#b45309">⚠️ 本案例是 <b>成本池型</b>（#05 精工机械）：Δ 由学员在「📊 成本池逐项表」里<b>逐项声明</b>的 C₀ / C₁ 加出来（平台只做加法，界面上没有能直填 Δ 的地方）。</b>' +
+              '<br>· 分子 = <b>学员列出的项</b>之和（他列了哪些、漏了哪些，见本表每组下的「💰 成本池逐项声明」）。' +
+              '<br>· 分母 = <b>本单元可影响池</b>（C130 ① · <b>2026-09-30 B 方案</b>）= ③④⑤，<b>不是</b>全池 <code>P_opt</code>、也<b>不是</b>卡面可见的 <code>C₀</code>。' +
+              '<br>· 学员把<b>本单元影响不到</b>的项（①②）也算进 Δ ⇒ 兑现率会 >100% ⇒ <b>平台截断到 100%</b>；原始 <code>raw</code> 保留在本表，用来识别虚报。' +
+              '<br><span style="color:#92400e">⚠️ 分母<b>只在本页出现</b> —— 学员端看不到 Δ上限、也看不到兑现率（那等于告诉他「还漏了什么」）。</span>' +
+              '<br><span style="color:#0f7d3d">✅ 价值分<b>只读</b>：从包内 <code>artifacts.pool.rows</code> 复算，讲师在这台机器上改不了。</span>'
+            : (rspec() && rspec().evalrun
             ? '<b>价值分 = </b><code>Δ实际 ÷ Δ上限</code>（0–1 率，<b>不换算</b>）。' +
               '<br><b style="color:#b45309">⚠️ 关键是「Δ实际 用的 r 从哪来」—— 逐回合不同：</b>' +
               '<br>· <b>R2</b>：用 <b>EvalRun 的 r</b>（此时还没有真实运行，只能用评测结论）' +
@@ -511,7 +521,7 @@
               '<b>讲师在这台机器上改不了</b>。</span>'
               + '<br><span style="color:#92400e">⚠️ 该组没登记 EvalRun（或产物未标识）⇒ r 不予采信 ⇒ '
               + '价值分留空、总分算不出（显示 —）。<b>不要手填补一个。</b></span>'
-            : '<b>本回合尚未声明产物依据</b> ⇒ 价值分为<b>手填</b>（复核时须另附依据）。'))));
+            : '<b>本回合尚未声明产物依据</b> ⇒ 价值分为<b>手填</b>（复核时须另附依据）。')))));
 
     P7.appendChild(box);
     rebuildGrading(box);
@@ -569,8 +579,115 @@
      `F.valueRate(包, 包内 nums 的参数, r 区间上界)` 算出 ——
      讲师这台机器上**没有**任何能改写它的输入框。
      算不出就**明说为什么**,绝不回落成手填(那正是这条链要堵的洞)。 */
+  /* ⭐ ③-c 池型案例（#05）：学员声明的成本池 vs 案例池定义 —— **讲师侧对照**（2026-09-30）
+     为什么要"对照"：学员列的是**自己拟名**的项（"好件误判损失"之类），与池项的键对不上号。
+       ⇒ 用**金额**匹配（±5% 容差）为主 —— 不问叫什么名字，只看他有没有把这笔钱算出来。
+       ⇒ **池项名（过杀等）只在本页出现**，学员端一个字都没有（那是本案例的教学胜负手）。
+     四类判定：
+       · hit        —— 学员列了、且金额与某个池项吻合
+       · missed     —— 「本单元可影响池」里**没被列进来**的项（③④⑤）← 教学胜负手，必须点出来
+       · outOfScope —— 学员把**本单元影响不到**的项（①②）也算进了 Δ ⇒ 虚报，兑现率被截断
+       · unknown    —— 金额对不上任何池项：自造口径 / 单位错（万元当元写）/ 算错 ⇒ 需人工看 */
+  function poolCheck(s) {
+    var PL = window.FDE_POOL;
+    if (!PL) { return null; }
+    var p = PL.of(s.case_id || '');
+    if (!p) { return null; }
+    var rows = ((s.artifacts || {}).pool || {}).rows || [];
+    var upper = PL.upper(s.case_id);
+    var vr = F.valueRatePool(rows, upper);
+    var cls = PL.classify(s.case_id, rows) || {};
+    return {
+      p: p, rows: rows, vr: vr, upper: upper, tol: cls.tol,
+      hit: cls.hit || {}, unknown: cls.unknown || [], per_row: cls.per_row || [],
+      missed: cls.missed || [], outOfScope: cls.outOfScope || []
+    };
+  }
+
+  function poolEvidence(s) {
+    var k = poolCheck(s);
+    if (!k) { return null; }
+    var tr = el('tr', 'background:#fdf8f3;');
+    var td = el('td');
+    td.colSpan = 999;
+    td.style.cssText = 'padding:6px 4px 10px 18px;font-size:12.5px;color:#5a3a12;border-bottom:1px solid #f0e6d8;';
+    td.appendChild(el('div', 'font-weight:700;color:#b45309;margin-bottom:4px;',
+      '💰 本组成本池逐项声明（③-c —— 学员自己列的项，平台只做加法，界面改不了 Δ）'));
+    if (!k.rows.length) {
+      td.appendChild(el('div', 'color:#92400e;font-weight:700;',
+        '⚠️ 该组**一项都没列** ⇒ Δ = 0 ⇒ 价值分 0（是"没赚到"，不是"算不出"）。'));
+      tr.appendChild(td);   /* ⚠️ 别忘了挂上去 —— 只 return tr 会得到一行空行（2026-09-30 走查踩过） */
+      return tr;
+    }
+    var tbl = el('table');
+    tbl.style.cssText = 'border-collapse:collapse;font-size:12px;margin:2px 0 6px;';
+    var hd = el('tr');
+    ['学员列的项名', 'C₀（元）', 'C₁（元）', 'Δ（元）', '依据', '对账判定'].forEach(function (t) {
+      var th = el('th', '', t);
+      th.style.cssText = 'border:1px solid #e8dfd2;padding:3px 6px;background:#fdf3e6;text-align:left;';
+      hd.appendChild(th);
+    });
+    tbl.appendChild(hd);
+    k.rows.forEach(function (r, ri) {
+      var pr5 = (k.per_row || [])[ri] || {};
+      var m = pr5.item || null;
+      var mv = m ? (k.p.movable.indexOf(m.key) >= 0) : false;
+      var verdict = m
+        ? (mv ? '✅ 命中可影响项 ' + m.no + ' ' + m.name
+              : '⛔ 越范围：' + m.no + ' ' + m.name + '（本单元影响不到）')
+        : '❓ 金额对不上任何已知池项（人工看：自造项／单位错／算错）';
+      var d = (r.C0 === null || r.C0 === undefined || r.C1 === null || r.C1 === undefined)
+        ? '—' : money2(Number(r.C0) - Number(r.C1));
+      var trr = el('tr');
+      [r.name || '（未命名）', money2(r.C0), money2(r.C1), d, r.basis || '—', verdict]
+        .forEach(function (t, i) {
+          var tdd = el('td', '', String(t));
+          tdd.style.cssText = 'border:1px solid #e8dfd2;padding:3px 6px;'
+            + (i === 5 ? (m ? (mv ? 'color:#0f7a3d;' : 'color:#b91c1c;font-weight:700;') : 'color:#92400e;') : '');
+          trr.appendChild(tdd);
+        });
+      tbl.appendChild(trr);
+    });
+    td.appendChild(tbl);
+    td.appendChild(el('div', 'font-family:ui-monospace,SFMono-Regular,monospace;margin-bottom:3px;',
+      '平台算 Δ = ' + money2(k.vr.delta) + ' ｜ Δ上限（本单元可影响池）= ' + money2(k.upper)
+      + ' ｜ 兑现率 = ' + (k.vr.rate === null ? '—' : (k.vr.rate * 100).toFixed(1) + '%')
+      + (k.vr.clamped ? '　⚠️ 已截断（原始 raw = ' + (k.vr.raw * 100).toFixed(1) + '%）' : '')));
+    if (k.missed.length) {
+      td.appendChild(el('div', 'color:#b91c1c;font-weight:700;',
+        '⚠️ 可影响池里还有 ' + k.missed.length + ' 项**没被列进来**（本页可见，学员端不可见）：'
+        + k.missed.map(function (it) { return it.no + ' ' + it.name + '（¥' + (it.val / 10000).toFixed(1) + ' 万）'; }).join(' ／ ')));
+    } else {
+      td.appendChild(el('div', 'color:#0f7a3d;font-weight:700;', '✅ 可影响池 ③④⑤ 全部被列进来了。'));
+    }
+    if (k.outOfScope.length) {
+      td.appendChild(el('div', 'color:#b91c1c;',
+        '⛔ 同时把**影响不到**的 ' + k.outOfScope.map(function (it) { return it.no + ' ' + it.name; }).join('、')
+        + ' 也算进了 Δ ⇒ 属虚报（已截断到 100%）。点评点：本单元动不了这两项。'));
+    }
+    if (k.unknown.length) {
+      td.appendChild(el('div', 'color:#92400e;',
+        '❓ ' + k.unknown.length + ' 项金额对不上任何已知池项 —— 人工核：自造口径、单位错（把"万元"当"元"写），还是算错。'));
+    }
+    tr.appendChild(td);   /* ⚠️ 唯一把 td 挂进 tr 的地方（两处 return 都要挂，2026-09-30 走查踩过） */
+    return tr;
+  }
+
   function deriveValue(s) {
     var sp = rspec();
+    /* ⭐ ③-c 池型案例（#05）：价值分 = Δ（学员逐项声明加出来）÷ 案例上限。
+       ⚠️ 分母（本单元可影响池）**只在这里算** —— 学员端看不到它，也看不到兑现率。
+       ⚠️ 只在 R2 起派生：R1 按 D06 仍由讲师打「预估的可核验性」1–5。 */
+    var PL5 = window.FDE_POOL;
+    var P5 = PL5 && PL5.of(s.case_id || '');
+    if (P5 && !isR1()) {
+      var k5 = poolCheck(s);
+      return { declared: true, pool: true, ok: k5.vr.rate !== null,
+               rate: k5.vr.rate, raw: k5.vr.raw, clamped: k5.vr.clamped,
+               delta: k5.vr.delta, delta_top: k5.upper, upper: k5.upper,
+               declared_n: k5.rows.length, check: k5,
+               why: k5.vr.rate === null ? '案例池上限缺失 ⇒ 分母无意义' : '' };
+    }
     if (!sp || !sp.evalrun) { return { declared: false }; }
     var P = paramOf(s);
     /* ⭐ 分回合 r(裁定②/ D06 v1.4 §2.1.2 / D04 v1.1 §4.4):
@@ -596,6 +713,21 @@
   }
 
   function numsEvidence(s) {
+    /* ⭐ ③-c 池型案例（#05）：证据行改用**成本池逐项对照**（会话型那套 V/A/A′/c 在 #05 不适用）。
+       放在最前面分流，避免走到下面用不存在的参数去 computeCost。
+       ⚠️ 这里**必须把异常说出来**：证据行是价值分的判分依据，静默消失＝讲师看不到「学员漏了哪几项」，
+          而界面看上去一切正常（比报错更危险）。所以出错就渲染一行红字，不吞。 */
+    if (window.FDE_POOL && window.FDE_POOL.of(s.case_id || '')) {
+      try {
+        return poolEvidence(s);
+      } catch (e) {
+        var trE = el('tr', 'background:#fef2f2;');
+        var tdE = el('td', 'color:#b91c1c;font-size:12px;padding:6px 8px;',
+          '⚠️ 池型成本池证据行渲染失败：' + (e && e.message ? e.message : e) + '（请截图报给课程组）');
+        tdE.colSpan = 999; trE.appendChild(tdE);
+        return trE;
+      }
+    }
     if (!s || !s.items) { return null; }
     var n = {};
     s.items.forEach(function (it) {

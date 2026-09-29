@@ -205,6 +205,36 @@
   function refreshNums(fs) {
     var out = fs.querySelector('.fde-numout');
     if (!out) { return; }
+    /* ⭐ ③-c 池型案例（#05）**必须在最前面分流** —— 否则会走到下面的会话型分支，
+       而 C05 根本没有 `V/A/A′/c` 这些参数，界面会显示「待补参数：A / A′ / c / k / M」，
+       等于用一个不存在的模型去要求学员（2026-09-30 分流）。
+       规则：① 带 `delta` 的项 → 显示**学员自己列的池项加出来的 Δ**；
+             ② 带 `delta_top` / `rate` 的项 → **只说由讲师侧核定，不给分母、不给率**
+                （学员端显示分母 = 把"你还漏了什么"直接送出去）。 */
+    if (F.costModel(curCase()) === 'pool') {
+      var _d = String(out.getAttribute('data-derive') || '');
+      var _rows = collectPoolRows();
+      var _pr = F.computeCostPool(_rows);
+      out.innerHTML = '';
+      if (/(^|,)delta(,|$)/.test(_d)) {
+        if (!_rows.length) {
+          out.appendChild(cl('div', 'faint',
+            '本案例是**成本池型**核算：请先在表单末尾『📊 成本池逐项表』里逐条列出成本项 —— '
+            + 'Δ 由那些项加出来（**平台算，不给手填**）。'));
+        } else {
+          var _v0 = cl('div', 'fde-numv');
+          _v0.appendChild(cl('span', 'faint', 'Δ（年，按你自己列的 ' + _pr.used_n + ' 项加）= '));
+          _v0.appendChild(el('b', '', money(_pr.delta)));
+          out.appendChild(_v0);
+          out.appendChild(cl('div', 'faint', '取自表单末尾『📊 成本池逐项表』；改那一张表，这里跟着变。'));
+        }
+      } else {
+        out.appendChild(cl('div', 'faint',
+          '本案例是**成本池型**核算：分子来自『📊 成本池逐项表』里你自己列的项。'
+          + '**价值兑现率由讲师侧按本案例口径核定 —— 学员端不显示分母。**'));
+      }
+      return;
+    }
     /* ⭐ ③-a 只读框(实测 r)随 EvalRun 登记变化回填 —— 否则学员登记完,
        06 项那格还写着「待 EvalRun 产出」,看起来像没生效。 */
     var ro = fs.querySelector('.fde-numro-val');
@@ -408,6 +438,143 @@
     { k: 'n',           label: '样本量 n',     ph: '如 200', note: '缺了就核不了 r 的分母' },
     { k: 'failures',    label: '失败样本数',   ph: '如 96',  note: '缺了就核不了失败记录' }
   ];
+
+  /* ⭐ ③-c 成本池逐项表（2026-09-30）—— **池型案例专用**（#05 精工机械）
+     与 ③-a 的分工：
+       · ③-a「EvalRun 产物登记」→ 给**会话型**案例算 `r`（技术层 → 价值层的桥）；
+       · ③-c「成本池逐项表」→ 给**池型**案例收 Δ 的**分子**：学员必须**自己列出**成本项。
+     ⚠️ 为什么是"学员自己列"，而不是"平台给一张表让他填数"：
+        平台给表 = 把「这个业务单元还有哪些成本在漏」直接告诉学员 ——
+        而「**过杀与漏检流出的钱必须由学员自己问出来，才进得了他的账**」正是本案例的教学胜负手（`C130` ①）。
+        ⇒ 界面**只给空行**（项名由学员自己拟），平台只负责**加法**（Δ = Σ(C₀−C₁)）与形态校验。
+     ⚠️ 学员端**不显示 Δ上限、不显示兑现率** —— 那等于把池子的大小（也就是"你还漏了什么"）送出去。
+        兑现率一律由讲师侧按案例口径核定（`F.valueRatePool()` 在讲师端调用）。
+     ⚠️ **故意不挂 `fieldset` 类**（同 ③-a 的教训）：挂了会被 `refreshNums`/`collectForm` 当成交付物项，
+        读数区被覆盖成「本项没有要填的数值」，扫描也会多看它一眼。 */
+  function collectPoolRows() {
+    var box = document.getElementById('fde-pool-input');
+    if (!box) { return []; }
+    var rows = [];
+    box.querySelectorAll('.fde-poolrow').forEach(function (r) {
+      var g = function (attr) {
+        var e = r.querySelector('[data-p="' + attr + '"]');
+        return e ? String(e.value === undefined ? '' : e.value).trim() : '';
+      };
+      var name = g('name'), c0s = g('c0'), c1s = g('c1'), basis = g('basis');
+      if (!name && !c0s && !c1s && !basis) { return; }   /* 整行全空 = 没填，不进包 */
+      rows.push({
+        name: name,
+        C0: (c0s !== '' && !isNaN(Number(c0s))) ? Number(c0s) : null,
+        C1: (c1s !== '' && !isNaN(Number(c1s))) ? Number(c1s) : null,
+        basis: basis
+      });
+    });
+    return rows;
+  }
+
+  function poolRowEl(r) {
+    r = r || {};
+    var row = cl('div', 'fde-poolrow');
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap;';
+    function mk(attr, ph, css, type, val) {
+      var i = document.createElement('input');
+      i.type = type || 'text';
+      if (i.type === 'number') { i.step = 'any'; }
+      i.setAttribute('data-p', attr);
+      i.placeholder = ph;
+      i.style.cssText = css;
+      if (val !== undefined && val !== null) { i.value = val; }
+      return i;
+    }
+    row.appendChild(mk('name', '成本项名称（自己定）', 'flex:1 1 170px;min-width:130px;padding:5px 7px;', 'text', r.name));
+    row.appendChild(mk('c0', '现状年成本 C₀（元）', 'flex:0 1 140px;width:140px;padding:5px 7px;', 'number', r.C0));
+    row.appendChild(mk('c1', '上线后年成本 C₁（元）', 'flex:0 1 140px;width:140px;padding:5px 7px;', 'number', r.C1));
+    row.appendChild(mk('basis', '依据（向谁问的 / 哪份材料）', 'flex:1 1 150px;min-width:110px;padding:5px 7px;', 'text', r.basis));
+    var del = document.createElement('button');
+    del.type = 'button'; del.textContent = '✕'; del.title = '删掉这一行';
+    del.style.cssText = 'flex:none;padding:5px 9px;border:1px solid #d1d5db;background:#fff;'
+      + 'border-radius:6px;cursor:pointer;font-size:12px;';
+    del.addEventListener('click', function () {
+      row.remove(); save(); refreshPool();
+      document.querySelectorAll('.fieldset').forEach(function (f) { refreshNums(f); });
+    });
+    row.appendChild(del);
+    return row;
+  }
+
+  function buildPoolTable() {
+    var box = cl('div', 'fde-pooltb');
+    box.id = 'fde-pool-input';
+
+    var lbl = cl('label', 'f');
+    lbl.textContent = '📊 成本池逐项表 ';
+    lbl.appendChild(cl('span', 'badge b-val', '收益核算输入'));
+    lbl.appendChild(cl('span', 'badge b-ghost', '非交付物 · 判分证据'));
+    box.appendChild(lbl);
+    box.appendChild(cl('div', 'hint',
+      '把**你自己认定**的、这个业务单元能影响的成本项**逐条列出来**（项名自己定）；'
+      + '每项填**现状年成本 C₀** 与**上线后年成本 C₁**，并写明依据（向谁问的 / 从哪份材料看到的）。'));
+    box.appendChild(cl('div', 'fde-numg faint',
+      '平台只做加法：Δ（年）= Σ(C₀ − C₁)，**没列的项不进 Δ** —— 列多少、列哪些，取决于你问到了多少。'));
+
+    var body = cl('div', 'fde-poolbody');
+    box.appendChild(body);
+
+    var add = document.createElement('button');
+    add.type = 'button'; add.textContent = '＋ 添加一项';
+    add.style.cssText = 'margin-top:4px;padding:5px 11px;border:1px solid #d1d5db;background:#fff;'
+      + 'border-radius:6px;cursor:pointer;font-size:12.5px;';
+    add.addEventListener('click', function () {
+      body.appendChild(poolRowEl({})); refreshPool();
+      document.querySelectorAll('.fieldset').forEach(function (f) { refreshNums(f); });
+    });
+    box.appendChild(add);
+
+    var out = cl('div', 'fde-numout fde-poolout');
+    box.appendChild(out);
+
+    ['input', 'change'].forEach(function (ev) {
+      /* ⚠️ 必须**同时刷全页读数**（与 ③-a EvalRun 登记同款）：
+         池项一变，07 项（Δ）与 08 项（兑现率口径说明）的读数就得跟着变 ——
+         否则学员填完池表，07 项还写着「请先在…逐条列出成本项」，看起来像没生效
+         （2026-09-30 走查实测撞到：只刷自己那块 ⇒ 显示值 ≠ 计算值）。 */
+      box.addEventListener(ev, function () {
+        save(); refreshPool();
+        document.querySelectorAll('.fieldset').forEach(function (f) { refreshNums(f); });
+      });
+    });
+    setTimeout(refreshPool, 0);
+    return box;
+  }
+
+  /* 池型读数：只显示**由学员自己列的项**加出来的 Δ。**不给分母、不给率。** */
+  function refreshPool() {
+    var box = document.getElementById('fde-pool-input');
+    if (!box) { return; }
+    var out = box.querySelector('.fde-poolout');
+    if (!out) { return; }
+    var rows = collectPoolRows();
+    var r = F.computeCostPool(rows);
+    out.innerHTML = '';
+    if (!rows.length) {
+      out.appendChild(cl('div', 'faint',
+        '还没有列出任何成本项 —— Δ 现在**算不出来**（不是 0）。空表不会自动给你项名：要列哪些，得你自己问到。'));
+      return;
+    }
+    var l = cl('div', 'fde-numl');
+    l.appendChild(cl('span', 'faint', '已列出 ' + r.used_n + ' 项的 C₀ 与 C₁'));
+    out.appendChild(l);
+    var v = cl('div', 'fde-numv');
+    v.appendChild(cl('span', 'faint', 'Δ（年）= Σ(C₀ − C₁) = '));
+    v.appendChild(el('b', '', money(r.delta)));
+    out.appendChild(v);
+    if (r.gaps.length) {
+      out.appendChild(cl('div', 'fde-numg',
+        '⚠︎ 有 ' + r.gaps.length + ' 项还没把 C₀ / C₁ 填齐，已经**不算进 Δ**（不拿 0 顶替）。'));
+    }
+    out.appendChild(cl('div', 'faint',
+      '⚠️ 这只是**你自己列出的项**加出来的数。价值兑现率由讲师侧按本案例的口径核定 —— 这里不显示分母。'));
+  }
 
   function buildEvalRun(decl) {
     /* ⚠️ **故意不挂 `fieldset` 类**(2026-09-26 走查抓到)——
@@ -613,6 +780,9 @@
        所以 collectForm / bindForm / refreshNums 三处 `.fieldset` 扫描天然绕过它,
        41 项契约、门槛统计、草稿结构都不受影响。 */
     if (sp.evalrun) { box.appendChild(buildEvalRun(sp.evalrun)); }
+    /* ⭐ ③-c 池型案例（#05）：成本池逐项表 —— 与「EvalRun 产物登记」并列。
+       一个收 Δ 的**分子**（学员自己列的池项），一个收技术层的 `r`。 */
+    if (F.costModel(curCase()) === 'pool') { box.appendChild(buildPoolTable()); }
     return true;
   }
 
@@ -853,7 +1023,18 @@
        ⚠️ 只写 `eval`(登记形态),**绝不写 `value_rate`** —— 那个率由讲师端
           `F.valueRate()` 从登记 + 参数算出来(D04 §6.4 约束③:不许手填)。 */
     var evr = collectEvalRun();
-    if (evr) { out.artifacts = { eval: evr }; }
+    var pr = collectPoolRows();
+    if (evr || pr.length) {
+      out.artifacts = {};
+      if (evr) { out.artifacts.eval = evr; }
+      /* ⭐ ③-c 池型案例：学员逐项声明的成本池 → `artifacts.pool`。
+         ⚠️ 只装**学员列的原始项** + 平台算出来的 Δ；**不写兑现率** —— 那由讲师端
+            用 `F.valueRatePool()` 从声明 + 案例上限算出来（同 ③-a 不许手填的道理）。
+         ⚠️ 无池项时**不加这个键**（旧包 body 一字不变，指纹照旧匹配）。 */
+      if (pr.length) {
+        out.artifacts.pool = { rows: pr, delta: F.computeCostPool(pr).delta };
+      }
+    }
     return out;
   }
 
@@ -957,6 +1138,18 @@
         put('r', m.r); put('n', m.n); put('failures', m.failures);
       }
       refreshEvalRun();
+    }());
+    /* ⭐ ③-c 恢复成本池逐项表（草稿里在 `artifacts.pool.rows`） */
+    (function restorePool() {
+      var box = document.getElementById('fde-pool-input');
+      if (!box) { return; }
+      var pr = (draft && draft.artifacts && draft.artifacts.pool && draft.artifacts.pool.rows) || null;
+      var body = box.querySelector('.fde-poolbody');
+      if (pr && pr.length && body) {
+        body.innerHTML = '';
+        pr.forEach(function (r) { body.appendChild(poolRowEl(r)); });
+      }
+      refreshPool();
     }());
 
     window.__fdeRefresh = refresh;

@@ -8,12 +8,13 @@
         放在共享文件里再靠"界面不渲染"防泄漏**不算隔离** —— 学员端 F12 一敲
         `FDE_POOL` 就全看见了。所以做**物理隔离**:文件不进学员端。
    ──────────────────────────────────────────────────────────────────
-   来源:`11_客户卡_05_精工机械_v1.4.md` §6 **逐字**;
+   来源:`11_客户卡_05_精工机械_v1.5.md` §6 **逐字**;
         金额由 `_L7_prototype/_test/calc_c05_pool.py` **实算**（不接受手写估计值,同卡 §6 做法）。
    ⚠️ 五项池的**可见性分层**（本案例的核心设计,不是遗漏）:
         · ① 废品返工 / ② 停线罚款  → 卡面**直接可见**（合起来就是 `C₀`）
         · ③ 漏检流出 / ④ 过杀 / ⑤ 质检人力 → **必须访谈或追问才拿得到**（卡里给参数,不给金额）
-        ⇒ `Δ上限` 取 `P_opt`（含 ③④⑤）:学员若只算 ①②,比值**虚高 55.5%**。
+        ⇒ `Δ上限` 取**「本单元可影响池」**（= ③④⑤,¥4,953.8 万）—— **2026-09-30 B 方案**;
+          学员若只算 ①②(卡面可见的 ¥8,920 万),分子分母都错位 ⇔ 卡 §6 记录的 55.5% 虚高对照。
    ══════════════════════════════════════════════════════════════════ */
 (function (root) {
   'use strict';
@@ -26,7 +27,15 @@
     C05: {
       case_id: 'C05', name: '精工机械',
       model: 'pool',              /* 核算形状:件数 × 率 × 价值 */
-      upperFrom: 'P_opt',         /* ⭐ `Δ上限` 的取数口径（`C130` ①,2026-09-28 裁定） */
+      /* ⭐ `Δ上限` 的取数口径 —— **2026-09-30 周全重新裁定（B 方案）**:
+         取「本单元可影响池」`movable_sum`（候选 A = ③④⑤ = ¥4,953.8 万），**不再取全池 `P_opt`**。
+         为什么改（实现 §5.5 时浮出来的后果）:候选 A 的参数只覆盖 ③④⑤;①② 的"能被影响多少"
+         卡里**没有依据** ⇒ 若用 `P_opt` 作分母,诚实满分方案的兑现率天花板只有 **35.7%**,
+         且与 C03（可达 ~100%）**跨案例不可比**（价值分要按案例归一化才可比）。
+         ⇒ 改后满分可达 100%;学员若把 ①② 也声明进 Δ ⇒ 兑现率 >100%,
+           由 `l7_core.js` 的 `valueRatePool()` **截断到 100%**;原始值 `raw` 保留在讲师侧,
+           用于识别"把不可影响的项也算进来"的虚报。 */
+      upperFrom: 'movable_sum',
       items: [
         { key: 'scrap', no: '①', name: '废品与返工年损失', visible: true, val: 62000000,
           how: 'F₀（卡 §6 ①）' },
@@ -46,11 +55,12 @@
       C0: 89200000,               /* 卡 §6:①② 合计 = ¥8,920 万/年 */
       P_opt: 138737976,           /* 实算(calc_c05_pool.py):五项合计 = ¥13,873.8 万/年 */
       movable_sum: 49537976,      /* ③④⑤ = ¥4,953.8 万/年 */
-      ceiling_note: 'Δ上限 取 P_opt(¥13,873.8 万) ⇒ 即便学员把 ③④⑤ 全问出来且做到完美，'
-        + '兑现率天花板也只有 **35.7%**(4,953.8 ÷ 13,873.8)。这是**设计特征**:它逼学员看见'
-        + '「你的方案只动了池子的三分之一」,而不是宣称整池收益。'
-        + '若改成「A 可影响池」作分母,天花板 = 100% —— ⚠️ **属待周全拍板的口径项**,'
-        + '改与不改都能自圆其说,但必须显式选一个。'
+      ceiling_note: 'Δ上限 取「本单元可影响池」¥4,953.8 万（③④⑤，2026-09-30 B 方案）'
+        + ' ⇒ 满分方案的兑现率可达 **100%**。'
+        + '⚠️ ①②（¥8,920 万）**不进 Δ上限** —— 候选 A 的参数覆盖不到它们,卡里也没有'
+        + '"AI 能影响多少"的依据（宁少不编）。学员若把 ①② 也算进 Δ,兑现率会超 100%,'
+        + '`valueRatePool()` 截断到 100%,**原始值留给讲师侧看虚报**。'
+        + '全池 `P_opt`（¥13,873.8 万）仍保留:用于讲师讲解"学员起手能算出多少"与卡 §6 的 55.5% 对照。'
     }
   };
 
@@ -85,11 +95,47 @@
     return out;
   }
 
+  /* ── 学员逐项声明 vs 池定义:按**金额**对账(±5% 容差)────────────────
+     为什么不按名字:学员是自己**拟项名**的("好件误判损失"/"误判报废"),键名对不上 ——
+     但"这笔钱有没有被算出来"是客观的 ⇒ **金额**才是可比的那一维。
+     ⚠️ 本函数在**讲师侧**运行(池定义只在讲师端加载),学员端拿不到池项名。
+     返回:
+       · per_row[i]  —— 与传入 rows 一一对应:{row, item|null}(给界面逐行判定用)
+       · hit         —— {key: {row, item}} 命中的池项
+       · missed      —— 可影响池里**没被列进来**的项(③④⑤)← 教学胜负手
+       · outOfScope  —— 学员把**影响不到**的项(①②)也算进来了 ⇒ 虚报信号
+       · unknown     —— 金额对不上任何池项:自造口径 / 单位错 / 算错,需人工看 */
+  var TOL = 0.05;
+  function classify(caseId, rows) {
+    var p = POOL[caseId];
+    if (!p) { return null; }
+    rows = rows || [];
+    var m = function (v) {
+      if (v === null || v === undefined || v === '' || isNaN(v)) { return null; }
+      return p.items.filter(function (it) {
+        return it.val > 0 && Math.abs(it.val - Number(v)) / it.val <= TOL;
+      })[0] || null;
+    };
+    var hit = {}, unk = [], perRow = [];
+    rows.forEach(function (r) {
+      var it = m(r.C0);
+      perRow.push({ row: r, item: it });
+      if (it) { if (!hit[it.key]) { hit[it.key] = { row: r, item: it }; } }
+      else { unk.push(r); }
+    });
+    return {
+      hit: hit, unknown: unk, per_row: perRow, tol: TOL,
+      missed: p.items.filter(function (it) { return p.movable.indexOf(it.key) >= 0 && !hit[it.key]; }),
+      outOfScope: p.items.filter(function (it) { return p.movable.indexOf(it.key) < 0 && hit[it.key]; })
+    };
+  }
+
   root.FDE_POOL = {
     all: POOL,
     of: function (caseId) { return POOL[caseId] || null; },
     itemsOf: function (caseId) { var p = POOL[caseId]; return p ? p.items : []; },
     upper: function (caseId) { var p = POOL[caseId]; return p ? p[p.upperFrom] : null; },
+    classify: classify,
     audit: audit
   };
 })(window);

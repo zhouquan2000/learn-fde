@@ -345,6 +345,28 @@
   var COST_MODEL = { C03: 'session', C05: 'pool' };
   function costModel(caseId) { return COST_MODEL[caseId] || 'session'; }
 
+  /* ── 池型的价值兑现率(2026-09-30 `C130` ① 重裁为 B 方案)──────────────
+     分母 = **本单元可影响池**(`l7_pool.js` 的 `movable_sum`),不是全池 `P_opt`。
+     ⚠️ 为什么必须**截断**:学员可以把"本单元影响不到的项"(如 ①②)也算进 Δ 里,
+        此时 Δ > Δ上限 ⇒ 不截断就会给出 >100% 的兑现率(历史上会直接变成超满分)。
+     ⚠️ 为什么**同时保留 raw**:截断会把"虚报"这个信号抹掉。
+        讲师侧要看 raw(>1 ⇒ 该学员把不可影响的项也算进来了 —— 这正是 R2-07 的点评点);
+        学员端只看 rate。两边口径分开,不是不一致。 */
+  function valueRatePool(declared, upper) {
+    var r = computeCostPool(declared);
+    var u = _num(upper);
+    if (!(u > 0)) {
+      return { ok: false, why: 'Δ上限 缺失或非正 ⇒ 分母无意义', delta: r.delta, upper: u,
+               raw: null, rate: null, clamped: false, items: r.items, gaps: r.gaps };
+    }
+    var raw = r.delta / u;
+    return {
+      ok: r.ok, model: 'pool', delta: r.delta, upper: u, raw: raw,
+      rate: Math.max(0, Math.min(1, raw)), clamped: raw > 1,
+      below_zero: raw < 0, items: r.items, gaps: r.gaps
+    };
+  }
+
   /* ── 跨回合有效参数(⭐ 周全裁定①:平台按案例级基线自动带入,开班锁定,学员不可改)──
      为什么必须有这一层(2026-09-26 推演撞出来的洞):
        R3–R5 算 Δ 需要 `A/A′/c/k/M`,可它们**只在 R2 的包里**;而每回合的包是**独立**的
@@ -658,7 +680,7 @@
     VERSION: VERSION, KEY: KEY,
     fp: fp, fpOf: fpOf, stamp: stamp, isoDate: isoDate,
     computeCost: computeCost, evalRate: evalRate, valueRate: valueRate,
-    computeCostPool: computeCostPool, costModel: costModel,
+    computeCostPool: computeCostPool, costModel: costModel, valueRatePool: valueRatePool,
     makeEvalRun: makeEvalRun, evalRunIssues: evalRunIssues, evalRateWhy: evalRateWhy,
     RATIO_DEF: RATIO_DEF, deriveRatios: deriveRatios, ratioIssues: ratioIssues,
     effectiveInputs: effectiveInputs, effectiveR: effectiveR, BASELINE_KEYS: BASELINE_KEYS,
