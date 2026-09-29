@@ -268,6 +268,8 @@ a.logo:hover b{text-decoration:underline}
   <button role="tab" aria-selected="false" onclick="go(2,this)">③ 交付物表单</button>
   <button role="tab" aria-selected="false" onclick="go(3,this)">④ 甲方质询预演</button>
   <button role="tab" aria-selected="false" onclick="go(4,this)">⑤ 评分看板</button>
+  <button role="tab" aria-selected="false" onclick="go(5,this)">⑥ POC 资料包</button>
+  <button role="tab" aria-selected="false" onclick="go(6,this)">⑦ 环境搭建</button>
 </nav>
 
 <!-- ══════════ P5 方法论参考抽屉 ══════════ -->
@@ -816,6 +818,230 @@ a.logo:hover b{text-decoration:underline}
   客户档案（②）取自 <code class="mono">11_客户卡_03_优选生活_v1.3</code> 正文；负责人档案在讲师侧的 <code class="mono">19_NPC卡片层_03</code><br>
   ✅ <b>状态层已接入</b>（方案 A-δ）—— 交付物表单自动存草稿、可导出<b>带指纹</b>的提交包；讲师判分后成绩回传到此页
 </div>
+
+<!-- ══════════ ⑥ POC 资料包（学员视角 · 案例 #05 精工机械） ══════════ -->
+<section class="screen">
+  <div class="lbl">PoC Material Pack · POC 资料包</div>
+  <h1>S2 我会收到什么 <span class="faint" style="font-size:16px;font-weight:400">案例 #05 精工机械 · 焊装车间「焊点质量判定与不合格品处置」</span></h1>
+  <p class="sub">这是你在 S2 站（诊断共创 PoC）<b>实际拿到手</b>的全部材料。分三组 ——
+    <b>A 组</b>是客户当场给你的；<b>B 组是客户不会主动给你、你得自己问出来的</b>；<b>C 组</b>是你要交出去的东西。
+    <b>B 组才是拉开差距的地方。</b></p>
+
+  <div class="card" style="margin-top:26px">
+    <h2>A 组 · 客户当场给你的 <span class="mut" style="font-weight:400;font-size:13px">7 份 · 合成材料 · 标注「教学模拟素材」</span></h2>
+    <table class="t">
+      <thead><tr><th style="width:24%">材料</th><th style="width:14%">谁给的</th><th>里面是什么（注意它的「不一致」）</th><th style="width:22%">你要拿它干什么</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>① 《检验台账》</b><br><span class="faint">质检中心</span></td>
+          <td>IT / 数据人员</td>
+          <td>字段：<span class="mono">判定结果</span>（取值有<b>合格 / 不合格 / 让步接收</b>）、<span class="mono">判定人</span>、<span class="mono">缺陷类型</span>、时间戳。同一类缺陷在不同班组有<b>三种写法</b>。</td>
+          <td>定「判定结果」到底有几种取值，并做归一</td>
+        </tr>
+        <tr>
+          <td><b>② 《生产日报》</b><br><span class="faint">生产计划</span></td>
+          <td>班组长</td>
+          <td>字段：<span class="mono">一次合格率</span>、<span class="mono">投产数</span>、<span class="mono">废品数</span>、<span class="mono">返工数</span>。这里的「一次合格率」<b>分母是投产数</b>。</td>
+          <td>找出它和质检口径的分母不是同一个</td>
+        </tr>
+        <tr>
+          <td><b>③ 《质量成本表》</b><br><span class="faint">财务</span></td>
+          <td>财务口径责任人</td>
+          <td>字段：<span class="mono">废品损失</span>、<span class="mono">返工工时</span>、<span class="mono">索赔</span>。<b>返工只记工时、不记废品</b>；索赔单独挂账。</td>
+          <td>把「钱」和「件」的口径对齐</td>
+        </tr>
+        <tr>
+          <td><b>④ SOP 片段（焊接）</b><br><span class="faint">Word</span></td>
+          <td>质量经理</td>
+          <td>正文写「<b>关键焊点 100% 全检</b>」；同一个文件后面的附件，是班组口头约定「<b>首件确认 + 每 2 小时抽检 5 件</b>」。</td>
+          <td>分清「写在纸上的流程」和「实际在跑的流程」</td>
+        </tr>
+        <tr>
+          <td><b>⑤ 《不合格品处置程序》</b><br><span class="faint">Word</span></td>
+          <td>质量经理</td>
+          <td>规定「重缺陷 ≥ <b>3</b> 处」要整批隔离；处置路径：返工 / 让步接收 / 报废。</td>
+          <td>读它的<b>生效日期与版本号</b></td>
+        </tr>
+        <tr>
+          <td><b>⑥ 主机厂《验收规范》</b><br><span class="faint">PDF</span></td>
+          <td>主机厂 SQE</td>
+          <td>规定「重缺陷 ≥ <b>2</b> 处」即判不合格。⚠️ <b>这一份才是最新的；⑤ 那份已作废，但还在流转。</b></td>
+          <td>发现两份规定打架，并定「以哪份为准」</td>
+        </tr>
+        <tr>
+          <td><b>⑦ 质检员考核表</b><br><span class="faint">片段</span></td>
+          <td>质量经理</td>
+          <td>考核指标一项：<span class="mono">漏检率 ≤ 2%</span>（含夜班加严口径的说明）。</td>
+          <td>读出这张表<b>在奖励什么、没在奖励什么</b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g13" style="margin-top:16px">
+    <div class="card">
+      <h2>B 组 · 客户不会给你，你得问出来 <span class="mut" style="font-weight:400;font-size:13px">4 项</span></h2>
+      <table class="t">
+        <thead><tr><th style="width:26%">你得拿到什么</th><th style="width:16%">问谁</th><th>为什么不在资料包里</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>焊接缺陷临时跟踪表</b><br><span class="mono faint">.xlsx</span></td>
+            <td>质检员</td>
+            <td>她自己做的，不在 IT 系统里。<b>里面比系统多 3 个缺陷类目</b>，还有手写规则（如「夜班加严」）。不问就没有。</td>
+          </tr>
+          <tr>
+            <td><b>老师傅的口头规则</b></td>
+            <td>班组长 / 老质检员</td>
+            <td>如「同一焊点返修 2 次以上要报班组长」。<b>从未写进任何文件。</b></td>
+          </tr>
+          <tr>
+            <td><b>过杀有没有人算过</b></td>
+            <td>质量经理 / 财务</td>
+            <td>考核表里只有漏检率。<b>「好件被误判成不合格」这笔钱，需要你主动问、并且自己算出来。</b></td>
+          </tr>
+          <tr>
+            <td><b>改造窗口的准确时段</b></td>
+            <td>生产负责人</td>
+            <td>产线不能停：每年只有 <b>2 次</b>、每次 <b>≤ 72 小时</b>。你的方案必须落在这个窗口里。</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout c-warn" style="margin-top:14px">
+        <span class="ic">⚠️</span><div style="font-size:12.5px">
+          <b>B 组不是「附赠」。</b>你的收益核算里，<b>凡是要靠你自己问出来才拿得到的成本项，都必须出现在分母里</b> ——
+          否则你会算出一个「看起来漂亮、但方向错了」的数。</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>C 组 · 你这一站要交出去</h3>
+        <div class="mut" style="font-size:13px;line-height:1.95">
+          <b style="color:var(--ink)">诊断类</b>：As-Is 现状流程卡 · 任务分解表 · <b>四张清单</b>（痛点 / 短板 / 脏数据 / 隐形规则，每条带出处）<br>
+          <b style="color:var(--ink)">语义类</b>：最小本体图（5–8 个对象）· 口径冲突登记表（含裁决人与生效文件）·「谁说了算」责任矩阵<br>
+          <b style="color:var(--ink)">数据类</b>：最小数据集 · 数据字典 · 清洗规则清单<br>
+          <b style="color:var(--ink)">原型类</b>：可跑的判定辅助原型 · 输出契约 · <b>转人工规则</b><br>
+          <b style="color:var(--ink)">证据类</b>：Eval 记录（含失败样例）· 过杀/漏检<b>双口径对照表</b> · 修正记录
+        </div>
+        <div class="callout c-info" style="margin-top:13px">
+          <span class="ic">📐</span><div style="font-size:12.5px">
+            C 组的每一项都要能被<b>当场核</b>：导师会问你「这条规则写在哪份文件？」「这个字段谁定义的？」</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>这份资料包怎么用（顺序别反）</h3>
+        <div style="font-size:12.5px;line-height:1.95;color:var(--muted)">
+          <b style="color:var(--cont)">01</b> 先把 A 组七份<b>全读一遍</b>，只记「哪里不一致」，<b>先不要改</b><br>
+          <b style="color:var(--cont)">02</b> 拿 B 组去问 —— <b>一次只问一个人，问完再核对</b><br>
+          <b style="color:var(--cont)">03</b> 把冲突写进口径冲突登记表，<b>定「谁说了算」</b><br>
+          <b style="color:var(--cont)">04</b> 才动手建最小数据集与原型<br>
+          <span class="faint">⚠️ 常见失败：拿到资料就去写代码 —— 数据洗干净了，口径还是四个版本。</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔴 红线（触发即归零）</h3>
+        <div class="mut" style="font-size:12.5px;line-height:1.95">
+          ① 未做安全评估就改产线控制逻辑<br>
+          ② 用未经授权的方式采集 OT 数据<br>
+          ③ AI 建议<b>直接下发</b>给 PLC 而无人工确认（安全联锁不可绕过）<br>
+          ④ 在改造窗口之外实施（产线不能停）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote" style="margin-top:20px">
+    案例 #05 精工机械为<b>虚拟客户</b>，本页材料为<b>教学模拟素材（合成）</b>，不代表任何真实企业。<br>
+    客户设定参数逐字回源 <span class="mono">11_客户卡_05_精工机械_v1.3</span> §3/§4/§5/§6/§9；
+    材料清单与埋点设计见 <span class="mono">1093_S2_诊断共创PoC_教学演练分步设计_v0.1</span>。
+  </div>
+</section>
+
+<!-- ══════════ ⑦ 环境搭建（学员视角 · N1 环境夜） ══════════ -->
+<section class="screen">
+  <div class="lbl">Setup Guide · 环境搭建</div>
+  <h1>按这 8 步装好我的笔记本 <span class="faint" style="font-size:16px;font-weight:400">N1 环境夜完成 · 装完要能跑通一个最小闭环</span></h1>
+  <p class="sub">目标只有一个：<b>装完之后，能读完那 7 份材料、能调通一次大模型、能跑出一个 JSON 结果。</b>
+    装不上的当晚找排障台，不要拖到第二天。</p>
+
+  <div class="card" style="margin-top:26px">
+    <h2>八步 · 按顺序做</h2>
+    <table class="t">
+      <thead><tr><th style="width:6%">步</th><th style="width:44%">做什么</th><th>怎么算装好了</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">01</td><td>装 <b>VS Code</b>；装两个扩展：<span class="mono">Python</span>、<span class="mono">Markdown Preview Mermaid Support</span><br><span class="faint">（扩展包开营前一周离线发放，不用现场下载）</span></td><td>新建一个 <span class="mono">.md</span> 文件写几行 mermaid，右侧预览能出<b>图</b></td></tr>
+        <tr><td class="mono">02</td><td>装 <b>Python 3.11</b>，安装时勾选 <span class="mono">Add Python to PATH</span></td><td>终端里 <span class="mono">python --version</span> 能打印版本号</td></tr>
+        <tr><td class="mono">03</td><td>建工作目录并创建虚拟环境</td><td>目录下出现 <span class="mono">.venv</span> 文件夹</td></tr>
+        <tr><td class="mono">04</td><td>装依赖（一条命令，见下）</td><td><span class="mono">pip list</span> 里七个包都在</td></tr>
+        <tr><td class="mono">05</td><td>把<b>数据包</b>解压到 <span class="mono">D:\fde_case05\data\</span>（营期发放，离线）</td><td>能看到 <span class="mono">.xlsx</span> / <span class="mono">.docx</span> / <span class="mono">.pdf</span> / <span class="mono">.csv</span> 四类文件</td></tr>
+        <tr><td class="mono">06</td><td>配模型 API key（<b>营期发放、结营回收</b>）</td><td><span class="mono">echo %DEEPSEEK_API_KEY%</span> 有值</td></tr>
+        <tr><td class="mono">07</td><td>跑自检脚本 <span class="mono">smoke_check.py</span></td><td>七项全绿：读 xlsx / 读 docx / 读 pdf / 建 sqlite / 调通模型 / 校验 json / 出图</td></tr>
+        <tr><td class="mono">08</td><td>填<b>环境体检表</b>交给导师</td><td>导师在排障台上签掉</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid g13" style="margin-top:16px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>要敲的命令（照抄）</h3>
+        <div class="formula" style="margin-top:10px">
+cd /d D:\fde_case05<br>
+python -m venv .venv<br>
+.venv\Scripts\activate<br>
+pip install -r requirements.txt<br>
+python smoke_check.py
+        </div>
+        <div class="mut" style="font-size:12.5px;line-height:1.9;margin-top:12px">
+          <span class="mono">requirements.txt</span> 里就这七个包：
+          <span class="mono">pandas</span>（读表统计）· <span class="mono">openpyxl</span>（读 xlsx / 老式 xls）·
+          <span class="mono">python-docx</span>（读 Word）· <span class="mono">pdfplumber</span>（读 PDF）·
+          <span class="mono">openai</span>（调 DeepSeek 兼容端点）· <span class="mono">jsonschema</span>（校验输出）·
+          <span class="mono">requests</span>。<br>
+          <span class="faint">另：<span class="mono">sqlite3</span> 是 Python 自带，<b>不用装</b>。</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>断网 / 下载慢怎么办</h3>
+        <div style="font-size:12.5px;line-height:1.95;color:var(--muted)">
+          <b style="color:var(--ink)">① 离线 wheel 包</b>：随数据包一起发，<span class="mono">pip install --no-index --find-links=.\wheels -r requirements.txt</span><br>
+          <b style="color:var(--ink)">② 离线 VS Code 安装包 + 扩展 vsix</b>：同一批发放<br>
+          <b style="color:var(--ink)">③ 模型走集团私有化端点</b>：现场网络受限时由讲师统一切换 base_url（<b>同一套代码，只换地址</b>）<br>
+          <span class="faint">⚠️ 三条都是<b>提前备好</b>的，不是现场救火。</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>❌ 明确不要装</h3>
+        <div class="mut" style="font-size:12.5px;line-height:1.95">
+          <b>Neo4j / 图数据库 / Protégé</b> —— 离线包大、教室网速扛不住；而且<b>本体的门槛在组织与口径，不在工具</b>。<br>
+          <b>Ollama / 本地大模型</b> —— 5 天时间盒内不值得，主引擎统一用 DeepSeek（PK 验收也要统一口径）。<br>
+          <span class="faint">讲师机上会装 Protégé，课上演示一页 —— 你<b>见过</b>就行，不用自己装。</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>三个常见坑（都会当场踩）</h3>
+        <div class="mut" style="font-size:12.5px;line-height:1.95">
+          <b>① 中文图乱码</b>：用 matplotlib 画中文会出方框。<b>所以本体的图一律用 Mermaid 写在 Markdown 里</b>，字体交给系统渲染。<br>
+          <b>② 老式 Excel</b>：<span class="mono">.xls</span> 不是 <span class="mono">.xlsx</span>，openpyxl 读不了，要另装 <span class="mono">olefile</span>。<br>
+          <b>③ 扫描版 PDF</b>：没有文本层，<span class="mono">pdfplumber</span> 抽出来是空的 —— 这时要换 OCR，<b>先跟导师确认再动手</b>。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote" style="margin-top:20px">
+    环境基线沿用 <span class="mono">1050</span> N1「VS Code + Python venv + DeepSeek 主引擎」；
+    预装清单与「不装清单」逐条依据 <span class="mono">1093_S2_诊断共创PoC_教学演练分步设计_v0.1</span> 第四部分。<br>
+    🔒 API key 营期发放、结营回收；数据包为教学模拟素材（脱敏/合成），<b>不含真实客户数据</b>。
+  </div>
+</section>
 
 </div>
 
