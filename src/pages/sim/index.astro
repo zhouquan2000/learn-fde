@@ -469,9 +469,13 @@ a.logo:hover b{text-decoration:underline}
       </div>
       <div class="card">
         <h3>本回合客户</h3>
-        <div class="mut" style="font-size:13.5px;line-height:1.8">
+        <div class="mut" data-case="C03" style="font-size:13.5px;line-height:1.8">
           <b style="color:var(--ink)">优选生活</b><br>零售电商 · 客服售后<br>
           <span class="faint">虚拟客户 · 由该格 71 条真实案例汇编</span>
+        </div>
+        <div class="mut" data-case="C05" style="font-size:13.5px;line-height:1.8">
+          <b style="color:var(--ink)">精工机械</b><br>制造加工 · 生产质量<br>
+          <span class="faint">虚拟客户 · 由该格 126 条真实案例汇编</span>
         </div>
         <hr class="sep">
         <div class="callout c-warn" style="padding:11px 13px">
@@ -493,10 +497,10 @@ a.logo:hover b{text-decoration:underline}
 <!-- ══════════ ② 客户档案 ══════════ -->
 <section class="screen">
   <div class="lbl">Case File · 客户档案</div>
-  <h1>优选生活 <span class="faint" style="font-size:16px;font-weight:400">虚拟客户 · 零售电商 × 客服售后</span></h1>
-  <p class="sub">本卡由该格 <b>71 条</b>一手公开案例汇编而成（其中带量化 51 条），每个数字都挂真实出处。<b>主体为虚构，分歧保留真实世界原样。</b></p>
+  <h1 data-case="C03">优选生活 <span class="faint" style="font-size:16px;font-weight:400">虚拟客户 · 零售电商 × 客服售后</span></h1>
+  <p class="sub" data-case="C03">本卡由该格 <b>71 条</b>一手公开案例汇编而成（其中带量化 51 条），每个数字都挂真实出处。<b>主体为虚构，分歧保留真实世界原样。</b></p>
 
-  <div class="grid g13" style="margin-top:26px">
+  <div class="grid g13" data-case="C03" style="margin-top:26px">
     <div style="display:flex;flex-direction:column;gap:16px">
       <div class="card">
         <h2>§3 · 客户背景 <span class="mut" style="font-weight:400;font-size:13px">虚构设定参数</span></h2>
@@ -615,6 +619,149 @@ a.logo:hover b{text-decoration:underline}
       </div>
     </div>
   </div>
+
+  <!-- ── C05 · 精工机械（案例档案；随讲师端下发 case_id 显隐，由 applyCase() 切）── -->
+  <h1 data-case="C05">精工机械 <span class="faint" style="font-size:16px;font-weight:400">虚拟客户 · 制造加工 × 生产质量</span></h1>
+  <p class="sub" data-case="C05">本卡由该格 <b>126 条</b>一手公开案例汇编而成（其中带量化 <b>47 条</b> —— 全库补采力度最大的一格）。<b>主体为虚构，基线参数由我们设定，不抄自任何案例。</b></p>
+
+  <div class="grid g13" data-case="C05" style="margin-top:26px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h2>§3 · 客户背景 <span class="mut" style="font-weight:400;font-size:13px">虚构设定参数</span></h2>
+        <dl class="kv">
+          <dt>定位</dt><dd>长三角 · 汽车零部件一级供应商</dd>
+          <dt>员工</dt><dd>3,400 人</dd>
+          <dt>产线</dt><dd>7 条 <span class="faint">冲压 / 焊接 / 装配</span></dd>
+          <dt>年产值</dt><dd>¥28 亿</dd>
+          <dt>客户</dt><dd>3 家主机厂 + 12 家 Tier-2</dd>
+          <dt>交付节拍</dt><dd><b style="color:var(--warn)">JIT · 停线罚款 ¥8 万/小时</b></dd>
+          <dt>一次合格率</dt><dd><b style="color:var(--warn)">94.3%</b></dd>
+          <dt>废品与返工年损失</dt><dd>¥6,200 万</dd>
+          <dt>关键设备</dt><dd>218 台 <span class="faint">其中 63 台服役超 10 年</span></dd>
+          <dt>非计划停机</dt><dd><b style="color:var(--warn)">340 小时 / 年</b></dd>
+          <dt>质检现状</dt><dd>目检 + 抽检为主 · 每班 6 名质检员<br>漏检率 <b style="color:var(--bad)">2.1%</b></dd>
+        </dl>
+        <div class="callout c-warn" style="margin-top:13px;padding:11px 13px">
+          <span class="ic">⚠️</span><div style="font-size:12.5px">
+            以上是<b>虚拟客户设定</b>，不是任何真实制造企业的数字。</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>§4 · 候选试点业务单元 <span class="mut" style="font-weight:400;font-size:13px">4 个 · 请全排后选 1</span></h2>
+        <table class="t">
+          <thead><tr><th style="width:34%">候选单元</th><th>卡里埋的陷阱</th><th style="width:88px">难度</th></tr></thead>
+          <tbody>
+            <tr><td><b>A. 焊点/涂装视觉质检</b> ⭐</td><td><b>漏检率与过杀率的权衡</b> —— 好件被判废，反而增加成本</td><td><span class="badge b-cont">中高</span></td></tr>
+            <tr><td><b>B. 关键设备预测性维护</b></td><td>故障样本稀缺；<b>误报会导致不必要的停机</b></td><td><span class="badge b-gate">高</span></td></tr>
+            <tr><td><b>C. 工艺参数优化（OEE）</b></td><td>需接 PLC/MES —— <b>OT 侧集成门槛高</b></td><td><span class="badge b-cont">中</span></td></tr>
+            <tr><td><b>D. 换线排程优化</b></td><td>价值天花板中等，但<b>最容易做出东西</b>（保底项）</td><td><span class="badge b-cont">低</span></td></tr>
+          </tbody>
+        </table>
+        <div class="callout c-info" style="margin-top:14px;padding:11px 13px">
+          <span class="ic">🎯</span><div style="font-size:12.5px">
+            <b>S1 的胜负手：A（质量）与 B（设备）的取舍。</b>
+            A 的门槛在<b>数据标注</b>（要有缺陷样本图），B 的门槛在<b>数据稀缺</b>（故障本来就少）。<b>D 是保底项。</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>§6 · 基线参数 <span class="mut" style="font-weight:400;font-size:13px">虚拟客户参数 · 由我们设定</span></h2>
+        <dl class="kv">
+          <dt><code class="mono">Q</code> 年产量</dt><dd>12,400,000 件 <span class="faint">（1,240 万件）</span></dd>
+          <dt>一次合格率</dt><dd>94.3% <span class="faint">→ 合格件 1,169.32 万件</span></dd>
+          <dt><code class="mono">F₀</code> 废品与返工年损失</dt><dd>¥6,200 万</dd>
+          <dt><code class="mono">D</code> 年非计划停机</dt><dd>340 小时</dd>
+          <dt><code class="mono">p</code> 停线罚款</dt><dd>¥8 万/小时 <b style="color:var(--ink)">（硬成本，可直接折钱）</b></dd>
+          <dt><code class="mono">N</code> 质检员</dt><dd>6 人/班 × 3 班 = <b>18 人</b></dd>
+          <dt><code class="mono">c</code> 质检员单位人分钟成本</dt><dd>¥1.9</dd>
+          <dt>漏检率</dt><dd>2.1% <span class="faint">（夜班是白班的 2.5 倍）</span></dd>
+          <dt>漏检流出成本</dt><dd>¥420/件 <span class="faint">（含退货、返工、罚款摊销）</span></dd>
+          <dt>过杀率</dt><dd>1.4% <b style="color:var(--bad)">（好件被判废也是损失）</b></dd>
+          <dt><code class="mono">k</code> 每次 AI 推理边际成本</dt><dd>¥0.03 <span class="faint">（边缘部署，成本极低）</span></dd>
+          <dt><code class="mono">M</code> 月维护成本</dt><dd>¥46,000 <span class="faint">（含模型再训练与标注）</span></dd>
+          <dt>改造窗口</dt><dd><b style="color:var(--warn)">每年仅 2 次 · 每次 ≤72 小时</b><br><span class="faint">春节/国庆停机窗口；产线不能停</span></dd>
+        </dl>
+        <div class="callout c-info" style="margin-top:15px">
+          <span class="ic">📐</span><div style="font-size:12.5px">
+            <b>原成本 C₀</b> = 废品返工 ¥6,200 万 + 停线罚款 340h × ¥8 万 =
+            <b class="mono">¥8,920 万 / 年</b></div>
+        </div>
+        <div class="callout c-bad" style="margin-top:11px">
+          <span class="ic">🔴</span><div style="font-size:12.5px">
+            <b>过杀率的<u>分母</u>，本页不给你 —— 由你定，并写出依据。</b><br>
+            分母取「<b>全部产量</b>」还是「<b>实际良品总数</b>」？两口径相差 <b>6.04%</b>。
+            分母不写清 = 算出的钱对不上 = <b>判错</b>。</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="card">
+        <h3>§5 · 场景骨架</h3>
+        <div class="mono" style="font-size:11.5px;line-height:1.95;color:var(--muted);white-space:pre-wrap">生产节拍（7 条线，218 台设备）
+ ├─ 来料检验 → 冲压 → 焊接 → 涂装 → 装配 → 终检
+ ├─ 质量数据采集（视觉 / 传感器 / PLC）
+ │    ├─ 在线质检 → 实时判定 → 剔除 / 放行
+ │    └─ 过程参数 → SPC 统计 → 趋势预警
+ ├─ 设备状态监控（振动 / 温度 / 电流）
+ │    └─ 异常 → 预警 → 计划性检修（替代事后抢修）
+ └─ 根因分析 → 工艺调整 → 反馈闭环</div>
+        <hr class="sep">
+        <h3>甲方口述痛点</h3>
+        <div style="font-size:12.5px;line-height:1.9;color:var(--muted)">
+          ① <b style="color:var(--ink)">漏检率 2.1% 且目检员疲劳</b> —— 夜班漏检率是白班的 2.5 倍；一旦流出到主机厂，退货 + 罚款<br>
+          ② <b style="color:var(--ink)">非计划停机 340 小时/年</b> —— 抢修成本 + 停线罚款，单次事故动辄数十万<br>
+          ③ <b style="color:var(--ink)">故障样本太少</b> —— 218 台设备一年只有几十次真实故障，<b>监督学习训不起来</b>（本卡最硬的技术卡点）<br>
+          ④ <b style="color:var(--ink)">过杀没人管</b> —— 质检只考核「漏检率」，不考核「过杀率」，模型宁可多判废<br>
+          ⑤ <b style="color:var(--ink)">OT 数据出不来</b> —— PLC 格式各异，IT 团队拿不到
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>§8 · 本卡的两条分歧</h3>
+        <div style="font-size:12.5px;line-height:1.95;color:var(--muted)">
+          <span class="badge b-cont">路线之争</span>
+          <b style="color:var(--ink)">有监督（缺陷样本训练）</b> vs <b style="color:var(--ink)">无监督/异常检测（无样本）</b><br>
+          <span class="faint">有监督精度高、可解释，但<b>缺陷样本稀缺</b>；无监督不需要标注，但只能报「异常」、误报多。<br>
+          → 取决于「<b>你手上有没有标签</b>」：<b>甲方数据现状决定技术路线，而不是相反。</b></span>
+        </div>
+        <hr class="sep">
+        <div style="font-size:12.5px;line-height:1.95;color:var(--muted)">
+          <span class="badge b-hot">价值观之争</span>
+          <b style="color:var(--ink)">要不要把「过杀率」写进指标？</b><br>
+          <span class="faint">质检只考核漏检率时，模型会多判废 —— 这不是技术分歧，是<b>要不要为一笔没人考核的损失负责</b>。</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>§9 · 三类价值与红线</h3>
+        <div style="font-size:12.5px;line-height:2;color:var(--muted)">
+          <span class="badge b-cont">降本</span> 废品/返工 + 停线罚款 + 质检人力 —— <b>主轨</b><br>
+          <span class="faint" style="font-size:11.5px">⚠️ <b>过杀成本必须计入，否则高估收益。</b></span><br>
+          <span class="badge b-hot">增收</span> 一次合格率提升 → 承接更多订单 / 减少违约金 <span class="faint">（公式不同）</span><br>
+          <span class="badge b-gate">风控</span> 安全生产（设备预警防事故）—— 走门槛项
+        </div>
+        <div class="callout c-bad" style="margin-top:14px">
+          <span class="ic">🔴</span><div style="font-size:12.5px">
+            <b>红线（乘法归零）</b><br>
+            ① 未做安全评估就改产线控制逻辑<br>
+            ② 用未经授权的方式采集 OT 数据<br>
+            ③ AI 建议直接下发给 PLC 而无人工确认（<b>安全联锁不可绕过</b>）<br>
+            ④ 在改造窗户外实施（<b>产线不能停</b>）</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>溯源</h3>
+        <div class="faint" style="line-height:1.95">
+          该格 <b>126 条</b>真实案例 · 带量化 <b>47 条</b> · 全部一手公开来源<br>
+          <span class="mono" style="font-size:11px">Rockwell 33 / Siemens 5 / PTC 4 / AVEVA 2 / SAP 1 / IBM 1 / 百度智能云 1</span><br>
+          <span style="font-size:11.5px">⚠️ Rockwell 多数案例<b>客户名未公开</b>（原文用 “a global snack baker” 等匿名表述），已如实标注。</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ══════════ ③ 交付物表单 ══════════ -->
@@ -629,7 +776,7 @@ a.logo:hover b{text-decoration:underline}
       <div id="fde-fields">
       <div class="fieldset">
         <label class="f">01 · 候选单元排序 <span class="badge b-cont">连续分</span></label>
-        <div class="hint">把 4 个候选<b>全部排进第 1–4 名</b>，并给出排序依据。<b>不排名次不给分。</b><br>本卡的胜负手是 <b>A（降本）与 B（增收）的取舍</b> —— 两条公式<b>严禁加总</b>。</div>
+        <div class="hint" id="fde-r1-hint">把 4 个候选<b>全部排进第 1–4 名</b>，并给出排序依据。<b>不排名次不给分。</b><br>本卡的胜负手是 <b>A（降本）与 B（增收）的取舍</b> —— 两条公式<b>严禁加总</b>。</div>
         <div class="fde-ranks" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="fde-rank" data-rank="1"><option value="">第 1 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="2"><option value="">第 2 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="3"><option value="">第 3 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select><select class="fde-rank" data-rank="4"><option value="">第 4 名 —— 请选择</option><option value="A">A · 大促峰值客服弹性</option><option value="B">B · 售前智能导购与转化</option><option value="C">C · 退换货自动化</option><option value="D">D · 售后退款时效治理</option></select></div><textarea class="fde-rank-why" style="margin-top:8px;min-height:62px" placeholder="排序依据：为什么第 1 名是它？为什么最后一名不是它？（本卡胜负手是 A 降本 与 B 增收 的取舍，两条公式严禁加总）"></textarea>
       </div>
 
@@ -815,7 +962,7 @@ a.logo:hover b{text-decoration:underline}
   默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
   对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
   交付物字段来自 <code>08_D04 定稿 v1.1</code> · 评分结构来自 <code>14_D06 定稿 v1.4</code> ·
-  客户档案（②）取自 <code class="mono">11_客户卡_03_优选生活_v1.3</code> 正文；负责人档案在讲师侧的 <code class="mono">19_NPC卡片层_03</code><br>
+  客户档案（②）取自 <code class="mono">11_客户卡_03_优选生活_v1.3</code> 与 <code class="mono">11_客户卡_05_精工机械_v1.3</code> 正文；负责人档案在讲师侧的 <code class="mono">19_NPC卡片层_03</code><br>
   ✅ <b>状态层已接入</b>（方案 A-δ）—— 交付物表单自动存草稿、可导出<b>带指纹</b>的提交包；讲师判分后成绩回传到此页
 </div>
 
@@ -1072,7 +1219,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.15.4','/sim/l7_rounds.js?v=1.15.4','/sim/l7_student_app.js?v=1.15.4'];
+  var files = ['/sim/l7_core.js?v=1.15.5','/sim/l7_rounds.js?v=1.15.5','/sim/l7_student_app.js?v=1.15.5'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }

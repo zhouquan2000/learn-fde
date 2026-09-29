@@ -9,6 +9,16 @@
   if (!F) { console.error('[fde] l7_core.js 未加载'); return; }
   var RD = window.FDE_ROUNDS || null;   /* 回合内容目录(可选依赖:缺失时退化为 R1 文案) */
 
+  /* ⭐ 当前案例号 —— **唯一来源**是讲师端下发的开班配置（`F.KEY.CLASS.case_id`）。
+     ⚠️ 缺陷来源（2026-09-29 接入 #05 时撞出）：原先 4 处 `RD.base(…'C03')` 把案例写死，
+        讲师端就算把案例切成别的卡，学员端仍按「优选生活」的 V/A/c 算 —— 这与
+        `submitState()` 记的那笔账同类：**显示值（顶栏案例）≠ 计算值（基线参数）**，
+        而且学员看不出来。凡「界面声明过的状态，代码必须遵守它」。 */
+  function curCase() {
+    var cls = F.get(F.KEY.CLASS, {}) || {};
+    return cls.case_id || 'C03';   /* 未开班时回落到首期卡，与讲师端默认一致 */
+  }
+
   /* 当前站号('S1'..'S5')。注意 fde.round 存的是**对象**,不是字符串(曾致 B11)。 */
   function currentRound() {
     var r = F.get(F.KEY.ROUND, null);
@@ -184,7 +194,7 @@
     var _lk = F.get('fde.lock') || {};
     var _rk = (typeof roundKey === 'function') ? roundKey() : null;
     if (_rk) {
-      var _B = (RD && RD.base) ? RD.base('C03') : {};
+      var _B = (RD && RD.base) ? RD.base(curCase()) : {};
       var _ei = F.effectiveInputs(_rk, o, _B, { V_scope: _lk.V_scope });
       if (_ei.__scopeRound && _ei.V !== null && _ei.V !== undefined) { o.V_scope = _ei.V; }
     }
@@ -218,7 +228,7 @@
       }
     }
     var derive = String(out.getAttribute('data-derive') || '').split(',').filter(Boolean);
-    var RDw = window.FDE_ROUNDS, B = (RDw && RDw.base) ? RDw.base('C03') : {};
+    var RDw = window.FDE_ROUNDS, B = (RDw && RDw.base) ? RDw.base(curCase()) : {};
     var n = numsAll();
     /* ⭐ ③-b/裁定①:参数一律走 `F.effectiveInputs` —— 案例级基线平台带入、
        分母取**开班锁定的已批准范围**,学员端不再出现这些输入框。
@@ -325,7 +335,7 @@
         var _kb = roundKey() || 'R3';
         var _nb = numsAll();
         var _lk2 = F.get('fde.lock') || {};
-        var _bh = (window.FDE_ROUNDS && window.FDE_ROUNDS.base) ? window.FDE_ROUNDS.base('C03') : {};
+        var _bh = (window.FDE_ROUNDS && window.FDE_ROUNDS.base) ? window.FDE_ROUNDS.base(curCase()) : {};
         var _ei2 = F.effectiveInputs(_kb, _nb, _bh, { V_scope: _lk2.V_scope });
         cell.appendChild(cl('div', 'fde-numro fde-numro-val',
           (_ei2[fd.k] === null || _ei2[fd.k] === undefined)
@@ -486,7 +496,7 @@
 
     var rEv = F.evalRate({ artifacts: { eval: ev } });
     if (rEv === null) { return; }
-    var B = (RD && RD.base) ? RD.base('C03') : {};
+    var B = (RD && RD.base) ? RD.base(curCase()) : {};
     var _n3 = numsAll(), _k3 = roundKey() || 'R2';
     if (_n3.V_scope !== undefined && _n3.V_scope !== null) { F.put('fde.lock', { V_scope: _n3.V_scope }); }
     var _lk3 = F.get('fde.lock') || {};
@@ -1164,7 +1174,54 @@
     /* 「已完成 N/7」那个 stat 由 refresh() 负责,不在这里重复处理 */
   }
 
+  /* ⭐ 案例适配 —— 按讲师端下发的 `case_id`，把学员端**随案例变化**的内容切过去。
+     为什么要收在一处：案例相关文案散在 ①②③ 三屏，各写各的一定会出现
+     「② 写着 A 卡、③ 的候选下拉还是 B 卡」这类自相矛盾（接入 #05 时实测到）。
+     做法：① HTML 侧给随案例变化的元素打 `data-case="C0x"`，这里只负责显示/隐藏；
+          ② 候选单元下拉的**标签**从 `FDE_ROUNDS.cand(caseId)` 取 ——
+             **取值仍是 A/B/C/D 不变**（提交包契约不动，老包照样能验）。 */
+  function applyCase() {
+    var cid = curCase();
+
+    var nodes = document.querySelectorAll('[data-case]');
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].style.display = (nodes[i].getAttribute('data-case') === cid) ? '' : 'none';
+    }
+
+    var cand = (RD && RD.cand) ? RD.cand(cid) : null;
+    if (cand) {
+      var sels = document.querySelectorAll('select.fde-rank');
+      for (var s = 0; s < sels.length; s++) {
+        var opts = sels[s].options;
+        for (var o = 0; o < opts.length; o++) {
+          if (opts[o].value === '') { continue; }
+          for (var k = 0; k < cand.length; k++) {
+            if (cand[k][0] === opts[o].value) { opts[o].text = cand[k][1]; }
+          }
+        }
+      }
+    }
+
+    /* ③ R1 的提示与占位符也随案例换（否则会出现「② 是制造业、③ 让你聊大促客服」） */
+    var HINT = {
+      C03: '把 4 个候选<b>全部排进第 1–4 名</b>，并给出排序依据。<b>不排名次不给分。</b><br>' +
+           '本卡的胜负手是 <b>A（降本）与 B（增收）的取舍</b> —— 两条公式<b>严禁加总</b>。',
+      C05: '把 4 个候选<b>全部排进第 1–4 名</b>，并给出排序依据。<b>不排名次不给分。</b><br>' +
+           '本卡的胜负手是 <b>A（质量）与 B（设备）的取舍</b> —— A 卡在<b>数据标注</b>、B 卡在<b>故障样本稀缺</b>。'
+    };
+    var h = document.getElementById('fde-r1-hint');
+    if (h && HINT[cid]) { h.innerHTML = HINT[cid]; }
+
+    var PH = {
+      C03: '排序依据：为什么第 1 名是它？为什么最后一名不是它？（本卡胜负手是 A 降本 与 B 增收 的取舍，两条公式严禁加总）',
+      C05: '排序依据：为什么第 1 名是它？为什么最后一名不是它？（本卡胜负手是 A 质量 与 B 设备 的取舍）'
+    };
+    var ta = document.querySelector('.fde-rank-why');
+    if (ta && PH[cid]) { ta.setAttribute('placeholder', PH[cid]); }
+  }
+
   function boot() {
+    applyCase();           /* ⚠️ 必须最先 —— 后面几屏的渲染都读当前案例 */
     syncChrome();          /* 骨架文案先对齐当前回合,再渲染进度(否则会闪一下 S1) */
     startClock();          /* 倒计时按 published_at + 时限真算(C112;未设时限则显示未设时限) */
     buildRoundForm();      /* ⚠️ 必须在 bindForm() 之前 —— bindForm 只扫已存在的 .fieldset */
