@@ -29,7 +29,7 @@ TARGETS = [
      ['l7_core.js', 'l7_rounds.js', 'l7_student_app.js']),
     ('l7_prototype_v0.4_instructor.html', 'src/pages/sim/console/index.astro',
      '讲师端 · FDE 模拟商战',
-     ['l7_core.js', 'l7_rounds.js', 'l7_instructor_app.js']),
+     ['l7_core.js', 'l7_rounds.js', 'l7_pool.js', 'l7_instructor_app.js']),
 ]
 
 

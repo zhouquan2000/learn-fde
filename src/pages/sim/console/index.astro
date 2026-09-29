@@ -631,9 +631,12 @@ a.logo:hover b{text-decoration:underline}
 
 <!-- ───── 状态层 A-δ:本地核心 + 交互层（零外部依赖）───── -->
 
+
+<!-- ⚠️ 讲师端专用:含 C₀/P_opt 与逐项金额,学员端**不得**加载(见 l7_pool.js 头注) -->
+
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.15.6','/sim/l7_rounds.js?v=1.15.6','/sim/l7_instructor_app.js?v=1.15.6'];
+  var files = ['/sim/l7_core.js?v=1.16.0','/sim/l7_rounds.js?v=1.16.0','/sim/l7_pool.js?v=1.16.0','/sim/l7_instructor_app.js?v=1.16.0'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }

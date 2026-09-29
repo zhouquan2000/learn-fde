@@ -310,6 +310,41 @@
     };
   }
 
+  /* ── 成本池型核算(06 §5.5 · #05 精工机械,2026-09-29)──────────────────
+     与上面「会话型」的差别:不收 V/A/A′/c/k/M 六个标量,而收**学员逐项声明的成本池**
+       `declared = [{ key, name, C0, C1, basis }]`
+       Δ = Σ(C₀ᵢ − C₁ᵢ)
+     ⚠️ 三条纪律(缺一不可):
+       ① **Δ 仍由平台加出来** —— 学员填的是**逐项原始金额**,不能直接填 Δ(同 D04 §6.4 约束③);
+       ② **未声明的项不进 Δ** —— 这就是「过杀/漏检流出的钱必须由学员自己问出来,才进得了他的账」
+          (`C130` ①)。**它不是 bug,删掉它这个教学点就没了**;
+       ③ **平台不提示漏了哪些项**(提示 = 把答案送出去)。漏项的**判定**要拿池定义比,
+          而池定义(`l7_pool.js`)只在讲师端加载 ⇒ 结构上就到不了学员端。
+     为什么**新增**而不改 `computeCost`:C03 的判分链路已冻结(147/188 条回归在守),
+       两种形状不能硬塞进同一支函数 ⇒ 由 `costModel(caseId)` 分派,旧函数一行不动。 */
+  function computeCostPool(declared) {
+    declared = declared || [];
+    var items = [], gaps = [], C0 = 0, C1 = 0;
+    declared.forEach(function (it, i) {
+      it = it || {};
+      var a = _num(it.C0), b = _num(it.C1);
+      /* 只声明了一半(C₀ 或 C₁ 缺)= 该项**算不出 Δ**,只能进 gaps,不进 Δ。
+         不拿 0 顶替 —— 拿 0 顶替会静默把"没算完"当成"没成本"。 */
+      if (a === null || b === null) { gaps.push(it.key || it.name || ('#' + (i + 1))); return; }
+      items.push({ key: it.key || '', name: it.name || '', C0: a, C1: b, delta: a - b,
+                   basis: it.basis || '' });
+      C0 += a; C1 += b;
+    });
+    return {
+      ok: items.length > 0, model: 'pool',
+      declared_n: declared.length, used_n: items.length, gaps: gaps,
+      C0: C0, C1: C1, delta: C0 - C1, items: items
+    };
+  }
+  /* 案例 → 核算形状的**唯一来源**(别在界面里各判各的,判歪一次就静默失效) */
+  var COST_MODEL = { C03: 'session', C05: 'pool' };
+  function costModel(caseId) { return COST_MODEL[caseId] || 'session'; }
+
   /* ── 跨回合有效参数(⭐ 周全裁定①:平台按案例级基线自动带入,开班锁定,学员不可改)──
      为什么必须有这一层(2026-09-26 推演撞出来的洞):
        R3–R5 算 Δ 需要 `A/A′/c/k/M`,可它们**只在 R2 的包里**;而每回合的包是**独立**的
@@ -623,6 +658,7 @@
     VERSION: VERSION, KEY: KEY,
     fp: fp, fpOf: fpOf, stamp: stamp, isoDate: isoDate,
     computeCost: computeCost, evalRate: evalRate, valueRate: valueRate,
+    computeCostPool: computeCostPool, costModel: costModel,
     makeEvalRun: makeEvalRun, evalRunIssues: evalRunIssues, evalRateWhy: evalRateWhy,
     RATIO_DEF: RATIO_DEF, deriveRatios: deriveRatios, ratioIssues: ratioIssues,
     effectiveInputs: effectiveInputs, effectiveR: effectiveR, BASELINE_KEYS: BASELINE_KEYS,

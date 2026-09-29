@@ -41,7 +41,7 @@
   /* ══════════════════ P6 · 开班与回合发布 ══════════════════ */
   var CASE_LIB = [
     ['C03', '优选生活（零售电商 × 客服售后）★首期'],
-    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；⚠️ R2–R5 收益核算字段仍按 C03 口径，选用前需先做「成本池型」模板适配'],
+    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；✅ 成本池型核算（R2–R5）已接入（Δ上限 = P_opt）；⚠️ 学员端「成本池逐项表」UI 待接，故 R2–R5 的 Δ 目前仍只在讲师侧可算'],
     ['C01', '云岭通信（电信通信 × 客服售后）'],
     ['C07', '云栈科技（高科技软件 × 客服售后）'],
     ['C12', '磐云数据（高科技软件 × 运营调度）'],
@@ -134,7 +134,7 @@
       startClock();          /* 发布后立刻按新 published_at 重算时钟(C112) */
       buildP8();             /* P8 题库随回合换 —— 不重算就会留着上一站的题 */
       flash(box, '✅ 已发布：' + rndSel.value + (openCb.checked ? '（提交开放）' : '（提交关闭）'));
-      renderTeams();
+      renderTeams(); renderPool();
       renderGrading();   /* 判据随回合变 —— 换了回合必须重画判分表(B13/B14 同类风险) */
     };
     box.appendChild(saveBtn);
@@ -195,6 +195,80 @@
     var out = [];
     for (var i = 1; i <= cfg.team_count; i++) { out.push((cfg.team_prefix || 'T') + ('0' + i).slice(-2)); }
     box.appendChild(el('div', 'font-size:13px;letter-spacing:.05em;', out.join('   ')));
+    P6.appendChild(box);
+  }
+
+  /* ══════════════════ 案例成本池（讲师侧 · 学员端不可见）══════════════════
+     为什么放在开班配置页:它是**案例级事实**(与组数同级),而且正是 `Δ上限` 的取数口径 ——
+     讲师讲评价值分时要当场引用,不该藏到第三个页面去。
+     ⚠️ 这里显示**不构成泄漏**:池定义在 `l7_pool.js`,该文件**只加在讲师端**;
+        学员端连文件都没加载,敲 `FDE_POOL` 也是 undefined。
+     ⚠️ 别为了"看起来完整"把这张表搬进学员端 —— 那等于把过杀 / 漏检的金额直接送给学员,
+        而「必须由学员自己问出来,才进得了他的账」是 #05 的教学胜负手(`C130` ①)。 */
+  function renderPool() {
+    var old = document.getElementById('fde-pool');
+    if (old) { old.remove(); }
+    if (!P6 || !window.FDE_POOL) { return; }
+    var cfg = F.get(F.KEY.CLASS, {}) || {};
+    var cid = cfg.case_id || 'C03';
+    var p = window.FDE_POOL.of(cid);
+    var box = card();
+    box.id = 'fde-pool';
+    box.appendChild(h3('💰 案例成本池（讲师侧 · 学员端不可见）'));
+
+    if (!p) {
+      box.appendChild(el('div', 'font-size:12.5px;color:#6b7280;line-height:1.8',
+        '当前案例 ' + cid + ' 是**会话型**核算（V / A / A′ / c / k / M），没有成本池。'
+        + '池型定义目前只有 #05 精工机械。'));
+      P6.appendChild(box);
+      return;
+    }
+
+    box.appendChild(el('div', 'font-size:12.5px;color:#374151;margin-bottom:8px;line-height:1.8',
+      '案例 ' + p.case_id + ' · ' + p.name + ' ｜ 核算形状 = **成本池**（件数 × 率 × 价值）｜ '
+      + 'Δ上限 取 **' + p.upperFrom + '**（C130 ①）'));
+
+    var tb = document.createElement('table');
+    tb.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
+    var hr = document.createElement('tr');
+    ['项', '金额（万元）', '学员能否直接看到', '算式 / 依据'].forEach(function (x) {
+      var th = document.createElement('th');
+      th.textContent = x;
+      th.style.cssText = 'text-align:left;padding:5px 6px;border-bottom:1px solid #d1d5db;'
+        + 'color:#374151;font-weight:600;';
+      hr.appendChild(th);
+    });
+    tb.appendChild(hr);
+    p.items.forEach(function (it) {
+      var tr = document.createElement('tr');
+      [(it.no + ' ' + it.name),
+       (it.val / 10000).toFixed(1),
+       (it.visible ? '✅ 卡面可见' : '⚠️ 须访谈 / 追问才拿到'),
+       (it.how + (p.movable.indexOf(it.key) >= 0 ? '　｜ 候选 A 可影响' : ''))
+      ].forEach(function (x, i2) {
+        var td = document.createElement('td');
+        td.textContent = x;
+        td.style.cssText = 'padding:5px 6px;border-bottom:1px solid #f3f4f6;vertical-align:top;'
+          + ((i2 === 2 && !it.visible) ? 'color:#b45309;' : '');
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+    box.appendChild(tb);
+
+    box.appendChild(el('div', 'margin-top:10px;font-size:12.5px;line-height:1.9;color:#111827',
+      'C₀（卡面可见 ①+②）= **¥' + (p.C0 / 10000).toFixed(1) + ' 万** ｜ '
+      + 'P_opt（Δ上限）= **¥' + (p.P_opt / 10000).toFixed(1) + ' 万** ｜ '
+      + '候选 A 可影响（③④⑤）= **¥' + (p.movable_sum / 10000).toFixed(1) + ' 万**'
+      + '（占 P_opt 的 ' + (p.movable_sum / p.P_opt * 100).toFixed(1) + '%）'));
+    box.appendChild(el('div', 'margin-top:6px;font-size:12px;color:#6b7280;line-height:1.8',
+      p.ceiling_note));
+
+    var iss = window.FDE_POOL.audit(cid);
+    box.appendChild(el('div', 'margin-top:8px;font-size:12px;'
+      + (iss.length ? 'color:#b91c1c;font-weight:600;' : 'color:#059669;'),
+      iss.length ? ('❌ 池与 BASE 参数不一致（' + iss.length + ' 条）：' + iss.join('；'))
+                 : '✅ 池常量与 BASE.C05 参数逐项对账一致'));
     P6.appendChild(box);
   }
 
@@ -982,7 +1056,7 @@
     if (!P6 && !P7) { console.warn('[fde] 未找到 #p6 / #p7'); return; }
     syncChrome();
     startClock();          /* 时钟同源于 published_at + 时限(C112) */
-    buildP6(); renderTeams(); buildP7(); buildP8();
+    buildP6(); renderTeams(); renderPool(); buildP7(); buildP8();
     console.log('[fde] 讲师端交互层已加载 · core v' + F.VERSION);
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
