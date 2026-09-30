@@ -1343,45 +1343,48 @@
       box.appendChild(lb);
     }
 
-    /* 📣 全班 B 组申领情况（讲师分享；2026-09-30 周全裁定：**不计入分数，只分享给全班**）
-       姿态上要写清"这不影响你的分数" —— 否则学员会以为问错要扣分，反而不敢问。 */
-    var cs = F.get(F.KEY.CLAIMPUB, null);
-    if (cs && cs.groups && cs.groups.length) {
-      var cb = card('');
-      cb.style.cssText += 'margin:20px 0;';
-      cb.appendChild(h3('📣 全班 B 组申领情况（讲师分享 · 不计入分数）'));
-      cb.appendChild(el('div', 'font-size:12px;color:#6b7280;margin-bottom:8px;',
-        '全班共 ' + cs.total + ' 次申领 · 命中 ' + cs.hit + ' · 未识别或需收窄 ' + cs.miss +
-        (cs.published_at ? '（' + cs.published_at + '）' : '')));
-      var ct = el('table', 'width:100%;border-collapse:collapse;font-size:12.5px;');
-      ct.innerHTML = '<thead><tr style="text-align:left;color:#6b7280">' +
-        '<th style="padding:6px 0">组</th><th style="text-align:right">申领</th>' +
-        '<th style="text-align:right">命中</th><th style="text-align:right">未识别</th>' +
-        '<th>把哪些材料问出来了</th></tr></thead>';
-      var cb2 = el('tbody');
-      var myT = localStorage.getItem('fde.myTeam') || '';
-      cs.groups.forEach(function (g) {
-        var isMe = g.team_id === myT;
-        var tr = el('tr', 'border-top:1px solid #eef0f3;' + (isMe ? 'background:#fffbeb;font-weight:700;' : ''));
-        var tds = [
-          el('td', 'padding:7px 0', g.team_id + (isMe ? ' ← 你' : '')),
-          el('td', 'text-align:right', String(g.total)),
-          el('td', 'text-align:right', String(g.hit)),
-          el('td', 'text-align:right', String(g.miss)),
-          el('td', 'color:#4b5563;font-weight:400',
-             (g.got && g.got.length) ? g.got.join('、') : '—')
-        ];
-        tds.forEach(function (td) { tr.appendChild(td); });
-        cb2.appendChild(tr);
-      });
-      ct.appendChild(cb2);
-      cb.appendChild(ct);
-      cb.appendChild(el('div', 'font-size:11.5px;color:#9ca3af;margin-top:8px;',
-        '这张表只回答「谁把问题问对了」。它不进任何一项得分。'));
-      host.insertBefore(cb, host.firstChild);
-    }
+    /* 📣 全班申领情况见独立的 buildClaimShare() ——
+       ⚠️ 不能挂在 buildResult() 里：本函数在「讲师还没回传成绩」时会提前 return，
+          而这张表与成绩无关（不计分、也不依赖 RESULT），必须自己渲染。
+          （2026-09-30 实测踩到：挂在里面 ⇒ 未开班时整块不出现。） */
 
     host.insertBefore(box, host.firstChild);
+  }
+
+  /* 📣 全班 B 组申领情况（讲师点「分享」后出现；**不计入任何得分**） */
+  function buildClaimShare() {
+    var cs = F.get(F.KEY.CLAIMPUB, null);
+    if (!cs || !cs.groups || !cs.groups.length) { return; }
+    var host = document.querySelector('.page') || document.body;
+    var cb = card('');
+    cb.style.cssText += 'margin:20px 0;';
+    cb.appendChild(h3('📣 全班 B 组申领情况（讲师分享 · 不计入分数）'));
+    cb.appendChild(el('div', 'font-size:12px;color:#6b7280;margin-bottom:8px;',
+      '全班共 ' + cs.total + ' 次申领 · 命中 ' + cs.hit + ' · 未识别或需收窄 ' + cs.miss +
+      (cs.published_at ? '（' + cs.published_at + '）' : '')));
+    var ct = el('table', 'width:100%;border-collapse:collapse;font-size:12.5px;');
+    ct.innerHTML = '<thead><tr style="text-align:left;color:#6b7280">' +
+      '<th style="padding:6px 0">组</th><th style="text-align:right">申领</th>' +
+      '<th style="text-align:right">命中</th><th style="text-align:right">未识别</th>' +
+      '<th>把哪些材料问出来了</th></tr></thead>';
+    var cbody = el('tbody');
+    var myT = localStorage.getItem('fde.myTeam') || '';
+    cs.groups.forEach(function (g) {
+      var isMe = g.team_id === myT;
+      var tr = el('tr', 'border-top:1px solid #eef0f3;' + (isMe ? 'background:#fffbeb;font-weight:700;' : ''));
+      [el('td', 'padding:7px 0', g.team_id + (isMe ? ' ← 你' : '')),
+       el('td', 'text-align:right', String(g.total)),
+       el('td', 'text-align:right', String(g.hit)),
+       el('td', 'text-align:right', String(g.miss)),
+       el('td', 'color:#4b5563;font-weight:400', (g.got && g.got.length) ? g.got.join('、') : '—')
+      ].forEach(function (td) { tr.appendChild(td); });
+      cbody.appendChild(tr);
+    });
+    ct.appendChild(cbody);
+    cb.appendChild(ct);
+    cb.appendChild(el('div', 'font-size:11.5px;color:#9ca3af;margin-top:8px;',
+      '这张表只回答「谁把问题问对了」。它不进任何一项得分。'));
+    host.insertBefore(cb, host.firstChild);
   }
 
   /* ─────────── 启动 ─────────── */
@@ -1742,6 +1745,7 @@
     buildStatusBar();
     if (bindForm()) { buildSubmitCard(); if (window.__fdeRefresh) window.__fdeRefresh(); }
     buildResult();
+    buildClaimShare();     /* 📣 全班申领情况 —— 独立渲染，不依赖讲师是否已回传成绩 */
     console.log('[fde] 学员端交互层已加载 · core v' + F.VERSION
                 + ' · 回合 ' + currentRound() + '/' + (roundKey() || '—'));
   }
