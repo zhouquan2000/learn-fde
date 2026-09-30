@@ -1413,8 +1413,185 @@
     if (ta && PH[cid]) { ta.setAttribute('placeholder', PH[cid]); }
   }
 
+  /* ══════════════════════════════════════════════════════════════════
+     B 组「问才给」申领台（案例 #05 精工机械 · S2）
+     纪律（周全 2026-09-30 拍板）：
+       ① 只发他**明确问到的那一份**；② 不附带别的材料；
+       ③ **不提示还有哪些**（平台不列清单、miss 话术里也不列）；
+       ④ 一次只发一份。
+     打分方式：命中关键词按**关键词长度加权**求和 —— 问题是具体的，
+       命中的就是具体那一份；泛泛地问（"给我资料"）拿不到东西。
+     ⚠️ 顺序敏感：本块必须在 boot() 之前定义，且 buildCase05Claim() 由 boot() 调用。
+     ══════════════════════════════════════════════════════════════════ */
+  var C5_CLAIM = [
+    { id: 'B1', kind: 'file', name: '焊接缺陷临时跟踪表',
+      file: '/case05/B组_隐形数据/1f3c9a7d.xlsx', fname: '焊接缺陷临时跟踪表.xlsx',
+      note: '质检员自己记的临时表，不在 IT 系统里；里面比系统多 3 个缺陷类目，还夹着手写规则。',
+      kw: ['临时跟踪表', '跟踪表', '临时记录', '手写记录', '自己记的', '夜班加严', '加严抽检',
+           '焊渣飞溅', '电极磨损印', '压痕过深', '系统里没有', '多出来的类目', '缺陷类目', '返修次数'] },
+    { id: 'B2', kind: 'text', name: '现场口头规则（班组长 / 老质检员 / 维修班）',
+      text: '<b>问到的三条 —— 都没写进任何受控文件：</b><br>'
+          + '① 同一焊点 <b>返修 2 次以上要报班组长</b>（班组长口头要求）。<br>'
+          + '② <b>夜班抽检加严到每 30 分钟 5 件</b>（班组长在质量例会上提的，质量部同意试行，<b>但没有修订文件</b>）。<br>'
+          + '③ 焊机<b>异响通常是电极臂轴承磨损</b>，听到金属摩擦声要提前换（维修班经验）。<br>'
+          + '<span class="faint">⚠️ 这三条属「过程规则」：不改变焊点判定结论，但改变你的取证方式。'
+          + '写进交付物时必须注明「口头来源」，不能当受控文件引用。</span>',
+      kw: ['口头规则', '口头', '老师傅', '老质检', '不成文', '潜规则', '没写进文件', '从未写进',
+           '返修2次', '返修两次', '返修2次以上', '报班组长', '异响', '电极臂', '轴承磨损', '加严'] },
+    { id: 'B3', kind: 'text', name: '考核表之外还有谁在算账（质量成本口径）',
+      text: '<b>答案：没有人。</b><br>'
+          + '· 财务口径只有四项：废品损失、返工工时、客户索赔、停线罚款（见 A 组 ③ 质量成本表）。<br>'
+          + '· <b>「过杀」（把好件判成不合格 / 判废）造成的损失没有科目、没有责任人、没有统计口径</b>；'
+          + '返工只记工时、没有单价，折不成金额；报废件里哪几件本来是好件，目前没有字段能区分。<br>'
+          + '· 质量部内部讨论过（有人给过 1–1.5% 的量级感），<b>但未形成结论</b>；管理评审要求 Q3 提出统一方案。<br>'
+          + '<span class="faint">⚠️ 平台不替你算这笔账 —— 要你自己按 A 组材料算出来，并写清口径与假设。</span>',
+      kw: ['过杀', '误判', '误判报废', '判废', '报废损失', '没人统计', '无人负责', '谁在算',
+           '别的账', '没人算', '成本口径', '损失', '财务'] },
+    { id: 'B4', kind: 'text', name: '改造窗口的准确时段',
+      text: '<b>每年 2 次、每次 ≤ 72 小时</b>（产线不能停）：<br>'
+          + '· 春节：2/13 00:00 – 2/16 00:00<br>· 国庆：10/1 – 10/4<br>'
+          + '改期须<b>总经理批准</b>。<span class="faint">你的方案落地时段必须落在这两个窗口之内。</span>',
+      kw: ['改造窗口', '窗口', '停机', '停产', '产线不能停', '时段', '春节', '国庆', '假期',
+           '几天', '多长时间'] },
+    { id: 'B5', kind: 'file', name: '《不合格品控制程序》（D/0 版 · 现行）',
+      file: '/case05/B组_隐形数据/6b2e4f08.docx', fname: '不合格品控制程序_D0版.docx',
+      note: '现行的处置依据 —— 替代 A 组 ⑤ 那份已作废的《不合格品处置程序》。',
+      kw: ['作废', '替代', '现行', '新版', '以哪份为准', '哪份为准', 'd0', 'd/0',
+           '控制程序', '旧版', '失效', '处置程序'] }
+  ];
+  var C5_LOG_KEY = 'fde.case05.claims';
+
+  function c5Norm(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[\s，。、；：？！,.;:?!"'“”‘’（）()【】\[\]【】\-—_/\\]+/g, '');
+  }
+
+  /* 命中判定：返回 {kind:'empty'|'miss'|'ambiguous'|'hit', ...} */
+  function c5Match(q) {
+    var qn = c5Norm(q);
+    if (!qn) { return { kind: 'empty' }; }
+    var best = 0, winners = [];
+    for (var i = 0; i < C5_CLAIM.length; i++) {
+      var it = C5_CLAIM[i], sc = 0;
+      for (var j = 0; j < it.kw.length; j++) {
+        var k = c5Norm(it.kw[j]);
+        if (k && qn.indexOf(k) >= 0) { sc += k.length; }   /* 长度加权：越具体越占优 */
+      }
+      if (sc > best) { best = sc; winners = [it]; }
+      else if (sc === best && sc > 0) { winners.push(it); }
+    }
+    if (!winners.length) { return { kind: 'miss' }; }
+    if (winners.length > 1) { return { kind: 'ambiguous', items: winners }; }
+    return { kind: 'hit', item: winners[0] };
+  }
+
+  function c5LogRead() {
+    try { return JSON.parse(localStorage.getItem(C5_LOG_KEY) || '[]') || []; } catch (e) { return []; }
+  }
+  function c5LogWrite(a) {
+    try { localStorage.setItem(C5_LOG_KEY, JSON.stringify(a.slice(-50))); } catch (e) {}
+  }
+
+  function c5RenderLog() {
+    var box = document.getElementById('case05-log');
+    if (!box) { return; }
+    box.innerHTML = '';
+    var a = c5LogRead();
+    if (!a.length) { return; }
+    var h = cl('div', 'faint', '申领记录（本机保存 ' + a.length + ' 条）');
+    h.style.cssText = 'font-size:12px;margin-bottom:4px';
+    box.appendChild(h);
+    for (var i = a.length - 1; i >= 0; i--) {
+      var r = a[i];
+      var line = cl('div', null, '· [' + r.t + '] ' + (r.result === '发放' ? '✅ ' : '— ') + r.ask
+                                + (r.item ? '  ⇒ ' + r.item : ''));
+      line.style.cssText = 'font-size:12px;color:' + (r.result === '发放' ? '#0f766e' : '#8a929c') + ';line-height:1.7';
+      box.appendChild(line);
+    }
+  }
+
+  function c5Deliver(item) {
+    var out = document.getElementById('case05-out');
+    if (!out) { return; }
+    out.innerHTML = '';
+    var d = document.createElement('div');
+    d.className = 'callout c-info';
+    d.style.cssText = 'padding:11px 13px';
+    var html = '<b>已发放：' + item.name + '</b>';
+    if (item.note) { html += '<div style="font-size:12.5px;margin-top:4px" class="mut">' + item.note + '</div>'; }
+    if (item.kind === 'file') {
+      html += '<div style="margin-top:8px"><a href="' + item.file + '" download="' + item.fname + '"><b>⬇︎ 下载 '
+            + item.fname + '</b></a></div>';
+    } else {
+      html += '<div style="font-size:12.5px;line-height:1.9;margin-top:6px">' + item.text + '</div>';
+    }
+    html += '<div class="faint" style="font-size:11.5px;margin-top:8px">'
+          + '⚠️ 平台只发你明确问到的这一份，未附带其他材料，也不提示还有哪些。</div>';
+    d.innerHTML = html;
+    out.appendChild(d);
+  }
+
+  function c5Submit() {
+    var ta = document.getElementById('case05-ask');
+    var out = document.getElementById('case05-out');
+    var q = ta ? String(ta.value || '').trim() : '';
+    var m = c5Match(q);
+    var res = '未识别', itemName = '';
+    if (out) { out.innerHTML = ''; }
+    if (m.kind === 'empty') {
+      if (out) { out.innerHTML = '<div class="faint" style="font-size:12.5px">请先写清你要什么：哪一份记录 / 哪个字段 / 哪段时间。</div>'; }
+      return;
+    }
+    if (m.kind === 'hit') { c5Deliver(m.item); res = '发放'; itemName = m.item.name; }
+    else if (m.kind === 'ambiguous') {
+      if (out) {
+        out.innerHTML = '<div class="faint" style="font-size:12.5px;line-height:1.85">'
+          + '你的问法同时指向<b>不止一份</b>材料 —— 一次只发一份。'
+          + '请把问题<b>收窄到一份记录或一个字段</b>，再提交一次。（收了哪几份，平台不列。）</div>';
+      }
+      res = '需收窄';
+    } else {
+      if (out) {
+        out.innerHTML = '<div class="faint" style="font-size:12.5px;line-height:1.85">'
+          + '没有识别到你申请的是哪一份。<b>请写明你要的材料名、字段名或时间段</b>（平台不列出有哪些）。</div>';
+      }
+    }
+    var a = c5LogRead();
+    var d = new Date();
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    a.push({ t: pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+             ask: q, result: res, item: itemName });
+    c5LogWrite(a);
+    c5RenderLog();
+  }
+
+  function buildCase05Claim() {
+    var box = document.getElementById('case05-claim');
+    if (!box) { return; }                       /* 非学员端 / 案例不匹配时静默跳过 */
+    var go = document.getElementById('case05-go');
+    var ta = document.getElementById('case05-ask');
+    var cp = document.getElementById('case05-log-copy');
+    if (go) { go.addEventListener('click', c5Submit); }
+    if (ta) { ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { c5Submit(); } }); }
+    if (cp) {
+      cp.addEventListener('click', function () {
+        var a = c5LogRead();
+        var txt = a.length ? a.map(function (r) {
+          return '[' + r.t + '] ' + r.result + ' | ' + r.ask + (r.item ? ' ⇒ ' + r.item : '');
+        }).join('\n') : '（还没有申领记录）';
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(txt);
+          cp.textContent = '已复制 ✓';
+          setTimeout(function () { cp.textContent = '复制申领记录'; }, 1500);
+        } else { window.prompt('复制申领记录：', txt); }
+      });
+    }
+    c5RenderLog();
+  }
+
   function boot() {
     applyCase();           /* ⚠️ 必须最先 —— 后面几屏的渲染都读当前案例 */
+    buildCase05Claim();    /* B 组申领台（问才给）：只挂监听，不泄露材料清单 */
     syncChrome();          /* 骨架文案先对齐当前回合,再渲染进度(否则会闪一下 S1) */
     startClock();          /* 倒计时按 published_at + 时限真算(C112;未设时限则显示未设时限) */
     buildRoundForm();      /* ⚠️ 必须在 bindForm() 之前 —— bindForm 只扫已存在的 .fieldset */

@@ -1051,7 +1051,7 @@ a.logo:hover b{text-decoration:underline}
     <div class="callout c-info" style="margin-top:14px;padding:11px 13px">
       <span class="ic">📦</span><div style="font-size:12.5px">
         <b>材料原件可下载（7 份）</b> —— 解压到 <code class="mono">D:\fde_case05\data\</code>，见 ⑦ 环境搭建 第 5 步。
-        <b>B 组的文件不提供</b>：那几项要你现场问出来，问不到就没有。
+        <b>B 组不在资料包里</b>：要用下面那张 <b>申领台</b>，把你要的那一份<b>问出来</b>（一次只发一份，平台不提示还有哪些）。
       </div>
     </div>
     <div style="margin-top:11px;font-size:12.5px;line-height:2.1">
@@ -1099,6 +1099,25 @@ a.logo:hover b{text-decoration:underline}
         <span class="ic">⚠️</span><div style="font-size:12.5px">
           <b>B 组不是「附赠」。</b>你的收益核算里，<b>凡是要靠你自己问出来才拿得到的成本项，都必须出现在分母里</b> ——
           否则你会算出一个「看起来漂亮、但方向错了」的数。</div>
+      </div>
+
+      <!-- ── B 组申领台（问才给）· 逻辑在 l7_student_app.js 的 buildCase05Claim() ── -->
+      <div id="case05-claim" style="margin-top:14px;border-top:1px dashed #d7dbe0;padding-top:12px">
+        <div class="lbl">Claim Desk · B 组申领台（问才给）</div>
+        <p style="margin:6px 0 8px;font-size:12.5px;line-height:1.85">
+          把你要的东西<b>写成一句话</b>（哪一份记录 / 哪个字段 / 哪段时间），平台只发你<b>明确问到的那一份</b>。
+          <span class="faint">不提示还有哪些、不附带其他材料、一次只发一份 —— 泛泛地问，就拿不到东西。</span>
+        </p>
+        <textarea id="case05-ask" rows="2" placeholder="例：质检员手里那张自己记的缺陷临时记录表"
+          style="width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #d1d5db;border-radius:8px;font-size:13px;font-family:inherit"></textarea>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" id="case05-go"
+            style="padding:6px 14px;border:1px solid #0f766e;background:#0f766e;color:#fff;border-radius:8px;font-size:13px;cursor:pointer">提交申领</button>
+          <button type="button" id="case05-log-copy"
+            style="padding:6px 14px;border:1px solid #d1d5db;background:#fff;border-radius:8px;font-size:13px;cursor:pointer">复制申领记录</button>
+        </div>
+        <div id="case05-out" style="margin-top:10px"></div>
+        <div id="case05-log" style="margin-top:10px"></div>
       </div>
     </div>
 
@@ -1261,7 +1280,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.16.6','/sim/l7_rounds.js?v=1.16.6','/sim/l7_student_app.js?v=1.16.6'];
+  var files = ['/sim/l7_core.js?v=1.16.7','/sim/l7_rounds.js?v=1.16.7','/sim/l7_student_app.js?v=1.16.7'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
