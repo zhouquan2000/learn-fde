@@ -945,6 +945,32 @@
         ntr.appendChild(ntd);
         tb.appendChild(ntr);
       }
+
+      /* ⭐ 该组的 B 组申领记录（学员端 ⑥ 申领台）—— 2026-09-30 加。
+         用途：它是「**会不会问问题**」的读数，不是交付物。
+         未识别次数多 = 这组还没进入状态（泛问拿不到材料，是刻意的教学机制）；
+         命中清单则告诉我们他们到底把哪些隐形信息挖出来了。巡场与点评都靠这一行。
+         ⚠️ 同样只在有记录时插行。 */
+      var claimRows = (s.claims || []).filter(function (c) { return c && c.ask; });
+      if (claimRows.length) {
+        var ctr = el('tr', 'background:#fbfffb;');
+        var ctd = el('td');
+        ctd.colSpan = 999;
+        ctd.style.cssText = 'padding:6px 4px 10px 18px;font-size:12.5px;color:#4b5563;border-bottom:1px solid #eef0f3;';
+        var cHit = claimRows.filter(function (c) { return c.result === '发放'; }).length;
+        var cMiss = claimRows.length - cHit;
+        ctd.appendChild(el('div', 'font-weight:700;color:#0f766e;margin-bottom:4px;',
+          '🗂 本组 B 组申领记录 ' + claimRows.length + ' 次（命中 ' + cHit + ' · 未识别或需收窄 ' + cMiss + '）'));
+        claimRows.forEach(function (c) {
+          var one = el('div', 'margin:3px 0;');
+          one.appendChild(el('span', 'font-weight:600;color:' + (c.result === '发放' ? '#0f766e' : '#a16207') + ';',
+            '[' + (c.t || '—') + (c.r ? ' ' + c.r : '') + '] ' + (c.result === '发放' ? '✅' : '—') + ' '));
+          one.appendChild(el('span', '', c.ask + (c.item ? '　⇒ ' + c.item : '')));
+          ctd.appendChild(one);
+        });
+        ctr.appendChild(ctd);
+        tb.appendChild(ctr);
+      }
     });
 
     t.appendChild(tb);

@@ -1015,6 +1015,10 @@
     out.team_id = localStorage.getItem('fde.myTeam') || null;
     out.case_id = (F.get(F.KEY.CLASS, {}) || {}).case_id || null;
     out.npc_answers = collectNpc();      /* P8 甲方质询应答 —— 判 B 项的证据,不是交付物 */
+    /* ⭐ B 组申领记录（2026-09-30 加）—— 从本机申领台读出，随包交给讲师。
+       ⚠️ **不是交付物**：它是「会不会问问题」的证据（问了几次 / 哪几次泛问没问到 / 命中哪几份）。
+          空表也照发 —— 「一条都没申领」本身就是信息量（学员没去问 B 组）。 */
+    out.claims = c5LogRead();
     /* 🧪 演练样本标记:只在**显式传 true** 时写进包(条件化 ⇒ 正常包的包体逐字节不变)。
        ⚠️ 这里不能写成 `out.dry_run = !!dryRun` 无条件赋值 —— 那会给每个正常包都加一个
           `dry_run:false` 字段,包体变了、指纹全变(历史包比对与已有的说明文档都会对不上)。 */
@@ -1561,6 +1565,7 @@
     var d = new Date();
     var pad = function (n) { return (n < 10 ? '0' : '') + n; };
     a.push({ t: pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+             r: currentRound(),   /* 记回合号 —— 开班前的自测记录才能与正式课堂的记录分开看 */
              ask: q, result: res, item: itemName });
     c5LogWrite(a);
     c5RenderLog();
