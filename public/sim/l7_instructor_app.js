@@ -116,6 +116,19 @@
     minIn.value = (rnd.minutes ? String(rnd.minutes) : '');
     box.appendChild(row('回合时限（分钟）', minIn, '留空 = 不显示倒计时（学员端不会看到编造的时间）'));
 
+    /* ⭐ B 组材料发放方式（2026-09-30 周全裁定「做」，与平台发并存）
+       三种形态：
+         platform   平台发 —— 学员端 ⑥ 有「申领台」，自己写一句话把材料问出来（默认）
+         instructor 讲师当面发 —— 学员端撤掉申领台，改「记录我的提问」：材料由你（或你扮演的
+                    客户方）当面给，学员把「我向谁问了什么、拿到了没有」记下来，**同样随包交回**
+         both       两者都开 —— 学员可以自己问，也可以当面要；记录合并成一份
+       ⚠️ 为什么当面发也要留记录：否则这一段的证据全丢，「会不会问问题」就无从评价。 */
+    var claimSel = sel([['platform', '平台发（学员在 ⑥ 申领台自己问）'],
+                        ['instructor', '讲师当面发（学员当面向讲师 / 客户方索要）'],
+                        ['both', '两者都开（平台 + 当面，记录合并）']], 'min-width:300px;');
+    claimSel.value = cfg.claim_mode || 'platform';
+    box.appendChild(row('B 组材料发放', claimSel, '当面发时学员端不放申领台，改为登记「我向谁问了什么」'));
+
     var saveBtn = btn('💾 保存配置并发布回合', true);
     saveBtn.onclick = function () {
       F.put(F.KEY.CLASS, {
@@ -124,6 +137,7 @@
         team_count: Number(teamIn.value) || 6,
         team_prefix: prefIn.value || 'T',
         submit_url: urlIn.value.trim() || '',
+        claim_mode: claimSel.value,
         configured_at: F.stamp()
       });
       F.put(F.KEY.ROUND, {
@@ -992,6 +1006,18 @@
       flash(box, '✅ 已发布到学员端（学员刷新页面即可看到自己的成绩与排行榜）');
     };
     ac.appendChild(pub);
+
+    /* 📣 把各组申领记录分享到全班（2026-09-30 周全裁定：「不计入分数，只是分享给全班」）
+       ⚠️ 写的是**另一个键**（CLAIMPUB），不碰 RESULT —— 成绩与这份"提问读数"是两回事，
+          混在一个 payload 里以后必然有人误当分数用。 */
+    var shareBtn = btn('📣 把各组申领记录分享到全班', false);
+    shareBtn.onclick = function () {
+      var payload = F.claimsSummary(SUBS);
+      if (!payload.groups.length) { alert('还没有导入任何提交包，没有可分享的记录。'); return; }
+      F.put(F.KEY.CLAIMPUB, payload);
+      flash(box, '✅ 已把 ' + payload.groups.length + ' 组的申领记录分享到学员端（⑤ 评分看板可看；不计入分数）');
+    };
+    ac.appendChild(shareBtn);
 
     var rst = btn('↺ 清空评分', false);
     rst.onclick = function () {

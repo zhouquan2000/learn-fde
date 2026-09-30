@@ -1343,6 +1343,44 @@
       box.appendChild(lb);
     }
 
+    /* 📣 全班 B 组申领情况（讲师分享；2026-09-30 周全裁定：**不计入分数，只分享给全班**）
+       姿态上要写清"这不影响你的分数" —— 否则学员会以为问错要扣分，反而不敢问。 */
+    var cs = F.get(F.KEY.CLAIMPUB, null);
+    if (cs && cs.groups && cs.groups.length) {
+      var cb = card('');
+      cb.style.cssText += 'margin:20px 0;';
+      cb.appendChild(h3('📣 全班 B 组申领情况（讲师分享 · 不计入分数）'));
+      cb.appendChild(el('div', 'font-size:12px;color:#6b7280;margin-bottom:8px;',
+        '全班共 ' + cs.total + ' 次申领 · 命中 ' + cs.hit + ' · 未识别或需收窄 ' + cs.miss +
+        (cs.published_at ? '（' + cs.published_at + '）' : '')));
+      var ct = el('table', 'width:100%;border-collapse:collapse;font-size:12.5px;');
+      ct.innerHTML = '<thead><tr style="text-align:left;color:#6b7280">' +
+        '<th style="padding:6px 0">组</th><th style="text-align:right">申领</th>' +
+        '<th style="text-align:right">命中</th><th style="text-align:right">未识别</th>' +
+        '<th>把哪些材料问出来了</th></tr></thead>';
+      var cb2 = el('tbody');
+      var myT = localStorage.getItem('fde.myTeam') || '';
+      cs.groups.forEach(function (g) {
+        var isMe = g.team_id === myT;
+        var tr = el('tr', 'border-top:1px solid #eef0f3;' + (isMe ? 'background:#fffbeb;font-weight:700;' : ''));
+        var tds = [
+          el('td', 'padding:7px 0', g.team_id + (isMe ? ' ← 你' : '')),
+          el('td', 'text-align:right', String(g.total)),
+          el('td', 'text-align:right', String(g.hit)),
+          el('td', 'text-align:right', String(g.miss)),
+          el('td', 'color:#4b5563;font-weight:400',
+             (g.got && g.got.length) ? g.got.join('、') : '—')
+        ];
+        tds.forEach(function (td) { tr.appendChild(td); });
+        cb2.appendChild(tr);
+      });
+      ct.appendChild(cb2);
+      cb.appendChild(ct);
+      cb.appendChild(el('div', 'font-size:11.5px;color:#9ca3af;margin-top:8px;',
+        '这张表只回答「谁把问题问对了」。它不进任何一项得分。'));
+      host.insertBefore(cb, host.firstChild);
+    }
+
     host.insertBefore(box, host.firstChild);
   }
 
@@ -1508,9 +1546,11 @@
     box.appendChild(h);
     for (var i = a.length - 1; i >= 0; i--) {
       var r = a[i];
-      var line = cl('div', null, '· [' + r.t + '] ' + (r.result === '发放' ? '✅ ' : '— ') + r.ask
+      /* 命中判据要同时认「平台发」与「当面拿到」两种形态（2026-09-30 加当面发） */
+      var okRec = /发放|拿到/.test(String(r.result || ''));
+      var line = cl('div', null, '· [' + r.t + (r.by ? ' ' + r.by : '') + '] ' + (okRec ? '✅ ' : '— ') + r.ask
                                 + (r.item ? '  ⇒ ' + r.item : ''));
-      line.style.cssText = 'font-size:12px;color:' + (r.result === '发放' ? '#0f766e' : '#8a929c') + ';line-height:1.7';
+      line.style.cssText = 'font-size:12px;color:' + (okRec ? '#0f766e' : '#8a929c') + ';line-height:1.7';
       box.appendChild(line);
     }
   }
@@ -1571,12 +1611,107 @@
     c5RenderLog();
   }
 
+  /* ⭐ B 组材料发放方式（2026-09-30 周全裁定「做」，与平台发并存）
+       platform   平台发（默认）—— 学员在申领台自己把材料问出来
+       instructor 讲师当面发 —— 撤掉申领台，改「记录我的提问」：材料由讲师（或讲师扮演的客户方）
+                  当面给；学员登记「我向谁问了什么、拿到了没有」
+       both       两者都开 —— 申领台 + 当面登记同时可用，记录合并成一份
+     ⚠️ 当面发也必须留记录：否则「会不会问问题」这段证据全丢，提交包里就只剩交付物。 */
+  function c5ClaimMode() {
+    var cfg = F.get(F.KEY.CLASS, {}) || {};
+    return cfg.claim_mode || 'platform';
+  }
+
+  function c5BuildFace() {
+    var wrap = document.getElementById('case05-face');
+    if (!wrap || wrap.getAttribute('data-built') === '1') { return; }
+    wrap.setAttribute('data-built', '1');
+    wrap.innerHTML = '';
+
+    var p = document.createElement('p');
+    p.style.cssText = 'margin:6px 0 8px;font-size:12.5px;line-height:1.85';
+    p.innerHTML = '<b>B 组材料由讲师（或讲师扮演的客户方）当面发放。</b>' +
+      '把你要的东西问清楚 —— 问得越具体，越可能拿到。' +
+      '<span class="faint">拿到与没拿到都要登记：这张记录会随你的提交包一起交给讲师。</span>';
+    wrap.appendChild(p);
+
+    var ask = document.createElement('textarea');
+    ask.id = 'case05-face-ask'; ask.rows = 2;
+    ask.placeholder = '例：我向质检员要了「夜班加严抽检」那条现场规定';
+    ask.style.cssText = 'width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #d1d5db;' +
+      'border-radius:8px;font-size:13px;font-family:inherit';
+    wrap.appendChild(ask);
+
+    var row = document.createElement('div');
+    row.style.cssText = 'margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center';
+
+    var selRes = document.createElement('select');
+    selRes.id = 'case05-face-res';
+    selRes.style.cssText = 'padding:6px 8px;border:1px solid #d1d5db;border-radius:8px;font-size:13px';
+    [['当面·拿到', '拿到了'], ['当面·没给', '没拿到 / 对方不给'],
+     ['当面·不知', '对方不知道，让我去问别人']].forEach(function (o) {
+      var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1];
+      selRes.appendChild(op);
+    });
+    row.appendChild(selRes);
+
+    var go = document.createElement('button');
+    go.type = 'button'; go.id = 'case05-face-go';
+    go.style.cssText = 'padding:6px 14px;border:1px solid #0f766e;background:#0f766e;color:#fff;' +
+      'border-radius:8px;font-size:13px;cursor:pointer';
+    go.textContent = '记一笔';
+    row.appendChild(go);
+    wrap.appendChild(row);
+
+    go.addEventListener('click', c5FaceSubmit);
+    var ta2 = document.getElementById('case05-face-ask');
+    if (ta2) {
+      ta2.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { c5FaceSubmit(); }
+      });
+    }
+  }
+
+  function c5FaceSubmit() {
+    var askEl = document.getElementById('case05-face-ask');
+    var sel = document.getElementById('case05-face-res');
+    var q = askEl ? String(askEl.value || '').trim() : '';
+    if (!q) { alert('先写下你向谁问了什么。'); return; }
+    var a = c5LogRead();
+    var d = new Date();
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    a.push({ t: pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()),
+             r: currentRound(), ask: q, result: (sel ? sel.value : '当面·拿到'), item: '', by: '当面' });
+    c5LogWrite(a);
+    askEl.value = '';
+    c5RenderLog();
+  }
+
   function buildCase05Claim() {
     var box = document.getElementById('case05-claim');
     if (!box) { return; }                       /* 非学员端 / 案例不匹配时静默跳过 */
     var go = document.getElementById('case05-go');
     var ta = document.getElementById('case05-ask');
     var cp = document.getElementById('case05-log-copy');
+
+    /* 按讲师下发的方式装配（改完配置刷新页面即生效） */
+    var mode = c5ClaimMode();
+    var plat = document.getElementById('case05-platform');
+    var face = document.getElementById('case05-face');
+    if (mode === 'instructor') {
+      if (plat) { plat.style.display = 'none'; }
+      c5BuildFace();
+      face = document.getElementById('case05-face');
+      if (face) { face.style.display = 'block'; }
+      var lbl0 = box.querySelector('.lbl');
+      if (lbl0) { lbl0.textContent = 'B 组材料申领 · 讲师当面发（问才给）'; }
+    } else if (mode === 'both') {
+      c5BuildFace();
+      face = document.getElementById('case05-face');
+      if (face) { face.style.display = 'block'; }
+      var lbl1 = box.querySelector('.lbl');
+      if (lbl1) { lbl1.textContent = 'Claim Desk · B 组申领台（问才给 · 平台发 + 当面要）'; }
+    }
     if (go) { go.addEventListener('click', c5Submit); }
     if (ta) { ta.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { c5Submit(); } }); }
     if (cp) {

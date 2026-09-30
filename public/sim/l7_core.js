@@ -22,7 +22,8 @@
     SUBS:  'fde.subs',       // 讲师侧:已导入的提交包
     SCORES:'fde.scores',     // 讲师侧:人工分
     NPC:   'fde.npc',        // 讲师侧:P8 甲方质询记录(每组 守住/越界/未答)
-    RESULT:'fde.result'      // 讲师侧:算分结果(学员端读)
+    RESULT:'fde.result',     // 讲师侧:算分结果(学员端读)
+    CLAIMPUB:'fde.claimspub' // 讲师侧:分享给全班的各组申领记录(学员端读;不进任何得分)
   };
 
   /* ───── 成果指纹:不是加密,只防「无意识的一改」─────
@@ -659,6 +660,40 @@
     }
   }
 
+  /* ═══════════ B 组申领记录汇总（2026-09-30 加）═══════════ */
+  /* 从各组提交包里把 `claims` 摘出来，按组统计「问了几次 / 命中几次 / 未识别几次」。
+     ⚠️ 定位：它是**分享给全班的读数**，**不是分数输入** —— 不进 score()、不影响排名
+        （周全 2026-09-30 裁定：「不计入分数，只是分享给全班」）。
+     抽成 core 纯函数是为了能在 Node 里直接单测：讲师端是 IIFE，内部函数测不到。 */
+  function claimsSummary(subs) {
+    function isHit(r) { return /发放|拿到/.test(String(r || '')); }
+    var groups = (subs || []).map(function (s) {
+      var rows = (s.claims || []).filter(function (c) { return c && c.ask; });
+      var hit = rows.filter(function (c) { return isHit(c.result); });
+      var got = [];
+      hit.forEach(function (c) {
+        var v = c.item || '（未标明）';
+        if (got.indexOf(v) < 0) { got.push(v); }   /* 命中的材料去重列出 */
+      });
+      return {
+        team_id: s.team_id || '—',
+        team_name: s.team_name || s.team_id || '—',
+        total: rows.length, hit: hit.length, miss: rows.length - hit.length,
+        got: got,
+        rows: rows.map(function (c) {
+          return { t: c.t || '', r: c.r || '', ask: c.ask, result: c.result || '', item: c.item || '' };
+        })
+      };
+    });
+    return {
+      published_at: stamp(),
+      groups: groups,
+      total: groups.reduce(function (n, g) { return n + g.total; }, 0),
+      hit: groups.reduce(function (n, g) { return n + g.hit; }, 0),
+      miss: groups.reduce(function (n, g) { return n + g.miss; }, 0)
+    };
+  }
+
   /* ═══════════ 排名 ═══════════ */
   function rank(rows, key) {
     key = key || 'total';
@@ -695,6 +730,7 @@
     put: put, get: get, del: del,
     makePackage: makePackage, verifyPackage: verifyPackage,
     parseStamp: parseStamp, roundClock: roundClock, softGateList: softGateList,
-    download: download, readFiles: readFiles, rank: rank
+    download: download, readFiles: readFiles, rank: rank,
+    claimsSummary: claimsSummary
   };
 })(window);
