@@ -218,9 +218,9 @@
       out.innerHTML = '';
       if (/(^|,)delta(,|$)/.test(_d)) {
         if (!_rows.length) {
-          out.appendChild(cl('div', 'faint',
-            '本案例是**成本池型**核算：请先在表单末尾『📊 成本池逐项表』里逐条列出成本项 —— '
-            + 'Δ 由那些项加出来（**平台算，不给手填**）。'));
+          out.appendChild(elHTML('div', 'faint',
+            '本案例是<b>成本池型</b>核算：请先在表单末尾『📊 成本池逐项表』里逐条列出成本项 —— '
+            + 'Δ 由那些项加出来（<b>平台算，不给手填</b>）。'));
         } else {
           var _v0 = cl('div', 'fde-numv');
           _v0.appendChild(cl('span', 'faint', 'Δ（年，按你自己列的 ' + _pr.used_n + ' 项加）= '));
@@ -229,9 +229,9 @@
           out.appendChild(cl('div', 'faint', '取自表单末尾『📊 成本池逐项表』；改那一张表，这里跟着变。'));
         }
       } else {
-        out.appendChild(cl('div', 'faint',
-          '本案例是**成本池型**核算：分子来自『📊 成本池逐项表』里你自己列的项。'
-          + '**价值兑现率由讲师侧按本案例口径核定 —— 学员端不显示分母。**'));
+        out.appendChild(elHTML('div', 'faint',
+          '本案例是<b>成本池型</b>核算：分子来自『📊 成本池逐项表』里你自己列的项。'
+          + '<b>价值兑现率由讲师侧按本案例口径核定 —— 学员端不显示分母。</b>'));
       }
       return;
     }
@@ -511,11 +511,11 @@
     lbl.appendChild(cl('span', 'badge b-val', '收益核算输入'));
     lbl.appendChild(cl('span', 'badge b-ghost', '非交付物 · 判分证据'));
     box.appendChild(lbl);
-    box.appendChild(cl('div', 'hint',
-      '把**你自己认定**的、这个业务单元能影响的成本项**逐条列出来**（项名自己定）；'
-      + '每项填**现状年成本 C₀** 与**上线后年成本 C₁**，并写明依据（向谁问的 / 从哪份材料看到的）。'));
-    box.appendChild(cl('div', 'fde-numg faint',
-      '平台只做加法：Δ（年）= Σ(C₀ − C₁)，**没列的项不进 Δ** —— 列多少、列哪些，取决于你问到了多少。'));
+    box.appendChild(elHTML('div', 'hint',
+      '把<b>你自己认定</b>的、这个业务单元能影响的成本项<b>逐条列出来</b>（项名自己定）；'
+      + '每项填<b>现状年成本 C₀</b> 与<b>上线后年成本 C₁</b>，并写明依据（向谁问的 / 从哪份材料看到的）。'));
+    box.appendChild(elHTML('div', 'fde-numg faint',
+      '平台只做加法：Δ（年）= Σ(C₀ − C₁)，<b>没列的项不进 Δ</b> —— 列多少、列哪些，取决于你问到了多少。'));
 
     var body = cl('div', 'fde-poolbody');
     box.appendChild(body);
@@ -557,8 +557,8 @@
     var r = F.computeCostPool(rows);
     out.innerHTML = '';
     if (!rows.length) {
-      out.appendChild(cl('div', 'faint',
-        '还没有列出任何成本项 —— Δ 现在**算不出来**（不是 0）。空表不会自动给你项名：要列哪些，得你自己问到。'));
+      out.appendChild(elHTML('div', 'faint',
+        '还没有列出任何成本项 —— Δ 现在<b>算不出来</b>（不是 0）。空表不会自动给你项名：要列哪些，得你自己问到。'));
       return;
     }
     var l = cl('div', 'fde-numl');
@@ -569,11 +569,11 @@
     v.appendChild(el('b', '', money(r.delta)));
     out.appendChild(v);
     if (r.gaps.length) {
-      out.appendChild(cl('div', 'fde-numg',
-        '⚠︎ 有 ' + r.gaps.length + ' 项还没把 C₀ / C₁ 填齐，已经**不算进 Δ**（不拿 0 顶替）。'));
+      out.appendChild(elHTML('div', 'fde-numg',
+        '⚠︎ 有 ' + r.gaps.length + ' 项还没把 C₀ / C₁ 填齐，已经<b>不算进 Δ</b>（不拿 0 顶替）。'));
     }
-    out.appendChild(cl('div', 'faint',
-      '⚠️ 这只是**你自己列出的项**加出来的数。价值兑现率由讲师侧按本案例的口径核定 —— 这里不显示分母。'));
+    out.appendChild(elHTML('div', 'faint',
+      '⚠️ 这只是<b>你自己列出的项</b>加出来的数。价值兑现率由讲师侧按本案例的口径核定 —— 这里不显示分母。'));
   }
 
   function buildEvalRun(decl) {

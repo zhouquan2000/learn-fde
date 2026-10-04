@@ -41,7 +41,7 @@
   /* ══════════════════ P6 · 开班与回合发布 ══════════════════ */
   var CASE_LIB = [
     ['C03', '优选生活（零售电商 × 客服售后）★首期'],
-    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；✅ 成本池型核算（R2–R5）已接入（**Δ上限 = 本单元可影响池 ¥4,953.8 万** · B 方案 2026-09-30）；✅ 学员端「📊 成本池逐项表」已接入（学员自列池项 → 平台加 Δ → 讲师侧按金额对账）'],
+    ['C05', '精工机械（制造加工 × 生产质量）· ② 档案与基线参数已接入；✅ 成本池型核算（R2–R5）已接入（Δ上限 = 本单元可影响池 ¥4,953.8 万 · B 方案 2026-09-30）；✅ 学员端「📊 成本池逐项表」已接入（学员自列池项 → 平台加 Δ → 讲师侧按金额对账）'],
     ['C01', '云岭通信（电信通信 × 客服售后）'],
     ['C07', '云栈科技（高科技软件 × 客服售后）'],
     ['C12', '磐云数据（高科技软件 × 运营调度）'],
@@ -231,18 +231,18 @@
     box.appendChild(h3('💰 案例成本池（讲师侧 · 学员端不可见）'));
 
     if (!p) {
-      box.appendChild(el('div', 'font-size:12.5px;color:#6b7280;line-height:1.8',
-        '当前案例 ' + cid + ' 是**会话型**核算（V / A / A′ / c / k / M），没有成本池。'
+      box.appendChild(elHTML('div', 'font-size:12.5px;color:#6b7280;line-height:1.8',
+        '当前案例 ' + cid + ' 是<b>会话型</b>核算（V / A / A′ / c / k / M），没有成本池。'
         + '池型定义目前只有 #05 精工机械。'));
       P6.appendChild(box);
       return;
     }
 
     var UP_LABEL = { P_opt: '全池 P_opt', movable_sum: '本单元可影响池（③④⑤）', C0: '卡面可见池 C₀' };
-    box.appendChild(el('div', 'font-size:12.5px;color:#374151;margin-bottom:8px;line-height:1.8',
-      '案例 ' + p.case_id + ' · ' + p.name + ' ｜ 核算形状 = **成本池**（件数 × 率 × 价值）｜ '
-      + 'Δ上限 = **' + (UP_LABEL[p.upperFrom] || p.upperFrom) + ' ¥' + (p[p.upperFrom] / 10000).toFixed(1)
-      + ' 万**（`C130` ① · **B 方案**,2026-09-30）'));
+    box.appendChild(elHTML('div', 'font-size:12.5px;color:#374151;margin-bottom:8px;line-height:1.8',
+      '案例 ' + p.case_id + ' · ' + p.name + ' ｜ 核算形状 = <b>成本池</b>（件数 × 率 × 价值）｜ '
+      + 'Δ上限 = <b>' + (UP_LABEL[p.upperFrom] || p.upperFrom) + ' ¥' + (p[p.upperFrom] / 10000).toFixed(1)
+      + ' 万</b>（<code>C130</code> ① · <b>B 方案</b>，2026-09-30）'));
 
     var tb = document.createElement('table');
     tb.style.cssText = 'width:100%;border-collapse:collapse;font-size:12.5px;';
@@ -272,11 +272,11 @@
     });
     box.appendChild(tb);
 
-    box.appendChild(el('div', 'margin-top:10px;font-size:12.5px;line-height:1.9;color:#111827',
-      'C₀（卡面可见 ①+②）= **¥' + (p.C0 / 10000).toFixed(1) + ' 万** ｜ '
-      + 'P_opt（全池）= **¥' + (p.P_opt / 10000).toFixed(1) + ' 万** ｜ '
-      + '**本单元可影响池（③④⑤）= ¥' + (p.movable_sum / 10000).toFixed(1) + ' 万**'
-      + '（占 P_opt 的 ' + (p.movable_sum / p.P_opt * 100).toFixed(1) + '%）← **Δ上限**'));
+    box.appendChild(elHTML('div', 'margin-top:10px;font-size:12.5px;line-height:1.9;color:#111827',
+      'C₀（卡面可见 ①+②）= <b>¥' + (p.C0 / 10000).toFixed(1) + ' 万</b> ｜ '
+      + 'P_opt（全池）= <b>¥' + (p.P_opt / 10000).toFixed(1) + ' 万</b> ｜ '
+      + '<b>本单元可影响池（③④⑤）= ¥' + (p.movable_sum / 10000).toFixed(1) + ' 万</b>'
+      + '（占 P_opt 的 ' + (p.movable_sum / p.P_opt * 100).toFixed(1) + '%）← <b>Δ上限</b>'));
     box.appendChild(el('div', 'margin-top:6px;font-size:12px;color:#6b7280;line-height:1.8',
       p.ceiling_note));
 
@@ -628,8 +628,8 @@
     td.appendChild(el('div', 'font-weight:700;color:#b45309;margin-bottom:4px;',
       '💰 本组成本池逐项声明（③-c —— 学员自己列的项，平台只做加法，界面改不了 Δ）'));
     if (!k.rows.length) {
-      td.appendChild(el('div', 'color:#92400e;font-weight:700;',
-        '⚠️ 该组**一项都没列** ⇒ Δ = 0 ⇒ 价值分 0（是"没赚到"，不是"算不出"）。'));
+      td.appendChild(elHTML('div', 'color:#92400e;font-weight:700;',
+        '⚠️ 该组<b>一项都没列</b> ⇒ Δ = 0 ⇒ 价值分 0（是"没赚到"，不是"算不出"）。'));
       tr.appendChild(td);   /* ⚠️ 别忘了挂上去 —— 只 return tr 会得到一行空行（2026-09-30 走查踩过） */
       return tr;
     }
@@ -668,15 +668,15 @@
       + ' ｜ 兑现率 = ' + (k.vr.rate === null ? '—' : (k.vr.rate * 100).toFixed(1) + '%')
       + (k.vr.clamped ? '　⚠️ 已截断（原始 raw = ' + (k.vr.raw * 100).toFixed(1) + '%）' : '')));
     if (k.missed.length) {
-      td.appendChild(el('div', 'color:#b91c1c;font-weight:700;',
-        '⚠️ 可影响池里还有 ' + k.missed.length + ' 项**没被列进来**（本页可见，学员端不可见）：'
+      td.appendChild(elHTML('div', 'color:#b91c1c;font-weight:700;',
+        '⚠️ 可影响池里还有 ' + k.missed.length + ' 项<b>没被列进来</b>（本页可见，学员端不可见）：'
         + k.missed.map(function (it) { return it.no + ' ' + it.name + '（¥' + (it.val / 10000).toFixed(1) + ' 万）'; }).join(' ／ ')));
     } else {
       td.appendChild(el('div', 'color:#0f7a3d;font-weight:700;', '✅ 可影响池 ③④⑤ 全部被列进来了。'));
     }
     if (k.outOfScope.length) {
-      td.appendChild(el('div', 'color:#b91c1c;',
-        '⛔ 同时把**影响不到**的 ' + k.outOfScope.map(function (it) { return it.no + ' ' + it.name; }).join('、')
+      td.appendChild(elHTML('div', 'color:#b91c1c;',
+        '⛔ 同时把<b>影响不到</b>的 ' + k.outOfScope.map(function (it) { return it.no + ' ' + it.name; }).join('、')
         + ' 也算进了 Δ ⇒ 属虚报（已截断到 100%）。点评点：本单元动不了这两项。'));
     }
     if (k.unknown.length) {

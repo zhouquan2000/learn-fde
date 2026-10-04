@@ -289,7 +289,7 @@ a.logo:hover b{text-decoration:underline}
         <h2 style="margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <span class="badge b-auto">✅ 脚本已算好</span> 不用你管
         </h2>
-        <p style="font-size:13.5px">这部分由评分脚本自动落盘，讲师<b>只读不填</b>。字段来源：D04 定稿 v1.1。</p>
+        <p style="font-size:13.5px">这部分由评分脚本自动落盘，讲师<b>只读不填</b>。字段来源：D04 定稿 v1.4。</p>
         <table>
           <tr><th>层级</th><th>项</th><th>算法 / 依据</th><th>本组值</th><th>来源</th></tr>
           <tr>
@@ -402,8 +402,8 @@ a.logo:hover b{text-decoration:underline}
             <div class="rtitle">B. 「该试点业务单元实际负责人」态度判读 <span class="mono" style="color:var(--faint)">子权重 .30</span>
               <span class="badge b-hot">需 NPC 质询后填</span></div>
             <div class="rmeta">
-              客户卡 §3 已预设态度（支持 / 暧昧 / 反对），学员是否<b>读出来并给了应对</b>。
-              <b>本项必须等 NPC 质询环节结束后再打</b>（D06 §6:客户 NPC + 讲师）。NPC 剧本内容尚未产出 → <b>P8 待建</b>。
+              <b>负责人的态度不是卡里预设的档位</b>，而是<b>随学员行为触发</b>（C105）—— 他有没有挖到负责人的考核表、问清价值归因与改造窗口，读不读得出真实立场，决定了这一项有没有应对可言。
+              <b>本项必须等 NPC 质询环节结束后再打</b>（D06 §6：客户 NPC + 讲师）。题库与记录台<b>已接线</b>（P8）。
             </div>
           </div>
           <div class="rctl">
@@ -583,9 +583,9 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  L7 界面原型 v0.4（讲师端） · 2026-09-26 ·
+  L7 界面原型 v0.4（讲师端） · 2026-09-30 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零动效</code> <code>零毛玻璃</code><br>
-  分项构成来自 <code>14_D06 定稿 v1.4</code> §2/§3/§6；数据采集来自 §8；交付物字段来自 <code>08_D04 定稿 v1.1</code>。<br>
+  分项构成来自 <code>14_D06 定稿 v1.5</code> §2/§3/§6；数据采集来自 §8；交付物字段来自 <code>08_D04 定稿 v1.4</code>。<br>
   默认浅色（长时段阅读优先）；深色为可切换主题，对比度已下调避免晕光 · 对比度全部经 <code>contrast_check.py</code> 实算。<br>
   <b>P6 开班配置 / P7 判分排名 / P8 甲方质询 = 已接通（状态层 A-δ）</b>。
 </div>
@@ -632,11 +632,11 @@ a.logo:hover b{text-decoration:underline}
 <!-- ───── 状态层 A-δ:本地核心 + 交互层（零外部依赖）───── -->
 
 
-<!-- ⚠️ 讲师端专用:含 C₀/P_opt 与逐项金额,学员端**不得**加载(见 l7_pool.js 头注) -->
+<!-- ⚠️ 讲师端专用：含 C₀/P_opt 与逐项金额，学员端**不得**加载（见 l7_pool.js 头注） -->
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.17.1','/sim/l7_rounds.js?v=1.17.1','/sim/l7_pool.js?v=1.17.1','/sim/l7_instructor_app.js?v=1.17.1'];
+  var files = ['/sim/l7_core.js?v=1.17.2','/sim/l7_rounds.js?v=1.17.2','/sim/l7_pool.js?v=1.17.2','/sim/l7_instructor_app.js?v=1.17.2'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
