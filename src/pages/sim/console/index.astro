@@ -181,16 +181,16 @@ a.logo:hover b{text-decoration:underline}
 
 <div class="roles">
   <button class="role" id="roleStu">学员组 <span class="mono">P1–P7</span></button>
-  <button class="role on" id="roleIns">讲师 <span class="mono">P6–P7</span></button>
+  <button class="role on" id="roleIns">讲师 <span class="mono">P8–P10</span></button>
 </div>
 
 <nav class="tabs">
-  <button class="tab on" data-p="p6">⑥ 控制台</button>
-  <button class="tab" data-p="p7">⑦ 评分工作台</button>
-  <button class="tab" data-p="p8">⑧ 甲方质询</button>
+  <button class="tab on" data-p="p6">⑧ 控制台</button>
+  <button class="tab" data-p="p7">⑨ 评分工作台</button>
+  <button class="tab" data-p="p8">⑩ 甲方质询</button>
 </nav>
 
-<!-- ═══════════════════ P6 讲师控制台 ═══════════════════ -->
+<!-- ═══════════════════ P8 讲师控制台 ═══════════════════ -->
 <section id="p6">
   <div class="lbl">Instructor Console · 讲师控制台</div>
   <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 开班与回合发布">S1 · 挑活——筛选用例 —— 开班与回合发布</h1>
@@ -248,12 +248,12 @@ a.logo:hover b{text-decoration:underline}
       <tr><td class="mono">T06</td><td class="mono">4</td><td class="mono">0 / 7</td><td class="mono">—</td><td><span class="badge b-ghost">未开始</span></td></tr>
     </table>
     <div class="note" style="margin-bottom:0">
-      <b>📐 本表 = 设计意向的静态样例。</b> 真实提交与判分进度请看 <b>P7 评分工作台</b>的判分表（那里是导入的<b>真数据</b>）。
+      <b>📐 本表 = 设计意向的静态样例。</b> 真实提交与判分进度请看 <b>P9 评分工作台</b>的判分表（那里是导入的<b>真数据</b>）。
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════ P7 评分工作台 ═══════════════════ -->
+<!-- ═══════════════════ P9 评分工作台 ═══════════════════ -->
 <section id="p7" class="hide">
   <div class="lbl">Scoring Workbench · 评分工作台</div>
   <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 判分">S1 · 挑活——筛选用例 —— 判分</h1>
@@ -345,7 +345,7 @@ a.logo:hover b{text-decoration:underline}
           <b>✅ 换算口径已定（2026-09-26 周全裁定）：用 A —— (x−1) ÷ 4</b><br>
           背景：讲师打的是 <b>1–5</b>，但乘法公式 <code>C = 价值^0.45 × 工程^0.30 × 判断^0.25</code> 要的是 <b>0–1</b>。
           D06 定稿时只写了"天然落在 0–1" —— <b>那对脚本算的比率成立</b>（价值分 = Δ实际 ÷ Δ上限）,
-          <b>对人工打的 1–5 是悬空的</b>。此缺口由助手在 P7 原型设计时实查发现，用户裁定补 A。
+          <b>对人工打的 1–5 是悬空的</b>。此缺口由助手在 P9 原型设计时实查发现，用户裁定补 A。
           <br>⇒ 生效口径：<b>组件分 = (评分 − 1) ÷ 4</b>，即 <b>5 → 1.00 / 4 → 0.75 / 3 → 0.50 / 2 → 0.25 / 1 → 0.00</b>。
         </div>
 
@@ -506,7 +506,7 @@ a.logo:hover b{text-decoration:underline}
           <b>为什么它在这里</b>：D06 §8 定了 8 项必采数据（D1–D8），用来在 S1→S5 推演完成后
           <b>证伪或确认</b>那七项建议。这些数据<b>只能在讲师判分过程中产生</b> ——
           <b>不在这里采，复核门就没有数据，约定好的 review 就落不了地。</b>
-          <br>⇒ 所以采集<b>不是"以后再说"，是 P7 的内置功能</b>。
+          <br>⇒ 所以采集<b>不是"以后再说"，是 P9 的内置功能</b>。
         </div>
 
         <table>
@@ -551,7 +551,7 @@ a.logo:hover b{text-decoration:underline}
   </div>
 </section>
 
-<!-- ═══════════════════ P8 甲方质询记录台 ═══════════════════ -->
+<!-- ═══════════════════ P10 甲方质询记录台 ═══════════════════ -->
 <section id="p8" class="hide">
   <div class="lbl">Client Challenges · 甲方质询记录台</div>
   <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 甲方质询">S1 · 挑活——筛选用例 —— 甲方质询</h1>
@@ -583,11 +583,11 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  L7 界面原型 v0.4（讲师端） · 最后改动 2026-10-11 · 资源版本 1.18.6 ·
+  L7 界面原型 v0.4（讲师端） · 最后改动 2026-10-11 · 资源版本 1.18.7 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零动效</code> <code>零毛玻璃</code><br>
   分项构成来自 <code>14_D06 定稿 v1.5</code> §2/§3/§6；数据采集来自 §8；交付物字段来自 <code>08_D04 定稿 v1.4</code>。<br>
   默认浅色（长时段阅读优先）；深色为可切换主题，对比度已下调避免晕光 · 对比度全部经 <code>contrast_check.py</code> 实算。<br>
-  <b>P6 开班配置 / P7 判分排名 / P8 甲方质询 = 已接通（状态层 A-δ）</b>。
+  <b>P8 控制台 / P9 评分工作台 / P10 甲方质询 = 已接通（状态层 A-δ）</b>。
 </div>
 
 </div>
@@ -636,7 +636,7 @@ a.logo:hover b{text-decoration:underline}
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.6','/sim/l7_rounds.js?v=1.18.6','/sim/l7_pool.js?v=1.18.6','/sim/l7_instructor_app.js?v=1.18.6'];
+  var files = ['/sim/l7_core.js?v=1.18.7','/sim/l7_rounds.js?v=1.18.7','/sim/l7_pool.js?v=1.18.7','/sim/l7_instructor_app.js?v=1.18.7'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
