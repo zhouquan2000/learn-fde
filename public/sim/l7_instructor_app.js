@@ -525,9 +525,9 @@
             ? '<b>价值分 = </b><code>Δ实际 ÷ Δ上限</code>（0–1 率，<b>不换算</b>）。' +
               '<br><b style="color:#b45309">⚠️ 关键是「Δ实际 用的 r 从哪来」—— 逐回合不同：</b>' +
               '<br>· <b>R2</b>：用 <b>EvalRun 的 r</b>（此时还没有真实运行，只能用评测结论）' +
-              '<br>· <b>R3</b>：用 <b>真实运行的 r_prod</b>（<code>正确 ÷ 实际进入 AI 路径</code>，808 §5 F08-B）' +
+              '<br>· <b>R3</b>：用 <b>真实运行的 r_prod</b>（<code>正确 ÷ 实际进入 AI 路径</code>，方法论 F08-B）' +
               ' —— <b>评测说得好、真跑差，分数会当场掉下来</b>' +
-              '<br>· <b>R4 / R5</b>：<b>沿用 R3 投产评审冻结的 r_prod</b>（两站不复测 r，808 §5）' +
+              '<br>· <b>R4 / R5</b>：<b>沿用 R3 投产评审冻结的 r_prod</b>（两站不复测 r，方法论口径）' +
               '<br><b>判据一句话</b>：<b>评测结论负责「准入」，真实运行负责「算账」。</b>' +
               '<br><span style="color:#0f7d3d">✅ 本回合（' + rspec().evalrun.kind + ' ' + rspec().evalrun.version +
               '）价值分<b>只读</b>：参数取自<a href="#fde-grading">平台侧</a>（案例级基线 + 开班锁定的已批准范围，' +
@@ -711,7 +711,7 @@
     /* R4/R5 的包内**没有**运行计数 ⇒ 沿用 R3 冻结的实测值(内存缓存,讲师按站顺序判分) */
     if (er.isProd && rUse === null && LOCKED[s.team_id + '.r'] !== undefined) {
       rUse = LOCKED[s.team_id + '.r'];
-      er = { r: rUse, src: '沿用 R3 投产评审冻结的真实运行 r_prod = ' + rUse.toFixed(2) + '（808 §5）',
+      er = { r: rUse, src: '沿用 R3 投产评审冻结的真实运行 r_prod = ' + rUse.toFixed(2) + '（方法论口径）',
              isProd: true, baseline: er.baseline };
     }
     if (er.isProd && er.r !== null) { LOCKED[s.team_id + '.r'] = er.r; }

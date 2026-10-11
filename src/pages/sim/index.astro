@@ -341,13 +341,13 @@ a.logo:hover b{text-decoration:underline}
       </div>
 
       <div class="note" style="font-size:13px">
-        <b>⚠️ 三条贯通全流程的规则（808 §1）</b>
+        <b>⚠️ 三条贯通全流程的规则（方法论总则）</b>
         <br>① <b>一张用例卡走五站</b>：同一张 F01 用例卡贯穿筛选、共创、运行、采纳及扩张。
         <br>② <b>四条价值主线</b>：增收 / 降本 / 风控，确定主价值、可选次价值及各自证据。
         <br>③ <b>三类指标分开记</b>：模型指标、使用指标、业务价值，<b>不能混为一谈</b>。
       </div>
       <div class="note bad" style="font-size:13px">
-        <b>⚠️ 808 §1 的三条硬边界</b><br>
+        <b>⚠️ 方法论的三条硬边界</b><br>
         · <b>里程碑验收 ≠ 继续投入 ≠ 生产权限 ≠ 开票 ≠ 回款</b> —— 这是五种不同状态。<br>
         · 服务按约完成但 PoC 未达标时，<b>可以按合同结算服务，却不能把 M2 写成通过</b>。<br>
         · <b>签约不等于采纳；采纳不等于收到款项。</b>
@@ -982,7 +982,7 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  <b>L7 界面原型 v0.4（学员端 P1–P5）</b> · 最后改动 2026-10-11 · 资源版本 1.18.4 ·
+  <b>L7 界面原型 v0.4（学员端 P1–P5）</b> · 最后改动 2026-10-11 · 资源版本 1.18.5 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零持续动效</code> <code>零毛玻璃</code><br>
   默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
   对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
@@ -1251,7 +1251,7 @@ python smoke_check.py
   </div>
 
   <div class="footnote" style="margin-top:20px">
-    环境基线沿用 <span class="mono">1050</span> N1「VS Code + Python venv + DeepSeek 主引擎」；
+    环境基线沿用 <span class="mono">N1</span>「VS Code + Python venv + DeepSeek 主引擎」；
     预装清单与「不装清单」逐条依据 <span class="mono">1093_S2_诊断共创PoC_教学演练分步设计_v0.1</span> 第四部分。<br>
     🔒 API key 营期发放、结营回收；数据包为教学模拟素材（脱敏/合成），<b>不含真实客户数据</b>。
   </div>
@@ -1286,7 +1286,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.4','/sim/l7_rounds.js?v=1.18.4','/sim/l7_student_app.js?v=1.18.4'];
+  var files = ['/sim/l7_core.js?v=1.18.5','/sim/l7_rounds.js?v=1.18.5','/sim/l7_student_app.js?v=1.18.5'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }

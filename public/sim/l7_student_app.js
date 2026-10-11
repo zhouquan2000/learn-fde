@@ -326,8 +326,8 @@
           return;
         }
         v = (rv * 100).toFixed(1) + '%（' + F.RATIO_DEF[dk].num + ' ÷ ' + F.RATIO_DEF[dk].den + '）';
-        /* 采纳率**不是**收入 —— 808 §6 原文,写在界面上而不是只写进文档 */
-        if (F.RATIO_DEF[dk].notValue) { v += '　⚠︎ 采纳证据，不计入价值分（808 §6）'; }
+        /* 采纳率**不是**收入 —— 价值口径 原文,写在界面上而不是只写进文档 */
+        if (F.RATIO_DEF[dk].notValue) { v += '　⚠︎ 采纳证据，不计入价值分（价值口径）'; }
       } else if (cost[dk] !== undefined && cost[dk] !== null) {
         v = money(cost[dk]);
         if (dk === 'delta') { v += cost.delta > 0 ? '（为正 = 方案可辩护）' : '（非正 = 方案不成立）'; }
@@ -342,7 +342,7 @@
       out.appendChild(row);
     });
     /* ⭐ ③-b:计数之间的一致性告警 —— 不用于计分,但**必须摆到学员眼前**。
-       808 §5 原文「不许拿平均分抵消阻断」;「有 N 次未归类」绝不能被默认算成正确。 */
+       方法论原文「不许拿平均分抵消阻断」;「有 N 次未归类」绝不能被默认算成正确。 */
     F.ratioIssues(n).warn.forEach(function (w) {
       out.appendChild(cl('div', 'fde-numv warn', '⚠︎ ' + w));
     });
@@ -360,7 +360,7 @@
       cell.appendChild(top);
       if (fd.locked) {
         /* ⭐ 裁定①:平台带入的**开班锁定值**（已批准范围）——
-           **界面上没有输入框,学员改不了**(808 §5「不能事后改分母掩盖差距」)。
+           **界面上没有输入框,学员改不了**(方法论口径「不能事后改分母掩盖差距」)。
            显示当前生效值 + 来源,让学员知道分母是多少、谁定的。 */
         var _kb = roundKey() || 'R3';
         var _nb = numsAll();
@@ -873,7 +873,7 @@
      ① 容器用 `.npc-q`,**不是**交付物 fieldset —— D04 定的交付物是 41 项(7+10+9+8+7),
         质询应答不在其中。它是**判断分 B 项(组织／越权识别,权重 .30)的证据**。
         混进 items[] 会直接污染三项分的输入。collectForm 里显式跳过 .npc-q(双保险)。
-     ② 依据(808 原文位置)藏在 <details> 里,逼学员**先自己答、再对依据** ——
+     ② 依据(方法论 原文位置)藏在 <details> 里,逼学员**先自己答、再对依据** ——
         直接摊开就变成阅读理解题了,而这批题考的是「认知」不是「检索」。 */
   function npcPool() {
     var R = window.FDE_ROUNDS;
