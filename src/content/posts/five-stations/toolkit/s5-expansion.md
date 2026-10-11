@@ -6,7 +6,7 @@ category: five-stations
 type: tool
 audience: [practitioner, business]
 lang: zh
-source: FDE-Skill / 09_第9步 909_FDE业务方法论工具包_v1.0/05_S5_扩张复制与资产沉淀
+source: FDE-Skill / _archive_老方法论_20261011 / FDE-Skill__09_第9步_FDE五站业务方法论_恢复自原位 / 909_FDE业务方法论工具包_v1.0/05_S5_扩张复制与资产沉淀
 date: 2026-09-19
 tags: [工具表单, S5, 扩张, 资产沉淀, M5]
 ---

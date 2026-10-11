@@ -43,7 +43,7 @@ export const PATHS: AudiencePath[] = [
     id: '03',
     cn: '把 AI 落进生意',
     en: 'For Business',
-    desc: '企业视角：怎么挑活、怎么用 PoC 证明、怎么让生意单元真正采纳，不被「买了不用」坑。',
+    desc: '企业视角：怎么挑活、怎么用 PoC 证明、怎么让试点业务单元真正采纳，不被「买了不用」坑。',
   },
 ];
 

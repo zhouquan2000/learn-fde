@@ -12,7 +12,7 @@ import Shell from '../layouts/Shell.astro';
  */
 
 const STATIONS = [
-  { id: 'S1', name: '挑活', en: 'Pick', who: 'Echo 主责',
+  { id: 'S1', name: '挑活——筛选用例', en: 'Pick', who: 'Echo 主责',
     what: '从客户的杂乱诉求里选出「做哪个业务单元、不做什么」',
     out: '切入点决策包（候选排序 / 五项可行性 / 主次价值 / 排除理由 / M1 边界 / 负责人判读 / 工作量）',
     check: '核心考「说不」的能力 —— 排除理由权重最高' },
@@ -20,15 +20,15 @@ const STATIONS = [
     what: '用 workshop 与客户共创 PoC，把价值主张变成可验证的证据',
     out: 'EvalRun 产物登记（eval_id / dataset_ref / 指标）、收益核算链原始参数',
     check: '价值分不再手填 —— 只从带标识的 EvalRun 产物派生' },
-  { id: 'S3', name: '受控投产', en: 'Productionize', who: 'Delta 主责',
+  { id: 'S3', name: '受控投产与验证', en: 'Productionize', who: 'Delta 主责',
     what: '真实运行、按已批准范围承担结果，不能拿评测数字代替真跑',
     out: '生产许可、适用任务总量 / 实际进入 AI 路径 / 正确·失败·误放行',
     check: 'r 改用真实运行实测值；分母按已批准范围冻结，不能事后改' },
-  { id: 'S4', name: '持续采纳', en: 'Adopt', who: 'Echo + Delta',
-    what: '30/60/90 天窗口内证明生意单元真的用起来了',
+  { id: 'S4', name: '采纳与价值兑现', en: 'Adopt', who: 'Echo + Delta',
+    what: '30/60/90 天窗口内证明试点业务单元真的用起来了',
     out: '采纳与价值验证、交接支持',
     check: '采纳率是采纳证据、不是已兑现收入（808 §6）' },
-  { id: 'S5', name: '扩张复制', en: 'Expand', who: 'Reuse Engineer',
+  { id: 'S5', name: '扩张与复制', en: 'Expand', who: 'Reuse Engineer',
     what: '把经验沉淀成可复用资产，扩张到其他业务单元，并给出复制决策',
     out: '扩张批次（必达/可选冻结）、资产沉淀与产品反馈',
     check: '代码复用率或模板数量不能单独证明新增业务价值（808 §7.2）' },
@@ -42,7 +42,7 @@ const FEATURES = [
 ];
 
 const ROLES = [
-  { n: 'Echo', cn: '策略工程师', d: '偏咨询顾问，负责业务价值（增收 / 降本 / 风控）与客户 CxO 沟通' },
+  { n: 'Echo', cn: '策略工程师', d: '偏咨询顾问，负责业务价值（增收 / 降本 / 风控 / 提效）与客户 CxO 沟通' },
   { n: 'Delta', cn: '部署工程师', d: '与客户 workshop 共创 PoC/Demo，S2/S3 主责' },
   { n: 'Reuse Engineer', cn: '复用插件师', d: '把五站经验沉淀成可复用资产，降低下一次交付成本' },
 ];

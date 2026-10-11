@@ -172,7 +172,7 @@ a.logo:hover b{text-decoration:underline}
 <header>
   <a class="logo" href="/">LearnFDE <em>Sim</em></a>
   <span class="hbadge on">讲师端</span>
-  <span class="hbadge" data-fde-round>回合 S1 · 挑活</span>
+  <span class="hbadge" data-fde-round>回合 S1 · 挑活——筛选用例</span>
   <span class="hbadge" data-fde-class-chip>未开班</span>
   <div class="spacer"></div>
   <span class="hbadge mono" id="clock" data-fde-clock-chip>—</span>
@@ -193,7 +193,7 @@ a.logo:hover b{text-decoration:underline}
 <!-- ═══════════════════ P6 讲师控制台 ═══════════════════ -->
 <section id="p6">
   <div class="lbl">Instructor Console · 讲师控制台</div>
-  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 开班与回合发布">S1 · 挑活 —— 开班与回合发布</h1>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 开班与回合发布">S1 · 挑活——筛选用例 —— 开班与回合发布</h1>
   <p class="sub">管住三件事：<b>谁在哪个组</b>、<b>这一回合各组做哪张卡</b>、<b>什么时候收卷</b>。</p>
 
   <div class="note ok" style="border-left:4px solid #0f7a3d">
@@ -256,7 +256,7 @@ a.logo:hover b{text-decoration:underline}
 <!-- ═══════════════════ P7 评分工作台 ═══════════════════ -->
 <section id="p7" class="hide">
   <div class="lbl">Scoring Workbench · 评分工作台</div>
-  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 判分">S1 · 挑活 —— 判分</h1>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 判分">S1 · 挑活——筛选用例 —— 判分</h1>
   <p class="sub">
     脚本能算的<b>已经算好了</b>（价值分、工程分主体），你只需要处理<b>机器判不了的那部分</b>（工程分 C、判断分 A–D、门槛）。
     左边选组，右边判分。
@@ -455,7 +455,7 @@ a.logo:hover b{text-decoration:underline}
 
         <h3>🟡 软门槛（勾一项 → 总分 ×0.7，不归零）</h3>
         <div class="row"><div class="rbody">
-          <label class="chk"><input type="checkbox"> ① 主价值类型未声明（增收 / 降本 / 风控）</label></div></div>
+          <label class="chk"><input type="checkbox"> ① 主价值类型未声明（增收 / 降本 / 风控 / 提效）</label></div></div>
         <div class="row"><div class="rbody">
           <label class="chk"><input type="checkbox"> ② PoC 范围未写"不做什么"</label></div></div>
         <div class="row"><div class="rbody">
@@ -554,7 +554,7 @@ a.logo:hover b{text-decoration:underline}
 <!-- ═══════════════════ P8 甲方质询记录台 ═══════════════════ -->
 <section id="p8" class="hide">
   <div class="lbl">Client Challenges · 甲方质询记录台</div>
-  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 甲方质询">S1 · 挑活 —— 甲方质询</h1>
+  <h1 data-fde-h1="&#123;S&#125; · &#123;N&#125; —— 甲方质询">S1 · 挑活——筛选用例 —— 甲方质询</h1>
   <p class="sub">
     你扮甲方负责人时的<b>提词器 + 记录台</b>。上面是本站题库，下面记下每组守没守住 ——
     这份记录是<b>判断分 B 项（组织／越权识别，权重 .30）</b>的判分依据，也是 D06 §8 复核门要的原始数据。
@@ -636,7 +636,7 @@ a.logo:hover b{text-decoration:underline}
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.17.3','/sim/l7_rounds.js?v=1.17.3','/sim/l7_pool.js?v=1.17.3','/sim/l7_instructor_app.js?v=1.17.3'];
+  var files = ['/sim/l7_core.js?v=1.18.0','/sim/l7_rounds.js?v=1.18.0','/sim/l7_pool.js?v=1.18.0','/sim/l7_instructor_app.js?v=1.18.0'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
