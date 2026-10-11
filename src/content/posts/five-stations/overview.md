@@ -6,10 +6,14 @@ category: five-stations
 type: article
 audience: [beginner, practitioner, business]
 lang: zh
-source: FDE-Skill / 09_第9步 908_FDE五站业务方法论_正式版_v1.0
+source: _archive_老方法论_20261011(2026-10-11 归档) / 原 FDE-Skill 09_第9步 908 五站方法论·809 工具包
 date: 2026-09-19
 tags: [五站, 方法论, 里程碑, 治理, 用例卡, eval]
 ---
+
+> ⚠️ **历史版本 · 已归档（2026-10-11）**。本文系旧版方法论（`808` 五站正式版 / `809` 工具包）的**存档文本**，仅作沿革参考，**不再是规范基线**。
+> **现行依据：《FDE100 AI业务拓展方法论》**（2026-10-11）—— 四条价值主线（增收 / 降本 / 风控 / 提效）＋ 五站：**挑活——筛选用例 · 诊断共创 PoC · 受控投产与验证 · 采纳与价值兑现 · 扩张与复制**。
+> 口径说明：站名与价值表述已按现行口径统一，故与 2026-09-15 原件措辞不完全一致；原件存档于 `E:\AI-FDE\_archive_老方法论_20261011\`。
 
 > 本文是五站方法论的入口总览。完整规范见[《五站方法论 · 完整规范》](/posts/five-stations/method-full/)，配套的 9 张可填写工具表单见[「工具表单」系列](/posts/five-stations/toolkit/governance/)。
 
