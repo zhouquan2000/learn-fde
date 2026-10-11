@@ -281,12 +281,12 @@ a.logo:hover b{text-decoration:underline}
       <button class="dclose" onclick="closeM()">关闭 ✕</button>
     </div>
     <p class="sub" style="margin-top:2px">
-      内容来自 <b>808 五站业务方法论 正式版 v1.0</b>（2026-09-15）与 <b>809 工具包 v1.0</b>。
+      内容来自 <b>《FDE100 AI业务拓展方法论》</b>（2026-10-11 换新）与 <b>配套工具包 F00–F15</b>。
       <b>不用背</b> —— 做作业时随时打开查。
     </p>
 
     <div class="note info" style="font-size:13px">
-      <b>⏱ 当前回合：S1 挑活——筛选用例</b> —— 本站最小工具组合是
+      <b data-fde-round>回合 S1 · 挑活——筛选用例</b> —— 本站最小工具组合（以 S1 为例）：
       <b class="mono">F00 / F01 / F02 / F09 / F03 / F07</b>（见下方「工具包」页高亮项）。
     </div>
 
@@ -299,7 +299,7 @@ a.logo:hover b{text-decoration:underline}
     <div class="dsec" data-don="1">
       <div class="stn">
         <div class="sh"><span class="sid">S1</span><span class="sn">挑活——筛选用例</span>
-          <span class="badge b-vio">挑活——筛选用例</span></div>
+          </div>
         <dl>
           <dt>目的</dt><dd>从多条业务流程中选出<b>值得且能启动</b>的最小切片。</dd>
           <dt>入口</dt><dd>客户愿意提供候选流程；双方指定筛选联系人和授权投入。</dd>
@@ -982,7 +982,7 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  <b>L7 界面原型 v0.4（学员端 P1–P5）</b> · 最后改动 2026-10-11 · 资源版本 1.18.3 ·
+  <b>L7 界面原型 v0.4（学员端 P1–P5）</b> · 最后改动 2026-10-11 · 资源版本 1.18.4 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零持续动效</code> <code>零毛玻璃</code><br>
   默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
   对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
@@ -1286,7 +1286,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.3','/sim/l7_rounds.js?v=1.18.3','/sim/l7_student_app.js?v=1.18.3'];
+  var files = ['/sim/l7_core.js?v=1.18.4','/sim/l7_rounds.js?v=1.18.4','/sim/l7_student_app.js?v=1.18.4'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
