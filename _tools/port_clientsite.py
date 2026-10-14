@@ -15,8 +15,11 @@
 import shutil
 import sys
 from pathlib import Path
+import os
 
-SRC_ROOT = Path('/mnt/e/AI-FDE/FDE网站/_L7_prototype/_clientsite')
+FDE_ROOT = os.environ.get("FDE_DATA_ROOT", "/mnt/c/Data/AI-FDE")
+
+SRC_ROOT = Path(FDE_ROOT + '/FDE网站/_L7_prototype/_clientsite')
 DST_ROOT = Path.home() / 'learn-fde' / 'public' / 'clients'
 SITES = ['jinggong']          # 首期只做 #05 精工机械；后续期次在此追加
 

@@ -18,8 +18,11 @@ import io
 import re
 import sys
 from pathlib import Path
+import os
 
-SRC = Path('/mnt/e/AI-FDE/FDE网站/_L7_prototype')
+FDE_ROOT = os.environ.get("FDE_DATA_ROOT", "/mnt/c/Data/AI-FDE")
+
+SRC = Path(FDE_ROOT + '/FDE网站/_L7_prototype')
 DST = Path.home() / 'learn-fde'
 
 TARGETS = [

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
+const FDE_ROOT = process.env.FDE_DATA_ROOT || '/mnt/c/Data/AI-FDE';
 /* test_case05_claim.js — 验证 B 组申领台的匹配逻辑
    ⚠️ 不是「重写一遍逻辑来测」：直接从**原型 l7_student_app.js** 里抽出
       C5_CLAIM / c5Norm / c5Match 三段真实代码拿去跑 —— 测的是出货代码本身。
    运行：node _tools/test_case05_claim.js  */
 import fs from 'fs';
-const P = '/mnt/e/AI-FDE/FDE网站/_L7_prototype/l7_student_app.js';
+const P = FDE_ROOT + '/FDE网站/_L7_prototype/l7_student_app.js';
 const src = fs.readFileSync(P, 'utf8');
 
 const a = src.indexOf('var C5_CLAIM = [');

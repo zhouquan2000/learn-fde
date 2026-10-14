@@ -19,7 +19,9 @@ import os
 import shutil
 from pathlib import Path
 
-SRC = Path('/mnt/e/AI-FDE/FDE-Skill/10_第10步_FDE训练营课程设计V2/_讲师侧_#05_PoC/02_隐形数据_B组')
+FDE_ROOT = os.environ.get("FDE_DATA_ROOT", "/mnt/c/Data/AI-FDE")
+
+SRC = Path(FDE_ROOT + '/FDE-Skill/10_第10步_FDE训练营课程设计V2/_讲师侧_#05_PoC/02_隐形数据_B组')
 DST = Path.home() / 'learn-fde' / 'public' / 'case05' / 'B组_隐形数据'
 
 # (讲师侧源文件名, 站点上的短哈希名)  —— 哈希名必须与 l7_student_app.js 里 C5_CLAIM 的 file 一致
@@ -43,7 +45,7 @@ for name, hashed in MAP:
     # 断言：哈希名必须真的出现在**学员端 JS 原型**里，否则学员永远拿不到它
     # （必须查原型而不是 public/sim/ —— 后者由 port_prototype.py 稍后才同步过来，
     #   查它会误报「学员取不到」，那是同步顺序问题、不是清单问题）
-    js = Path('/mnt/e/AI-FDE/FDE网站/_L7_prototype/l7_student_app.js')
+    js = Path(FDE_ROOT + '/FDE网站/_L7_prototype/l7_student_app.js')
     if js.exists() and hashed not in js.read_text(encoding='utf-8'):
         print(f'   ⚠️ l7_student_app.js 的申领清单里没有 {hashed} —— 这个文件学员取不到')
 
