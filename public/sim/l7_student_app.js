@@ -827,6 +827,7 @@
       if (!v) return false;
       if (v.length > 8) { alert('组号太长了，应该像 T01 这样（不超过 8 个字符）。'); return false; }
       localStorage.setItem('fde.myTeam', v);
+      sessionStorage.setItem('fde.teamFlash', v);   /* ✅ 显式回执：刷新后闪「组号已设置为 X」(2026-10-15 走查) */
       location.reload();
       return true;
     };
@@ -854,6 +855,17 @@
 
     var host = document.querySelector('.page') || document.body;
     host.insertBefore(bar, host.firstChild);
+
+    /* ✅ 显式回执：设置组号成功、刷新回来后，在状态条上方短暂置顶一条确认 */
+    var _tf = sessionStorage.getItem('fde.teamFlash');
+    if (_tf) {
+      sessionStorage.removeItem('fde.teamFlash');
+      var _fl = el('div', 'margin:0 0 12px;padding:8px 12px;border-radius:8px;' +
+        'background:#e7f6ec;color:#0f7a3d;font-weight:600;font-size:13px;',
+        '✅ 组号已设置为 ' + _tf);
+      host.insertBefore(_fl, bar.nextSibling);
+      setTimeout(function () { _fl.style.transition = 'opacity .6s'; _fl.style.opacity = '0'; setTimeout(function () { _fl.remove(); }, 650); }, 3500);
+    }
 
     // 原型的横幅里写死了示意组名,同步成真实的(否则与状态条自相矛盾)
     var TEAM2 = localStorage.getItem('fde.myTeam') || '（未设组号）';
