@@ -860,9 +860,10 @@
     var _tf = sessionStorage.getItem('fde.teamFlash');
     if (_tf) {
       sessionStorage.removeItem('fde.teamFlash');
-      var _fl = el('div', 'margin:0 0 12px;padding:8px 12px;border-radius:8px;' +
-        'background:#e7f6ec;color:#0f7a3d;font-weight:600;font-size:13px;',
-        '✅ 组号已设置为 ' + _tf);
+      var _fl = el('div', 'margin:0 0 12px;display:flex;justify-content:flex-end;', '');   /* 右对齐：与状态条右侧「提交开放/组号」胶囊同轴 */
+      var _pill = el('span', 'padding:8px 12px;border-radius:8px;background:#e7f6ec;color:#0f7a3d;' +
+        'font-weight:600;font-size:13px;', '✅ 组号已设置为 ' + _tf);
+      _fl.appendChild(_pill);
       host.insertBefore(_fl, bar.nextSibling);
       setTimeout(function () { _fl.style.transition = 'opacity .6s'; _fl.style.opacity = '0'; setTimeout(function () { _fl.remove(); }, 650); }, 3500);
     }
