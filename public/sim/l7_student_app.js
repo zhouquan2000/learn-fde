@@ -1007,6 +1007,30 @@
         else if (filled === 4 && dup.length) val += ' ⚠️名次重复，排序无效';
       }
 
+      /* ⭐ 02 五项可行性:分项打分(5 分制下拉 + 说明) —— 取代原单个自由文本框(2026-10-15 走查:无分项/无分制/无校验) */
+      var feasCtls = fs.querySelectorAll('.fde-feas-score');
+      var feasGateOk = false;
+      if (feasCtls.length) {
+        var fparts = [], fscored = 0, fnoNote = 0;
+        feasCtls.forEach(function (sel) {
+          var item = sel.getAttribute('data-item') || '';
+          var sc = sel.value;
+          var noteEl = fs.querySelector('.fde-feas-note[data-item="' + item + '"]');
+          var note = noteEl ? String(noteEl.value || '').trim() : '';
+          if (sc !== '') {
+            fscored++;
+            fparts.push(item + '=' + sc + (note ? '（' + note + '）' : ''));
+            if (Number(sc) <= 2 && !note) fnoNote++;
+          } else { fparts.push(item + '=未评'); }
+        });
+        if (fscored) {
+          val = fparts.join('；');
+          if (fscored < 5) val += ' ⚠️未评满（需 5 项）';
+          if (fnoNote) val += ' ⚠️有 ≤2 分项未写说明';
+        } else { val = ''; }
+        feasGateOk = (fscored === 5) && (fnoNote === 0);
+      }
+
       /* ⭐ ③ 结构化数值项:**只在真有值时**挂 `nums` 键 ——
          这样不带数值项的旧包 body 一字不变,历史指纹照旧匹配(同 npc_answers 的思路)。 */
       var item = { item_id: rkp + '-' + id, name: name, value: val,
@@ -1020,7 +1044,9 @@
          旧的统一 >=4 判定导致"选了也不算达成"。 */
       var isSelect = (ctl.tagName === 'SELECT') && !rankCtls.length;
       var minLen = isSelect ? 1 : 4;
-      if (isGate && val && String(val).trim().length >= minLen) { out.gates_passed.push(rkp + '-' + id); }
+      var gateOk = isGate && val && String(val).trim().length >= minLen;
+      if (feasCtls.length) { gateOk = isGate && feasGateOk; }   /* 02:5 项全评 + ≤2 分项都有说明 */
+      if (gateOk) { out.gates_passed.push(rkp + '-' + id); }
     });
     /* ⭐ 与状态条/导出按钮**同一个来源**(`submitState`)—— 原先这里写 null、状态条显示 S1,
        两个来源打架(2026-09-26 走查撞出)。 */
@@ -1076,7 +1102,22 @@
       if (!ctl || ctl.disabled) return;
       var key = (roundKey() || 'R1') + '-' + m[1];
       var rankCtls2 = fs.querySelectorAll('.fde-rank');
-      if (rankCtls2.length) {
+      var feasCtls2 = fs.querySelectorAll('.fde-feas-score');
+      if (feasCtls2.length) {
+        var rf = restore[key];
+        if (rf) {
+          String((rf && rf.value !== undefined) ? rf.value : rf).split('；').forEach(function (seg) {
+            var mm = seg.match(/^(.+?)=(\d+)(?:（(.*)）)?$/);
+            if (!mm) return;
+            var sel = fs.querySelector('.fde-feas-score[data-item="' + mm[1] + '"]');
+            if (sel) sel.value = mm[2];
+            var noteEl = fs.querySelector('.fde-feas-note[data-item="' + mm[1] + '"]');
+            if (noteEl && mm[3]) noteEl.value = mm[3];
+          });
+        }
+        feasCtls2.forEach(function (sel) { sel.addEventListener('change', save); sel.addEventListener('input', save); });
+        fs.querySelectorAll('.fde-feas-note').forEach(function (inp) { inp.addEventListener('input', save); });
+      } else if (rankCtls2.length) {
         var rc = restore[key];
         if (rc && rc.parts) {
           rankCtls2.forEach(function (sel, ix) { sel.value = rc.parts[ix] || ''; });

@@ -807,8 +807,34 @@ a.logo:hover b{text-decoration:underline}
 
       <div class="fieldset">
         <label class="f">02 · 五项可行性检查 <span class="badge b-gate">门槛</span></label>
-        <div class="hint">对选中单元逐项打分；任一不符必须写明说明，否则驳回。</div>
-        <textarea placeholder="① 数据可得性 / ② 系统可接入性 / ③ 业务 owner 意愿 / ④ 合规与授权 / ⑤ 价值可量化性&#10;……"></textarea>
+        <div class="hint"><b>5 分制</b>（0 = 不符，5 = 完全符合）。任一 ≤2 分＝不符，必须在该项写明说明，否则驳回。</div>
+        <div class="fde-feas">
+          <div class="fde-feas-row" style="display:grid;grid-template-columns:150px 96px 1fr;gap:8px;align-items:center;margin-bottom:6px">
+            <span style="font-size:12.5px">① 数据可得性</span>
+            <select class="fde-feas-score" data-item="数据可得性"><option value="">— 未评</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0（不符）</option></select>
+            <input class="fde-feas-note" data-item="数据可得性" type="text" placeholder="说明（≤2 分必填）">
+          </div>
+          <div class="fde-feas-row" style="display:grid;grid-template-columns:150px 96px 1fr;gap:8px;align-items:center;margin-bottom:6px">
+            <span style="font-size:12.5px">② 系统可接入性</span>
+            <select class="fde-feas-score" data-item="系统可接入性"><option value="">— 未评</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0（不符）</option></select>
+            <input class="fde-feas-note" data-item="系统可接入性" type="text" placeholder="说明（≤2 分必填）">
+          </div>
+          <div class="fde-feas-row" style="display:grid;grid-template-columns:150px 96px 1fr;gap:8px;align-items:center;margin-bottom:6px">
+            <span style="font-size:12.5px">③ 业务 owner 意愿</span>
+            <select class="fde-feas-score" data-item="业务 owner 意愿"><option value="">— 未评</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0（不符）</option></select>
+            <input class="fde-feas-note" data-item="业务 owner 意愿" type="text" placeholder="说明（≤2 分必填）">
+          </div>
+          <div class="fde-feas-row" style="display:grid;grid-template-columns:150px 96px 1fr;gap:8px;align-items:center;margin-bottom:6px">
+            <span style="font-size:12.5px">④ 合规与授权</span>
+            <select class="fde-feas-score" data-item="合规与授权"><option value="">— 未评</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0（不符）</option></select>
+            <input class="fde-feas-note" data-item="合规与授权" type="text" placeholder="说明（≤2 分必填）">
+          </div>
+          <div class="fde-feas-row" style="display:grid;grid-template-columns:150px 96px 1fr;gap:8px;align-items:center;margin-bottom:6px">
+            <span style="font-size:12.5px">⑤ 价值可量化性</span>
+            <select class="fde-feas-score" data-item="价值可量化性"><option value="">— 未评</option><option value="5">5</option><option value="4">4</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0（不符）</option></select>
+            <input class="fde-feas-note" data-item="价值可量化性" type="text" placeholder="说明（≤2 分必填）">
+          </div>
+        </div>
       </div>
 
       <div class="fieldset">
@@ -982,7 +1008,7 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  <b>L7 界面原型 v0.4（学员端 P1–P7）</b> · 最后改动 2026-10-11 · 资源版本 1.18.10 ·
+  <b>L7 界面原型 v0.4（学员端 P1–P7）</b> · 最后改动 2026-10-11 · 资源版本 1.18.11 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零持续动效</code> <code>零毛玻璃</code><br>
   默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
   对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
@@ -1286,7 +1312,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.10','/sim/l7_rounds.js?v=1.18.10','/sim/l7_student_app.js?v=1.18.10'];
+  var files = ['/sim/l7_core.js?v=1.18.11','/sim/l7_rounds.js?v=1.18.11','/sim/l7_student_app.js?v=1.18.11'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
