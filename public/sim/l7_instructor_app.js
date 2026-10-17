@@ -440,6 +440,26 @@
     SCORES = F.get(F.KEY.SCORES, {}) || {};
     DRYS = F.get(DRY_KEY, []) || [];
     if (SUBS.length) { renderGrading(); }
+    /* —— 空态提示（2026-10-17 补）——
+       判分表与「📢 发布结果到学员端」由 renderGrading() 渲染，而它只在 SUBS 非空时调用；
+       没有真提交包时整块不存在，用户会搜到静态样例里的说明文字并以为按钮坏了。 */
+    if (!SUBS.length) {
+      var empty = card('background:#fffbeb;border:1px solid #f3d08a;');
+      empty.appendChild(h3('📭 还没有可判分的真提交包'));
+      var _msg = '<div style="font-size:13px;line-height:1.75">' +
+        '判分表与「<b>📢 发布结果到学员端</b>」按钮，<b>只会在导入真提交包之后出现</b>。' +
+        '本屏上方的「实时汇总」与 1–5 拨盘是 <b>📐 静态样例</b>，不保存分数、不参与计算。';
+      if (DRYS.length) {
+        _msg += '<br><br>⚠️ 当前已收下 <b>' + DRYS.length + ' 个 🧪 演练样本</b>（未开班时导出的），' +
+          '它们<b>不进判分表、不进排名</b>。<br>要产生真提交包：⑧ 控制台 → 勾「允许学员提交」→ ' +
+          '「保存配置并发布回合」→ 学员端 ③ 交付物表单重新导出（此时不再标 🧪）→ 再回到本屏导入。';
+      } else {
+        _msg += '<br><br>产生真提交包的顺序：⑧ 控制台 → 勾「允许学员提交」→ 「保存配置并发布回合」' +
+          '→ 学员端 ③ 交付物表单导出 JSON → 回到本屏顶部「📥 导入学员提交包」。';
+      }
+      empty.appendChild(el('div', '', _msg + '</div>'));
+      P7.appendChild(empty);
+    }
     if (DRYS.length) { renderDryRuns(); }
   }
 
