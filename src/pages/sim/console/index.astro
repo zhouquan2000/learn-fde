@@ -214,7 +214,7 @@ a.logo:hover b{text-decoration:underline}
         <tr><td>课程时长</td><td>5 天 4 夜</td></tr>
         <tr><td>语言</td><td>中文 / English（顶栏切换）</td></tr>
       </table>
-      <button class="tab" style="margin-top:6px">编辑开班设置</button>
+      <button class="tab" disabled title="📐 静态样例，未接线；真实操作见下方判分表" style="opacity:.5;cursor:not-allowed" style="margin-top:6px;opacity:.5;cursor:not-allowed">编辑开班设置</button>
       <span class="mono" style="font-size:12px;color:var(--faint)">← 📐 样例，实际用上方「🎓 开班配置」</span>
     </div>
 
@@ -231,7 +231,7 @@ a.logo:hover b{text-decoration:underline}
         <b>⭐ 同卡 PK 的硬前提</b>（D06 ⑤）：本回合<b>6 个组必须做同一张卡</b>，率才直接可比。
         若做不到 → 整个 D06 的 PK 前提崩塌（见 D8）。
       </div>
-      <button class="tab">锁定本回合用卡</button>
+      <button class="tab" disabled title="📐 静态样例，未接线；真实操作见下方判分表" style="opacity:.5;cursor:not-allowed">锁定本回合用卡</button>
       <span class="mono" style="font-size:12px;color:var(--faint)">← 📐 样例，实际用上方「🎓 开班配置」</span>
     </div>
   </div>
@@ -470,7 +470,7 @@ a.logo:hover b{text-decoration:underline}
 
       <!-- 实时汇总 -->
       <div class="card">
-        <h2 style="margin-top:0">实时汇总</h2>
+        <h2 style="margin-top:0">实时汇总<span class="mono" style="font-size:12px;color:var(--faint);font-weight:400"> · 📐 静态样例（真实汇总见下方判分表）</span></h2>
         <div class="calc">
           <span class="k">价值分 0.62</span> <span class="k">× 权重</span> <span class="v">0.45</span><br>
           <span class="k">工程分 0.94</span> <span class="k">× 权重</span> <span class="v">0.30</span><br>
@@ -491,9 +491,9 @@ a.logo:hover b{text-decoration:underline}
           <b>"持续稳定性"物理上测不出来</b>。用一个 1.0 假装算过，不如明说"暂不生效"。
         </div>
         <div style="display:flex;gap:9px;margin-top:14px;flex-wrap:wrap">
-          <button class="tab on">冻结本组评分</button>
-          <button class="tab">发布给学员</button>
-          <button class="tab">发起申诉受理</button>
+          <button class="tab on" disabled title="📐 静态样例，未接线；真实操作见下方判分表" style="opacity:.5;cursor:not-allowed">冻结本组评分</button>
+          <button class="tab" disabled title="📐 静态样例，未接线；真实操作见下方判分表" style="opacity:.5;cursor:not-allowed">发布给学员</button>
+          <button class="tab" disabled title="📐 静态样例，未接线；真实操作见下方判分表" style="opacity:.5;cursor:not-allowed">发起申诉受理</button>
         </div>
       </div>
 
@@ -583,7 +583,7 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  L7 界面原型 v0.4（讲师端） · 最后改动 2026-10-17 · 资源版本 1.18.12 ·
+  L7 界面原型 v0.4（讲师端） · 最后改动 2026-10-17 · 资源版本 1.18.13 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零动效</code> <code>零毛玻璃</code><br>
   分项构成来自 <code>14_D06 定稿 v1.5</code> §2/§3/§6；数据采集来自 §8；交付物字段来自 <code>08_D04 定稿 v1.4</code>。<br>
   默认浅色（长时段阅读优先）；深色为可切换主题，对比度已下调避免晕光 · 对比度全部经 <code>contrast_check.py</code> 实算。<br>
@@ -636,7 +636,7 @@ a.logo:hover b{text-decoration:underline}
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.12','/sim/l7_rounds.js?v=1.18.12','/sim/l7_pool.js?v=1.18.12','/sim/l7_instructor_app.js?v=1.18.12'];
+  var files = ['/sim/l7_core.js?v=1.18.13','/sim/l7_rounds.js?v=1.18.13','/sim/l7_pool.js?v=1.18.13','/sim/l7_instructor_app.js?v=1.18.13'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
