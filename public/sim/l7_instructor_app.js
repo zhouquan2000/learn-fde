@@ -457,7 +457,9 @@
         _msg += '<br><br>产生真提交包的顺序：⑧ 控制台 → 勾「允许学员提交」→ 「保存配置并发布回合」' +
           '→ 学员端 ③ 交付物表单导出 JSON → 回到本屏顶部「📥 导入学员提交包」。';
       }
-      empty.appendChild(el('div', '', _msg + '</div>'));
+      var _mbox = el('div', '');
+      _mbox.innerHTML = _msg;   /* ⚠️ el() 第三参是文本，HTML 必须走 innerHTML（2026-10-17 修） */
+      empty.appendChild(_mbox);
       P7.appendChild(empty);
     }
     if (DRYS.length) { renderDryRuns(); }
