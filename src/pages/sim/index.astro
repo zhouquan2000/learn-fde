@@ -943,6 +943,7 @@ a.logo:hover b{text-decoration:underline}
   <div class="lbl">Scoreboard · 评分看板</div>
   <h1><span data-fde-h1="&#123;S&#125; 结果 —— "></span><span id="fde-result-team">（未设组号）</span></h1>
   <p class="sub">评分结构来自 D06 定稿。总成绩 = 门槛系数 × 几何平均 × 稳定系数。</p>
+  <div style="margin:8px 0 0;padding:8px 12px;border-radius:8px;background:#fff7e6;border:1px solid #f3d08a;font-size:12.5px;line-height:1.7">📐 <b>静态样例</b>：本卡是设计示例，<b>不是你的成绩</b>；真实成绩在讲师点「<b>📢 发布结果到学员端</b>」后，以「🏁 本回合成绩（讲师回传）」卡片出现在页面顶部。</div>
 
   <div class="card" style="margin-top:26px">
     <div class="score-hero">
@@ -1008,7 +1009,7 @@ a.logo:hover b{text-decoration:underline}
 </section>
 
 <div class="footnote">
-  <b>L7 界面原型 v0.4（学员端 P1–P7）</b> · 最后改动 2026-10-17 · 资源版本 1.18.17 ·
+  <b>L7 界面原型 v0.4（学员端 P1–P7）</b> · 最后改动 2026-10-17 · 资源版本 1.18.18 ·
   <code>零外部 CDN</code> <code>零外部字体</code> <code>零持续动效</code> <code>零毛玻璃</code><br>
   默认浅色（长时段阅读优先）；<b>深色为可切换主题</b>，对比度已下调避免晕光 ·
   对比度全部经 <code>contrast_check.py</code> 实算 WCAG<br>
@@ -1312,7 +1313,7 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeM(); 
 
 <script is:inline>
 (function () {
-  var files = ['/sim/l7_core.js?v=1.18.17','/sim/l7_rounds.js?v=1.18.17','/sim/l7_student_app.js?v=1.18.17'];
+  var files = ['/sim/l7_core.js?v=1.18.18','/sim/l7_rounds.js?v=1.18.18','/sim/l7_student_app.js?v=1.18.18'];
   var i = 0;
   function next() {
     if (i >= files.length) { return; }
