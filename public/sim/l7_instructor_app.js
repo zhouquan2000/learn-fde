@@ -445,6 +445,7 @@
        没有真提交包时整块不存在，用户会搜到静态样例里的说明文字并以为按钮坏了。 */
     if (!SUBS.length) {
       var empty = card('background:#fffbeb;border:1px solid #f3d08a;');
+      empty.id = 'fde-grading-empty';   /* 导入成功后要能移除（见 renderGrading） */
       empty.appendChild(h3('📭 还没有可判分的真提交包'));
       var _msg = '<div style="font-size:13px;line-height:1.75">' +
         '判分表与「<b>📢 发布结果到学员端</b>」按钮，<b>只会在导入真提交包之后出现</b>。' +
@@ -523,6 +524,9 @@
   function renderGrading() {
     var old = document.getElementById('fde-grading');
     if (old) old.remove();
+    /* ⚠️ 空态卡由 buildP7 只渲染一次；导入成功后必须移除，否则页面自相矛盾（2026-10-23 走查撞出） */
+    var _emp = document.getElementById('fde-grading-empty');
+    if (_emp && SUBS.length) _emp.remove();
     if (!P7 || !SUBS.length) return;
 
     var box = card();
