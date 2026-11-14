@@ -795,6 +795,7 @@
       'display:flex;flex-wrap:wrap;gap:10px;align-items:center;' +
       'background:#f5f7fa;border:1px solid #e3e6ea;border-radius:10px;' +
       'padding:10px 14px;margin:0 0 18px;font-size:13px;');
+    bar.id = 'fde-status-bar';   /* 结果卡锚定在它下方（2026-11-13 走查裁定） */
 
     function chip(label, val, strong) {
       var c = el('span', 'display:inline-flex;gap:6px;align-items:center;');
@@ -1402,7 +1403,11 @@
           而这张表与成绩无关（不计分、也不依赖 RESULT），必须自己渲染。
           （2026-09-30 实测踩到：挂在里面 ⇒ 未开班时整块不出现。） */
 
-    host.insertBefore(box, host.firstChild);
+    /* ⭐ 结果卡固定插在状态条下方（2026-11-13 走查裁定 A）：
+       原实现插 firstChild ⇒ 卡片跑到状态条**上方**，且 host 回落 body 后位置随 DOM 漂移。 */
+    var _bar = document.getElementById('fde-status-bar');
+    if (_bar && _bar.parentNode) { _bar.parentNode.insertBefore(box, _bar.nextSibling); }
+    else { host.insertBefore(box, host.firstChild); }
   }
 
   /* 📣 全班 B 组申领情况（讲师点「分享」后出现；**不计入任何得分**） */
